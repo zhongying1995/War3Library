@@ -4,11 +4,11 @@ local dbg = require 'jass.debug'
 local table = table
 local math = math
 
-local Buff = {}
+local buff = {}
 local mt = {}
-setmetatable(Buff, Buff)
+setmetatable(buff, buff)
 
-Buff.__index = mt
+buff.__index = mt
 
 --类型
 mt.type = 'buff'
@@ -532,7 +532,7 @@ ac.buff = setmetatable({}, {__index = function (self, key)
 	local obj = {}
 	obj.name = key
 	obj.__index = obj
-	setmetatable(obj, Buff)
+	setmetatable(obj, buff)
 	self[key] = obj
 	return obj
 end})

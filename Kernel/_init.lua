@@ -11,8 +11,7 @@ local function main()
 
 	require 'Kernel.util._init'
 	require 'Kernel.war3._init'
-	require 'Kernel.ac._init'
-	print()
+	print('->_<-加载基层库完毕！')
 
 end
 

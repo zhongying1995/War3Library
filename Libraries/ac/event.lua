@@ -30,6 +30,10 @@ function ac.event_notify(obj, name, ...)
 	if not event then
 		return
 	end
+	if name=='玩家-选择单位' then
+		--print(name..' 事件发动:', ...)
+	end
+	
 	for i = #event, 1, -1 do
 		event[i](...)
 	end

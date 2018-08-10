@@ -1,14 +1,18 @@
 
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
-
+local rect = require 'types.rect'
+local circle = require 'types.circle'
+local fogmodifier = require 'types.fogmodifier'
+local texttag
+local mouse
 
 local Player = {}
 setmetatable(Player, Player)
 ac.player = Player
 
 function Player:__tostring()
-    return ('[玩家%02d|%s|%s]'):format(self.id, self.base_name, jass.GetPlayerName(self.handle))
+    return ('玩家%02d|%s|%s'):format(self.id, self.base_name, jass.GetPlayerName(self.handle))
 end
 
 local mt = {}
@@ -33,6 +37,31 @@ mt.gold_pool = 0
 --获取玩家id
 function mt:get()
 	return self.id
+end
+
+--注册事件
+function mt:event(name)
+	return ac.event_register(self, name)
+end
+
+local ac_game = ac.game
+
+--发起事件
+function mt:event_dispatch(name, ...)
+	local res = ac.event_dispatch(self, name, ...)
+	if res ~= nil then
+		return res
+	end
+	local res = ac.event_dispatch(ac_game, name, ...)
+	if res ~= nil then
+		return res
+	end
+	return nil
+end
+
+function mt:event_notify(name, ...)
+	ac.event_notify(self, name, ...)
+	ac.event_notify(ac_game, name, ...)
 end
 
 --获取玩家名字
@@ -66,7 +95,7 @@ function mt:is_self()
 end
 
 --设置颜色
---	参数为颜色的id:int
+--	参数为颜色的id
 function mt:set_color(this, c)
 	jass.SetPlayerColor(this.handle, c - 1)
 end
@@ -159,6 +188,56 @@ function mt:is_ally(dest)
 	return self:get_team() == dest:get_team()
 end
 
+--获得金钱
+--	金钱数量
+--	[漂浮文字显示位置]
+--	[不抛出加钱事件]
+function mt:add_gold(gold, where, flag)
+	if gold > 0 and not flag then
+		local data = {player = self, gold = gold}
+		self:event_notify('玩家-即将获得金钱', data)
+		gold = data.gold
+	end
+	gold = gold + self.gold_pool
+	self.gold_pool = gold % 1
+	gold = math.floor(gold)
+	self.gold = self.gold + gold
+	jass.SetPlayerState(self.handle, 0x01, self.gold)
+	if not where or gold <= 0 then
+		return
+	end
+	if not where:is_visible(self) then
+		where = self.hero
+		if not where then
+			return
+		end
+	end
+	local x, y = where:get_point():get()
+	local z = where:get_point():getZ()
+	local position = ac.point(x - 30, y, z + 30)
+	ac.texttag
+	{
+		string = '+' .. math.floor(gold),
+		size = 12,
+		position = position,
+		speed = 86,
+		red = 100,
+		green = 100,
+		blue = 20,
+		player = self,
+		show = ac.texttag.SHOW_SELF
+	}
+	if where.type == 'unit' then
+		local model
+		if self:is_self() then
+			model = [[UI\Feedback\GoldCredit\GoldCredit.mdl]]
+		else
+			model = ''
+		end
+		where:add_effect('overhead', model):remove()
+	end
+end
+
 --设置、获取、增加、玩家木材，金钱、可用人口、已使用人口
 function mt:set_lumber( lumber )
 	jass.SetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_LUMBER, lumber)
@@ -208,7 +287,6 @@ function mt:add_used_food(food)
 	self:set_used_food(self:get_used_food() + food)
 end
 
-
 --禁用技能
 function mt:enable_ability(ability_id)
 	if ability_id then
@@ -249,7 +327,7 @@ end
 --	[持续时间]
 function mt:send_msg_to_force(text, time)
 	if Player.self:get_team() == self:get_team() then
-		player.self:send_msg(text, time)
+		Player.self:send_msg(text, time)
 	end
 end
 
@@ -260,11 +338,28 @@ function mt:clear_msg()
 	end
 end
 
+--设置镜头位置
+function mt:set_camera(where, time)
+	if Player.self == self then
+		local x, y
+		if where then
+			x, y = where:get_point():get()
+		else
+			x, y = jass.GetCameraTargetPositionX(), jass.GetCameraTargetPositionY()
+		end
+		if time then
+			jass.PanCameraToTimed(x, y, time)
+		else
+			jass.SetCameraPosition(x, y)
+		end
+	end
+end
+
 --设置镜头属性
 --	镜头属性
 --	数值
 --	[持续时间]
-local function set_camera_field(self, key, value, time)
+function mt:set_camera_field(key, value, time)
 	if self == Player.self then
 		jass.SetCameraField(jass[key], value, time or 0)
 	end
@@ -287,6 +382,15 @@ end
 function mt:set_camera_target(target, x, y)
 	if self == Player.self then
 		jass.SetCameraTargetController(target and target.handle or 0, x or 0, y or 0, false)
+	end
+end
+
+--旋转镜头
+function mt:rotate_camera(p, a, time)
+	if self == Player.self then
+		local x, y = p:get_point():get()
+		local a = math.rad(a)
+		jass.SetCameraRotateMode(x, y, a, time)
 	end
 end
 
@@ -360,6 +464,35 @@ local function init_color_word()
     color_word[16] = "|cFF282828"
 end
 
+--获取镜头位置
+function mt:get_camera()
+	return ac.point(jass.GetCameraTargetPositionX(), jass.GetCameraTargetPositionY())
+end
+
+--设置镜头可用区域
+function mt:set_camera_bounds(...)
+	if self == Player.self then
+		local minX, minY, maxX, maxY
+		if select('#', ...) == 1 then
+			local rct = rect.j_rect(...)
+			minX, minY, maxX, maxY = rct:get()
+		else
+			minX, minY, maxX, maxY = ...
+		end
+		jass.SetCameraBounds(minX, minY, minX, maxY, maxX, maxY, maxX, minY)
+	end
+end
+
+--创建可见度修整器
+--	圆心
+--	半径
+--	[是否可见]
+--	[是否共享]
+--	[是否覆盖单位视野]
+function mt:create_fogmodifier(p, r, ...)
+	local cir = circle.create(p, r)
+	return fogmodifier.create(self, cir, ...)
+end
 
 --滤镜
 function mt:cinematic_filter(data)
@@ -381,7 +514,7 @@ function mt:cinematic_filter(data)
 
 	local player = self
 	function data:remove()
-		if player == ac.player.self then
+		if player == Player.self then
 			jass.DisplayCineFilter(false)
 		end
 	end
@@ -418,7 +551,7 @@ function Player:__call(i)
 end
 
 --清点在线玩家
-function Player.count_alive()
+function Player.countAlive()
 	local count = 0
 	for i = 1, 16 do
 		if Player[i]:is_player() then
@@ -428,8 +561,34 @@ function Player.count_alive()
 	return count
 end
 
+--一些常用事件
+function Player.regist_jass_triggers()
+	--玩家聊天事件
+		local trg = war3.CreateTrigger(function()
+			local player = Player(jass.GetTriggerPlayer())
+			player:event_notify('玩家-聊天', player, jass.GetEventPlayerChatString())
+		end)
+
+		for i = 1, 16 do
+			jass.TriggerRegisterPlayerChatEvent(trg, Player[i].handle, '', false)
+		end
+
+	--玩家离开事件
+		local trg = war3.CreateTrigger(function()
+			local p = Player(jass.GetTriggerPlayer())
+			if p:is_player() then
+				Player.count = Player.count - 1
+			end
+			p:event_notify('玩家-离开', p)
+		end)
+
+		for i = 1, 16 do
+			jass.TriggerRegisterPlayerEvent(trg, Player[i].handle, jass.EVENT_PLAYER_LEAVE)
+		end
+end
+
 --默认结盟
-local function set_default_ally()
+function Player.setDefaultAlly()
 	for i = 1, 16 do
 		Player[i]:setAllianceSimple(Player[16], true)
 	end
@@ -476,13 +635,20 @@ local function init()
 	jass.SetReservedLocalHeroButtons(2)
 
 	--结盟
-	set_default_ally()
+	Player.setDefaultAlly()
 
 	--本地玩家
-	Player.self = ac.player(jass.GetLocalPlayer())
+	Player.self = Player(jass.GetLocalPlayer())
 	log.debug(('本地玩家[%s][%s]'):format(Player.self:get(), Player.self:get_name()))
 
+	--注册常用事件
+	Player.regist_jass_triggers()
+
+	--注册选取事件
+	require 'war3.select'
+
 	init_color_word()
+
 end
 
 init()

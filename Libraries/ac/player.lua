@@ -551,7 +551,7 @@ function Player:__call(i)
 end
 
 --清点在线玩家
-function Player.countAlive()
+function Player.count_alive()
 	local count = 0
 	for i = 1, 16 do
 		if Player[i]:is_player() then
@@ -588,14 +588,39 @@ function Player.regist_jass_triggers()
 end
 
 --默认结盟
-function Player.setDefaultAlly()
+function Player.set_default_ally()
 	for i = 1, 16 do
-		Player[i]:setAllianceSimple(Player[16], true)
+		Player[i]:set_alliance_simple(Player[16], true)
+	end
+end
+
+--命令玩家选中单位
+--	单位
+function mt:select_unit(u)
+	if self == Player.self then
+		jass.ClearSelection()
+		jass.SelectUnit(u.handle, true)
+	end
+end
+
+--命令玩家添加选择某单位
+--	单位
+function mt:add_select(u)
+	if self == Player.self then
+		jass.SelectUnit(u.handle, true)
+	end
+end
+
+--命令玩家取消选择某单位
+--	单位
+function mt:remove_select(u)
+	if self == Player.self then
+		jass.SelectUnit(u.handle, false)
 	end
 end
 
 --创建玩家(一般不允许外部创建)
-function Player.create(id, jPlayer)
+function Player.new(id, jPlayer)
 	local p = {}
 	setmetatable(p, Player)
 
@@ -620,7 +645,7 @@ local function init()
 
 	--预设玩家
 	for i = 1, 16 do
-		Player.create(i, jass.Player(i - 1))
+		Player.new(i, jass.Player(i - 1))
 
 		--是否在线
 		if Player[i]:is_player() then
@@ -635,7 +660,7 @@ local function init()
 	jass.SetReservedLocalHeroButtons(2)
 
 	--结盟
-	Player.setDefaultAlly()
+	Player.set_default_ally()
 
 	--本地玩家
 	Player.self = Player(jass.GetLocalPlayer())
@@ -643,9 +668,6 @@ local function init()
 
 	--注册常用事件
 	Player.regist_jass_triggers()
-
-	--注册选取事件
-	require 'war3.select'
 
 	init_color_word()
 

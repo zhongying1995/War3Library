@@ -6,16 +6,60 @@ local table_insert = table.insert
 local table_remove = table.remove
 local ipairs = ipairs
 
-local point = {}
-setmetatable(point, point)
+local Point = {}
+setmetatable(Point, Point)
 
-function point:__tostring()
+function Point.new(x, y, z)
+	return setmetatable({x, y, z}, Point)
+end
+
+function Point:__tostring()
     return ('{%.4f, %.4f, %.4f}'):format(self:get(true))
+end
+
+--移动点
+--按照直角坐标系移动(point + {x, y})
+--	@新点
+function Point:__add(data)
+	return Point.new(self[1] + data[1], self[2] + data[2], self[3] + (data[3] or 0))
+end
+
+--按照极坐标系移动(point - {angle, distance})
+--	@新点
+function Point:__sub(data)
+	local x, y = self:get()
+	local angle, distance = data[1], data[2]
+	return Point.new(x + distance * math.cos(angle), y + distance * math.sin(angle))
+end
+
+--求2个点的距离/方向
+--求距离(point * point)
+function Point:__mul(dest)
+	local x1, y1 = self:get()
+	local x2, y2 = dest:get()
+	local x0, y0 = x1 - x2, y1 - y2
+	return math.sqrt(x0 * x0 + y0 * y0)
+end
+
+--求方向(point / point)
+function Point:__div(dest)
+	local x1, y1 = self:get()
+	local x2, y2 = dest:get()
+	return math.atan(y2 - y1, x2 - x1)
+end
+
+--获取点
+Point.__call = mt.get
+
+--创建一个点
+--	ac.point(x, y, z)
+function ac.point(x, y, z)
+	return Point.new(x, y, z)
 end
 
 --结构
 local mt = {}
-point.__index = mt
+Point.__index = mt
 
 --类型
 mt.type = 'point'
@@ -28,13 +72,13 @@ mt[3] = 0
 --获取坐标
 --	是否重新计算z轴坐标
 function mt:get(getz)
-	return self[1], self[2], getz and self:getZ() or self[3]
+	return self[1], self[2], getz and self:get_Z() or self[3]
 end
 
 --计算地面的z轴坐标
-function mt:getZ()
-	jass.MoveLocation(point.dummy, self[1], self[2])
-	return jass.GetLocationZ(point.dummy)
+function mt:get_Z()
+	jass.MoveLocation(Point.dummy, self[1], self[2])
+	return jass.GetLocationZ(Point.dummy)
 end
 
 --获取点高度
@@ -44,7 +88,7 @@ end
 
 --复制点
 function mt:copy()
-	return ac.point(self[1], self[2], self[3])
+	return Point.new(self[1], self[2], self[3])
 end
 
 --转换点
@@ -58,27 +102,27 @@ function mt:move(dest)
 end
 
 --距离/角度
-	--与单位的距离
-	function mt:distance(u)
-		local x1, y1 = self:get()
-		local x2, y2 = u:get_point():get()
-		local x = x1 - x2
-		local y = y1 - y2
-		return math.sqrt(x * x + y * y)
-	end
+--与单位的距离
+function mt:distance(u)
+	local x1, y1 = self:get()
+	local x2, y2 = u:get_point():get()
+	local x = x1 - x2
+	local y = y1 - y2
+	return math.sqrt(x * x + y * y)
+end
 
-	--与单位的角度
-	function mt:angle(u)
-		local x1, y1 = self:get()
-		local x2, y2 = u:get_point():get()
-		return math.atan(y2 - y1, x2 - x1)
-	end
+--与单位的角度
+function mt:angle(u)
+	local x1, y1 = self:get()
+	local x2, y2 = u:get_point():get()
+	return math.atan(y2 - y1, x2 - x1)
+end
 
 --获得一条直线上的一点
 --	直线终点
 --	直线长度
 --	是否不超过终点
-function mt:getLineDest(target, rng, flag)
+function mt:get_line_dest(target, rng, flag)
 	if flag and self * target < rng then
 		return target
 	end
@@ -118,7 +162,7 @@ function mt:add_block(x, y, air)
 	local x0, y0 = self[1], self[2]
 	for dx = - x / 2, x / 2, 32 do
 		for dy = - y / 2, y / 2, 32 do
-			local p = ac.point(x0 + dx, y0 + dy)
+			local p = Point.new(x0 + dx, y0 + dy)
 			p.block_air = air
 			table_insert(self.block_points, p)
 		end
@@ -174,7 +218,7 @@ local function get_block(path)
 end
 
 --阻挡
-point.path_region = nil
+Point.path_region = nil
 
 --是否无法通行
 --	是否无视地面阻挡(飞行)
@@ -185,7 +229,7 @@ function mt:is_block(path, super)
 		if jass.IsTerrainPathable(x, y, 1) then
 			return true
 		end
-		if point.path_region and point.path_region < self then
+		if Point.path_region and Point.path_region < self then
 			return true
 		end
 	end
@@ -226,7 +270,7 @@ end
 --	[采样范围]
 --	[初始角度]
 --	[不包含当前位置]
-function mt:findMoveablePoint(r, angle, other)
+function mt:find_moveable_point(r, angle, other)
 	local r = r or 512
 	local angle = angle or 0
 	local x0, y0 = self:get()
@@ -244,51 +288,7 @@ function mt:findMoveablePoint(r, angle, other)
 	end
 end
 
-function mt:effect(data)
-	return ac.point_effect(self, data)
-end
 
---移动点
-	--按照直角坐标系移动(point + {x, y})
-	--	@新点
-	function point:__add(data)
-		return ac.point(self[1] + data[1], self[2] + data[2], self[3] + (data[3] or 0))
-	end
+Point.dummy = jass.Location(0, 0)
 
-	--按照极坐标系移动(point - {angle, distance})
-	--	@新点
-	function point:__sub(data)
-		local x, y = self:get()
-		local angle, distance = data[1], data[2]
-		return ac.point(x + distance * math.cos(angle), y + distance * math.sin(angle))
-	end
-
---求2个点的距离/方向
-	--求距离(point * point)
-	function point:__mul(dest)
-		local x1, y1 = self:get()
-		local x2, y2 = dest:get()
-		local x0, y0 = x1 - x2, y1 - y2
-		return math.sqrt(x0 * x0 + y0 * y0)
-	end
-
-	--求方向(point / point)
-	function point:__div(dest)
-		local x1, y1 = self:get()
-		local x2, y2 = dest:get()
-		return math.atan(y2 - y1, x2 - x1)
-	end
-
---获取点
-point.__call = mt.get
-
---创建一个点
---	ac.point(x, y, z)
-function ac.point(x, y, z)
-	return setmetatable({x, y, z}, point)
-end
-
-
-point.dummy = jass.Location(0, 0)
-
-return point
+return Point

@@ -13,6 +13,10 @@ function Point.new(x, y, z)
 	return setmetatable({x, y, z}, Point)
 end
 
+function ac.point(x, y, z)
+	return Point.new(x, y, z)
+end
+
 function Point:__tostring()
     return ('{%.4f, %.4f, %.4f}'):format(self:get(true))
 end
@@ -50,12 +54,6 @@ end
 
 --获取点
 Point.__call = mt.get
-
---创建一个点
---	ac.point(x, y, z)
-function ac.point(x, y, z)
-	return Point.new(x, y, z)
-end
 
 --结构
 local mt = {}

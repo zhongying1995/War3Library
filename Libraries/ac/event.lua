@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local ipairs = ipairs
 
+ac.game = {}
 local ac_game = ac.game
 
 function ac.event_dispatch(obj, name, ...)
@@ -29,9 +30,6 @@ function ac.event_notify(obj, name, ...)
 	local event = events[name]
 	if not event then
 		return
-	end
-	if name=='玩家-选择单位' then
-		--print(name..' 事件发动:', ...)
 	end
 	
 	for i = #event, 1, -1 do

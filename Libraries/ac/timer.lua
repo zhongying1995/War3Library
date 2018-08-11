@@ -10,6 +10,7 @@ local max_frame = 0
 local cur_index = 0
 local free_queue = {}
 local timer = {}
+
 --初始化一个时刻的回调表
 local function alloc_queue()
 	local n = #free_queue
@@ -156,7 +157,7 @@ function ac.wait(timeout, on_timer)
 	m_timeout(t, timeout)
 	return t
 end
---on_timer就是callback
+
 --无限循环
 function ac.loop(timeout, on_timer)
 	local t = setmetatable({
@@ -166,14 +167,12 @@ function ac.loop(timeout, on_timer)
 	m_timeout(t, t.timeout)
 	return t
 end
---count代表次数
+
 function ac.timer(timeout, count, on_timer)
 	if count == 0 then
 		return ac.loop(timeout, on_timer)
 	end
 	local t = ac.loop(timeout, function(t)
-		--on_timer里面的t是干嘛的？从使用的角度，并没有看到哪里会
-		--调用
 		on_timer(t)
 		count = count - 1
 		if count <= 0 then

@@ -3,11 +3,34 @@ local jass = require 'jass.common'
 local dbg = require 'jass.debug'
 local math = math
 
-local lightning = {}
-setmetatable(lightning, lightning)
+local Lightning = {}
+setmetatable(Lightning, Lightning)
+
+function Lightning.new(name, start, target, oz1, oz2)
+	local ln = setmetatable({}, Lightning)
+
+	ln.start = start
+	ln.target = target
+	ln.oz1 = oz1
+	ln.oz2 = oz2
+	local x1, y1, z1 = start:get_point(true):get()
+	local x2, y2, z2 = target:get_point(true):get()
+	ln.handle = jass.AddLightningEx(name, false, x1, y1, z1 + ln.oz1, x2, y2, z2 + ln.oz2)
+	dbg.handle_ref(ln.handle)
+	dbg.gchash(ln, ln.handle)
+	ln.gchash = ln.handle
+	Lightning.group[ln] = true
+	ln:check_visible()
+
+	return ln
+end
+
+function ac.lightning(name, start, target, oz1, oz2)
+	Lightning.new(name, start, target, oz1, oz2)
+end
 
 local mt = {}
-lightning.__index = mt
+Lightning.__index = mt
 
 --类型
 mt.type = 'lightning'
@@ -48,12 +71,12 @@ mt.speed = 0
 mt.isremove = 1
 
 --移动速度
-mt.movetimesspeed = 1
-mt.movetimesAcceleration = 0.1
+mt.movetimes_speed = 1
+mt.movetimes_acceleration = 0.1
 mt.movetimes = 0
 
 --设置颜色
-function mt:setColor(red, green, blue)
+function mt:set_color(red, green, blue)
 	if self.handle == 0 then
 		return
 	end
@@ -64,7 +87,7 @@ function mt:setColor(red, green, blue)
 	end
 end
 
-function mt:setAlpha(alpha)
+function mt:set_alpha(alpha)
 	if self.handle == 0 then
 		return
 	end
@@ -77,32 +100,32 @@ function mt:setAlpha(alpha)
 
 	--透明度为0时不移动
 	if self.alpha <= 0 then
-		lightning.group[self] = nil
+		Lightning.group[self] = nil
 	else
-		lightning.group[self] = true
+		Lightning.group[self] = true
 	end
 end
 
-function mt:getAlpha()
+function mt:get_alpha()
 	return self.alpha
 end
 
 --设置z轴偏移量
-function mt:setOffZ(oz1, oz2)
+function mt:set_offZ(oz1, oz2)
 	self.oz1 = oz1
 	self.oz2 = oz2
 	self:move()
 end
 
 --设置移动参数
-function mt:setMoveTimes(movetimes,movetimesAcceleration)
-	self.movetimesspeed = 1
-	self.movetimesAcceleration = 0.1
+function mt:set_move_times(movetimes,movetimes_acceleration)
+	self.movetimes_speed = 1
+	self.movetimes_acceleration = 0.1
 	if movetimes then
 		self.movetimes = movetimes
 	end
-	if movetimesAcceleration then
-		self.movetimesAcceleration = movetimesAcceleration
+	if movetimes_acceleration then
+		self.movetimes_acceleration = movetimes_acceleration
 	end
 end
 
@@ -142,7 +165,7 @@ function mt:move(start, target, oz1, oz2)
 	end
 
 	--如果闪电移动速度大于 0 （在设置移动速度的同时别忘记移动）
-	if not self.present or self:getAlpha() <= 0 then
+	if not self.present or self:get_alpha() <= 0 then
 		self.present = self.target:get_point()
 	end
 	--更新present
@@ -154,8 +177,8 @@ function mt:move(start, target, oz1, oz2)
 		self.present = self.present - { self.present / self.target:get_point(), self.movespeed }
 		--print('speed = ',self.movespeed)
 
-		self.movetimes = self.movetimes - self.movetimesspeed
-		self.movetimesspeed = self.movetimesspeed + self.movetimesAcceleration
+		self.movetimes = self.movetimes - self.movetimes_speed
+		self.movetimes_speed = self.movetimes_speed + self.movetimes_acceleration
 	else
 		self.present = self.target:get_point()
 	end
@@ -177,9 +200,9 @@ function mt:color()
 			if self.speed > 0 then
 				self.speed = 0
 			end
-			self:setAlpha(self.alpha + self.speed * 0.5)
+			self:set_alpha(self.alpha + self.speed * 0.5)
 		else
-			self:setAlpha(self.alpha + self.speed)
+			self:set_alpha(self.alpha + self.speed)
 		end
 		
 		--print(self.alpha)
@@ -212,39 +235,28 @@ function mt:remove()
 	dbg.handle_unref(self.handle)
 	self.handle = nil
 
-	lightning.group[self] = nil
+	Lightning.group[self] = nil
 end
 
-
---创建一个闪电
-function ac.lightning(name, start, target, oz1, oz2)
-	local ln = setmetatable({}, lightning)
-
-	ln.start = start
-	ln.target = target
-	ln.oz1 = oz1
-	ln.oz2 = oz2
-	local x1, y1, z1 = start:get_point(true):get()
-	local x2, y2, z2 = target:get_point(true):get()
-	ln.handle = jass.AddLightningEx(name, false, x1, y1, z1 + ln.oz1, x2, y2, z2 + ln.oz2)
-	dbg.handle_ref(ln.handle)
-	dbg.gchash(ln, ln.handle)
-	ln.gchash = ln.handle
-	lightning.group[ln] = true
-	ln:check_visible()
-
-	return ln
-end
-
-function lightning.init()
-	lightning.group = {}
-end
-
-function lightning.update()
-	for ln in pairs(lightning.group) do
+function Lightning.update()
+	for ln in pairs(Lightning.group) do
 		ln:move()
 		ln:color()
 	end
 end
 
-return lightning
+function Lightning.reinit(  )
+	for ln in pairs(Lightning.group) do
+		ln:remove()
+	end
+end
+
+local function init_lightning()
+	if not Lightning.group then
+		Lightning.group = {}
+	end
+end
+
+init_lightning()
+
+return Lightning

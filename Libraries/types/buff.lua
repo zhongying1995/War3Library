@@ -1,12 +1,22 @@
 
-local unit = require 'types.unit'
+local Unit = require 'Librares.types.unit'
 local dbg = require 'jass.debug'
 local table = table
 local math = math
 
 local Buff = {}
-local mt = {}
 setmetatable(Buff, Buff)
+
+ac.buff = setmetatable({}, {__index = function (self, key)
+	local obj = {}
+	obj.name = key
+	obj.__index = obj
+	setmetatable(obj, Buff)
+	self[key] = obj
+	return obj
+end})
+
+local mt = {}
 
 Buff.__index = mt
 
@@ -126,9 +136,6 @@ function mt:set_remaining(time_out)
 		end
 		self:remove()
 	end)
-	if self._show_skill and self._show_skill._show_buff == self then
-		self._show_skill:show_buff(self)
-	end
 end
 
 --获得剩余时间
@@ -138,9 +145,6 @@ end
 
 function mt:set_time(time)
 	self.time = time
-	if self._show_skill and self._show_skill._show_buff == self then
-		self._show_skill:show_buff(self)
-	end
 end
 
 function mt:get_time()
@@ -194,10 +198,10 @@ function mt:is_control()
 end
 
 --发送tip
-function mt:send_tips()
+function mt:send_tips(time)
 	local p = self.target:get_owner()
-	p:send_msg(self.name, 60)
-	p:send_msg(self:get_tip(), 60)
+	p:send_msg(self.name, time or 60)
+	p:send_msg(self:get_tip(), time or 60)
 end
 
 --移除buff
@@ -213,10 +217,6 @@ function mt:remove()
 
 	if self.cycle_timer then
 		self.cycle_timer:remove()
-	end
-
-	if self._show_skill and self._show_skill._show_buff == self then
-		self._show_skill:show_buff(nil)
 	end
 	
 	--print('buff移除', self.name)
@@ -269,7 +269,7 @@ mt.on_cover = nil
 local gchash = 0
 
 --添加buff
-function unit.__index:add_buff(name, delay)
+function Unit.__index:add_buff(name, delay)
 	return function(bff)
 		local data = ac.buff[name]
 		if not data then
@@ -315,8 +315,8 @@ function mt:add()
 	self.source = self.source
 
 	if self.target:is_enemy(self.source) then
-		self.source:setActive(self.target)
-		self.target:setActive(self.source)
+		self.source:set_active(self.target)
+		self.target:set_active(self.source)
 	end
 
 	if not self.target:is_alive() and not self.keep then
@@ -478,7 +478,7 @@ function mt:disable()
 	end
 end
 
-function unit.__index.each_buff(self, name)
+function Unit.__index.each_buff(self, name)
 	if not self.buffs then
 		return function () end
 	end
@@ -501,7 +501,7 @@ function unit.__index.each_buff(self, name)
 end
 
 --移除buff
-function unit.__index.remove_buff(self, name)
+function Unit.__index.remove_buff(self, name)
 	if not self.buffs then
 		return
 	end
@@ -517,7 +517,7 @@ function unit.__index.remove_buff(self, name)
 end
 
 --找buff
-function unit.__index.find_buff(self, name)
+function Unit.__index.find_buff(self, name)
 	if not self.buffs then
 		return
 	end
@@ -528,11 +528,3 @@ function unit.__index.find_buff(self, name)
 	end
 end
 
-ac.buff = setmetatable({}, {__index = function (self, key)
-	local obj = {}
-	obj.name = key
-	obj.__index = obj
-	setmetatable(obj, Buff)
-	self[key] = obj
-	return obj
-end})

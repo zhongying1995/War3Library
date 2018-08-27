@@ -15,7 +15,7 @@ local dummy_group = jass.CreateGroup()
 local GroupEnumUnitsInRange = jass.GroupEnumUnitsInRange
 local FirstOfGroup = jass.FirstOfGroup
 local GroupRemoveUnit = jass.GroupRemoveUnit
-local ac_unit = ac.unit
+local Unit = require 'Libraries.types.unit'
 
 local Selector = {}
 setmetatable(Selector, Selector)
@@ -242,7 +242,7 @@ function api:select(select_unit)
 			end
 			GroupRemoveUnit(dummy_group, u)
 			--把魔兽的单位转化为其对应的表
-			local u = ac_unit(u)
+			local u = Unit(u)
 			if u and u:is_in_range(p, r) and self:do_filter(u) then
 				select_unit(u)
 			end
@@ -262,7 +262,7 @@ function api:select(select_unit)
 				break
 			end
 			GroupRemoveUnit(dummy_group, u)
-			local u = ac_unit(u)
+			local u = Unit(u)
 			if u and u:is_in_range(p, r) and math_angle(angle, p / u:get_point()) <= section and self:do_filter(u) then
 				select_unit(u)
 			end
@@ -290,7 +290,7 @@ function api:select(select_unit)
 				break
 			end
 			GroupRemoveUnit(dummy_group, u)
-			local u = ac_unit(u)
+			local u = Unit(u)
 			if u and u:is_in_range(p, r) then
 				local x, y = u:get_point()()
 				local d = math_abs(a * x + b * y + c) / l

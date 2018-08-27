@@ -1,14 +1,46 @@
 
 local jass = require 'jass.common'
-local player = require 'ac.player'
+local Player = require 'libraries.ac.player'
 local dbg = require 'jass.debug'
+local Point = require 'libraries.ac.point'
 
-local texttag = {}
-setmetatable(texttag, texttag)
+local Texttag = {}
+setmetatable(Texttag, Texttag)
+ac.texttag = Texttag
+
+--创建漂浮文字
+function Texttag.new( texttag )
+	
+	setmetatable(texttag, self)
+	texttag.handle = jass.CreateTextTag()
+
+	texttag:set_text()
+	texttag:set_position()
+	texttag:set_color()
+	texttag:set_speed()
+	texttag:set_life_time()
+	texttag:set_permanent()
+
+	if texttag.target then
+		gchash = gchash + 1
+		dbg.gchash(texttag, gchash)
+		texttag.gchash = gchash
+		self.group[texttag] = true
+	end
+	
+	texttag:set_show()
+	
+	return texttag
+end
+
+local gchash = 0
+function Texttag:__call(texttag)
+	return Texttag.new(texttag)
+end
 
 --结构
 local mt = {}
-texttag.__index = mt
+Texttag.__index = mt
 
 --可见性常量
 mt.SHOW_NONE = 0
@@ -24,7 +56,7 @@ mt.type = 'texttag'
 mt.handle = 0
 
 --玩家
-mt.player = player[16]
+mt.player = Player[16]
 
 --文本内容
 mt.string = '无文本'
@@ -33,7 +65,7 @@ mt.string = '无文本'
 mt.size = 10
 
 --初始位置
-mt.position = ac.point(0, 0)
+mt.position = Point.new(0, 0)
 
 --Z轴偏移（仅在绑定目标时有效）
 mt.zoffset = 0
@@ -44,11 +76,11 @@ mt.speed = 0
 --角度
 mt.angle = 90
 
---颜色
-	mt.red = 100
-	mt.green = 100
-	mt.blue = 100
-	mt.alpha = 100
+--颜色、百分比
+mt.red = 100
+mt.green = 100
+mt.blue = 100
+mt.alpha = 100
 
 --生命周期
 mt.life = 3
@@ -60,7 +92,7 @@ mt.fade = 2
 mt.permanent = false
 
 --可见性
-mt.show = texttag.SHOW_ALL
+mt.show = Texttag.SHOW_ALL
 
 --绑定单位
 mt.target = nil
@@ -71,7 +103,7 @@ mt.jump_speed = 0
 mt.jump_a = 0
 
 --设置文本
-function mt:setText(string, size)
+function mt:set_text(string, size)
 	if string then
 		self.string = string
 	end
@@ -84,12 +116,12 @@ function mt:set_position(position)
 end
 
 --设置颜色
-function mt:setColor(red, green, blue, alpha)
+function mt:set_color(red, green, blue, alpha)
 	jass.SetTextTagColor(self.handle, (red or self.red) * 2.55, (green or self.green) * 2.55, (blue or self.blue) * 2.55, (alpha or self.alpha) * 2.55)
 end
 
 --设置速度
-function mt:setSpeed(angle, speed)
+function mt:set_speed(angle, speed)
 	local angle = angle or self.angle
 	local speed = speed or self.speed
 	jass.SetTextTagVelocity(self.handle, speed * 0.071 * math.cos(angle) / 128, speed * 0.071 * math.sin(angle) / 128)
@@ -102,12 +134,12 @@ function mt:set_life_time(fade, life)
 end
 
 --设置永久性
-function mt:setPermanent(permanent)
+function mt:set_permanent(permanent)
 	jass.SetTextTagPermanent(self.handle, permanent or self.permanent)
 end
 
 --设置所有者
-function mt:setPlayer(player)
+function mt:set_player(player)
 	if player then
 		self.player = player
 	end
@@ -118,61 +150,36 @@ local function has_flag(flag, bit)
 end
 
 --设置可见性
-function mt:setShow(show)
+function mt:set_show(show)
 	local show = show or self.show
 	local flag = false
 	local function is_visible() 
 		if self.target then 
-			return self.target:is_visible(player.self)
+			return self.target:is_visible(Player.self)
 		else 
-			return player.self:is_visible(self.position)
+			return Player.self:is_visible(self.position)
 		end
 	end
-	if has_flag(show, texttag.SHOW_FOG) or is_visible() then
-		if has_flag(show, texttag.SHOW_ALL) then
+	if has_flag(show, Texttag.SHOW_FOG) or is_visible() then
+		if has_flag(show, Texttag.SHOW_ALL) then
 			flag = true
 		else
-			if has_flag(show, texttag.SHOW_SELF) and player.self == self.player then
+			if has_flag(show, Texttag.SHOW_SELF) and Player.self == self.player then
 				flag = true
 			else
-				if has_flag(show, texttag.SHOW_ALLY) and not self.player:is_enemy(player.self) then
+				if has_flag(show, Texttag.SHOW_ALLY) and not self.player:is_enemy(Player.self) then
 					flag = true
 				end
 			end
 		end
 	end
-	if(show == texttag.SHOW_NONE)then
+	if(show == Texttag.SHOW_NONE)then
 		flag = false;
 	end
 
 	jass.SetTextTagVisibility(self.handle, flag)
 
 	return flag
-end
-
---创建漂浮文字
-local gchash = 0
-function texttag:__call(texttag)
-	setmetatable(texttag, self)
-	texttag.handle = jass.CreateTextTag()
-
-	texttag:setText()
-	texttag:set_position()
-	texttag:setColor()
-	texttag:setSpeed()
-	texttag:set_life_time()
-	texttag:setPermanent()
-
-	if texttag.target then
-		gchash = gchash + 1
-		dbg.gchash(texttag, gchash)
-		texttag.gchash = gchash
-		self.group[texttag] = true
-	end
-	--show 要在 addTarget 之后
-	texttag:setShow()
-	
-	return texttag
 end
 
 --移除漂浮文字
@@ -184,7 +191,7 @@ function mt:remove()
 	jass.DestroyTextTag(self.handle)
 	self.handle = nil
 
-	texttag.group[self] = nil
+	Texttag.group[self] = nil
 end
 
 --文字弹跳，仅对绑定在单位的文字有效
@@ -204,7 +211,7 @@ function mt:move()
 			self.zoffset = self.zoffset + self.jump_speed
 			if self.jump_size < self.size then
 				--停止弹跳
-				self:setText(self.string,self.size)
+				self:set_text(self.string,self.size)
 				self.jump_speed = 0
 			end
 		end
@@ -212,20 +219,26 @@ function mt:move()
 		p.z = self.zoffset
 		self:set_position(p)
 
-		self:setShow()
+		self:set_show()
 	end
 end
 
-function texttag.init()
-	texttag.group = {}
+function Texttag.reinit()
+	for tt in pairs(Texttag.group) do
+		tt:remove()
+	end
 end
 
-function texttag.update()
-	for tt in pairs(texttag.group) do
+function Texttag.init()
+	Texttag.group = {}
+end
+
+function Texttag.update()
+	for tt in pairs(Texttag.group) do
 		tt:move()
 	end
 end
 
-ac.texttag = texttag
+Texttag.init()
 
-return texttag
+return Texttag

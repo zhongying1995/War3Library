@@ -2,21 +2,20 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
 local dbg = require 'jass.debug'
-local unit = require 'types.unit'
-local player = require 'ac.player'
-local damage = require 'types.damage'
+local Unit = require 'Libraries.types.unit'
+local Player = require 'Libraries.ac.player'
 local slk = require 'jass.slk'
 local math = math
 
-local hero = {}
-setmetatable(hero, hero)
+local Hero = {}
+setmetatable(Hero, Hero)
 
 --结构
 local mt = {}
-hero.__index = mt
+Hero.__index = mt
 
 --hero继承unit
-setmetatable(mt, unit)
+setmetatable(mt, Unit)
 
 --类型
 mt.unit_type = '英雄'
@@ -24,8 +23,70 @@ mt.unit_type = '英雄'
 --当前经验值
 mt.xp = 0
 
---下句英雄回应的最早时间
-mt.response_idle_time = -99999
+
+--获得经验值
+function mt:addXp(xp, show)
+	jass.SetHeroXP(self.handle, jass.GetHeroXP(self.handle) + xp, show and true)
+	self.xp = jass.GetHeroXP(self.handle)
+end
+
+
+function mt:get_level()
+	return jass.GetHeroLevel(self.handle)
+end
+
+function mt:set_level(lv)
+	local old_lv = self:get_level()
+	if lv > old_lv then
+		jass.SetHeroLevel(self.handle, lv)
+	else
+		jass.UnitStripHeroLevel(self.handle, old_lv - lv)
+	end
+end
+
+function mt:add_level(lv)
+	self:set_level(self:get_level() + lv)
+end
+
+
+function mt:get_str()
+	return jass.GetHeroStr(self.handle, true)
+end
+
+function mt:get_agi()
+	return jass.GetHeroAgi(self.handle, true)
+end
+
+function mt:get_int()
+	return jass.GetHeroInt(self.handle, true)
+end
+
+
+function mt:set_str(n)
+	jass.SetHeroStr(self.handle, n, true)
+end
+
+function mt:set_agi(n)
+	jass.SetHeroAgi(self.handle, n, true)
+end
+
+function mt:set_int(n)
+	jass.SetHeroInt(self.handle, n, true)
+end
+
+
+function mt:add_str(n)
+	self:set_str(self:get_str()+n)
+end
+
+function mt:add_agi(n)
+	self:set_agi(self:get_agi()+n)
+end
+
+function mt:add_int(n)
+	self:set_int(self:get_int()+n)
+end
+
 
 --复活英雄
 function mt:revive(where)
@@ -33,33 +94,17 @@ function mt:revive(where)
 		return
 	end
 	if not where then
-		where = self:getBornPoint()
+		where = self:get_born_point()
 	end
 	local origin = self:get_point()
-	--print('正在复活', self:get_name())
 	jass.ReviveHero(self.handle, where:get_point():get())
-	self:set('生命', self:get '生命上限')
 	self._is_alive = true
-	self:get_owner():selectUnit(self)
 	if self.wait_to_transform_id then
 		local target = self.wait_to_transform_id
 		self.wait_to_transform_id = nil
 		self:transform(target)
 	end
-	for it in self:each_skill '物品' do
-		if it._wait_fresh_item then
-			it._wait_fresh_item = nil
-			it:fresh_item()
-		end
-	end
 	self:event_notify('单位-复活', self)
-	self:event_notify('单位-传送完成', self, origin, where)
-end
-
---获得经验值
-function mt:addXp(xp)
-	jass.SetHeroXP(self.handle, jass.GetHeroXP(self.handle) + xp, true);
-	self.xp = jass.GetHeroXP(self.handle);
 end
 
 -- 变身
@@ -71,8 +116,6 @@ function mt:transform(target_id)
 		return
 	end
 
-	--获取攻击间隔
-	local attack_cool = self:get '攻击间隔'
 	if not dummy then
 		dummy = ac.dummy
 		dummy:add_ability 'AEme'
@@ -85,19 +128,6 @@ function mt:transform(target_id)
 
 	--修改ID
 	self.id = target_id
-
-	--恢复攻击距离
-	self.default_attack_range = nil
-	self:add('攻击范围', 0)
-
-	--恢复攻击力
-	self:add('攻击', 0)
-
-	--恢复移动速度
-	self:add('移动速度', 0)
-
-	--恢复攻击间隔
-	self:add('攻击间隔', 0)
 
 	--可以飞行
 	self:add_ability 'Arav'
@@ -120,47 +150,18 @@ function mt:transform(target_id)
     end
 end
 
---获得属性
-function mt:getStr()
-	return jass.GetHeroStr(self.handle, true)
-end
-
-function mt:getAgi()
-	return jass.GetHeroAgi(self.handle, true)
-end
-
-function mt:getInt(self)
-	return jass.GetHeroInt(self.handle, true)
-end
-
---设置属性
-function mt:setStr(n)
-	jass.SetHeroStr(self.handle, n, true)
-end
-
-function mt:setAgi(n)
-	jass.SetHeroAgi(self.handle, n, true)
-end
-
-function mt:setInt(n)
-	jass.SetHeroInt(self.handle, n, true)
-end
-
 --创建单位
 --	id:单位id(字符串)
 --	where:创建位置(type:point;type:circle;type:rect;type:unit)
 --	face:面向角度
-function player.__index.createHero(p, name, where, face)
-	local hero_data = hero.hero_list[name].data
-	local u = p:create_unit(hero_data.id, where, face)
+function player.__index:create_hero(name, where, face)
+	local hero_data = Hero.hero_list[name].data
+	local u = self:create_unit(hero_data.id, where, face)
 	setmetatable(u, hero_data)
 	--英雄物品栏
 	u:add_ability 'AInv'
 	u.hero_data = hero_data
 
-	for k, v in pairs(hero_data.attribute) do
-		u:set(k, v)
-	end
 	return u
 end
 --[=[
@@ -212,16 +213,16 @@ end
 	loli = true,
 }
 ]=]--
-function hero.create(name)
+function Hero.create(name)
 	return function(data)
-		hero.hero_datas[name] = data
+		Hero.hero_datas[name] = data
 		--继承英雄属性
-		setmetatable(data, hero)
+		setmetatable(data, Hero)
 		data.__index = data
 
         function data:__tostring()
             local player = self:get_owner()
-            return ('%s|%s|%s'):format('hero', self:get_name(), player.base_name)
+            return ('[%s|%s|%s]'):format('hero', self:get_name(), player.base_name)
         end
 		
 		--注册技能
@@ -239,14 +240,14 @@ function hero.create(name)
 	end
 end
 
-function hero.getAllHeros()
-	return hero.all_heros
+function Hero.get_all_heros()
+	return Hero.all_heros
 end
 
-function hero.registerJassTriggers()
+function Hero.register_jass_triggers()
 	--英雄升级事件
 	local j_trg = war3.CreateTrigger(function()
-		local hero = unit.j_unit(jass.GetTriggerUnit())
+		local hero = Unit(jass.GetTriggerUnit())
 		local new_lv = jass.GetHeroLevel(hero.handle)
 		local old_lv = hero.level
 		for i = hero.level + 1, new_lv do
@@ -260,100 +261,24 @@ function hero.registerJassTriggers()
 	end
 end
 
---刷新伤害属性信息
-function mt:freshDamageInfo()
-	local atk = self:get '攻击'
-	local pene, pener = self:get '破甲', self:get '穿透'
-	local crit, critr = self:get '暴击', self:get '暴击伤害'
-	local crit_up = crit * (critr/100 - 1) / 100 + 1
-	local damage = atk * crit_up * (self:getDamageRate() / 100.0) * 60
-	self:setStr(damage)
-	return damage
-end
 
---刷新坚韧属性信息
-function mt:freshDefenceInfo()
-	local life = self:get '生命上限'
-	local def = self:get '护甲'
-	local damaged_rate = self:getDamagedRate()
-	local block_chance, block_rate = self:get '格挡', self:get '格挡伤害'
-	if block_chance > 100 then block_chance = 100 end
-	if block_rate > 100 then block_rate = 100 end
-	local def_up = 1
-	if def > 0 then
-		def_up = 1 + def * damage.DEF_SUB
-	else
-		def_up = 1 / (1 - def * damage.DEF_ADD)
-	end
-	local block_up = 1 / (1.0 - block_chance * block_rate / 10000.0)
-	local defence = life * def_up * block_up
-	if damaged_rate > 5 then
-		defence = defence * 100.0 / damaged_rate
-	end
-	self:setAgi(defence)
-	return defence
-end
-
---刷新移动速度信息
-function mt:freshMoveSpeedInfo()
-	self:setInt(math.max(0, self:get('移动速度')))
-end
-
-function hero.init()
+function Hero.init()
 	--注册英雄
-	hero.hero_datas = {}
+	Hero.hero_datas = {}
 	
-	hero.registerJassTriggers()
+	Hero.register_jass_triggers()
 
 	--记录英雄
 	local heros = {}
-	hero.all_heros = heros
+	Hero.all_heros = heros
 	ac.game:event '玩家-注册英雄' (function(_, _, hero)
 		heros[hero] = true
-		local resource = ac.resource[hero.resource_type]
-		if not resource then
-			hero:set('魔法', hero:get '魔法上限')
-			return
-		end
-		if resource.on_add then
-			resource.on_add(hero)
-		end
-		if resource.reborn_type == 0 then
-			hero:set('魔法', 0)
-			hero:event '单位-复活' (function ()
-				hero:set('魔法', 0)
-			end)
-		elseif resource.reborn_type == 1 then
-			hero:set('魔法', hero:get '魔法上限')
-			local mana = 0
-			hero:event '单位-死亡' (function ()
-				mana = hero:get('魔法')
-			end)
-			hero:event '单位-复活' (function ()
-				hero:set('魔法', mana)
-			end)
-		elseif resource.reborn_type == 2 then
-			hero:set('魔法', hero:get '魔法上限')
-			hero:event '单位-复活' (function ()
-				hero:set('魔法', hero:get '魔法上限')
-			end)
-		end
 		hero:loop(100, function()
-			hero:updateActive()
+			hero:update_active()
 		end)
 	end)
 end
 
---修改英雄技能点数
-function mt:addSkillPoint(points)
-	self.skill_points = self.skill_points + points
-	local skl = self:find_skill('技能升级', nil, true)
-	if not skl then
-		return
-	end
-	skl:call_updateSkillPoint()
-end
+ac.hero = Hero
 
-ac.hero = hero
-
-return hero
+return Hero

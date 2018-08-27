@@ -1,13 +1,13 @@
 
 local jass = require 'jass.common'
 local debug = require 'jass.debug'
-local rect = require 'types.rect'
+local rect = require 'Libraries.types.rect'
 
-local fogmodifier = {}
-setmetatable(fogmodifier, fogmodifier)
+local Fogmodifier = {}
+setmetatable(Fogmodifier, Fogmodifier)
 
 local mt = {}
-fogmodifier.__index = mt
+Fogmodifier.__index = mt
 
 --类型
 mt.type = 'fogmodifier'
@@ -21,7 +21,7 @@ mt.handle = 0
 --	[是否可见]
 --	[是否共享]
 --	[是否覆盖单位视野]
-function fogmodifier.create(p, where, see, share, over)
+function Fogmodifier.new(p, where, see, share, over)
 	--默认可见
 	see = see == false and 2 or 4
 
@@ -40,7 +40,7 @@ function fogmodifier.create(p, where, see, share, over)
 	end
 	debug.handle_ref(j_handle)
 	jass.FogModifierStart(j_handle)
-	return setmetatable({handle = j_handle}, fogmodifier)
+	return setmetatable({handle = j_handle}, Fogmodifier)
 end
 
 --启用修正器
@@ -62,4 +62,4 @@ function mt:remove()
 	self.handle = nil
 end
 
-return fogmodifier
+return Fogmodifier

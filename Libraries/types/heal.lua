@@ -1,12 +1,12 @@
 
-local unit = require 'types.unit'
+local Unit = require 'Libraries.types.unit'
 
-local heal = {}
-setmetatable(heal, heal)
+local Heal = {}
+setmetatable(Heal, Heal)
 
 --伤害结构
 local mt = {}
-heal.__index = mt
+Heal.__index = mt
 
 --类型
 mt.type = 'heal'
@@ -56,7 +56,7 @@ local function text(heal)
 end
 
 --创建治疗
-function heal:__call(heal)
+function Heal:__call(heal)
 	if not heal.target or heal.heal == 0 then
 		return
 	end
@@ -68,7 +68,7 @@ function heal:__call(heal)
 	
 	setmetatable(heal, self)
 
-	if heal.target:event_dispatch('受到治疗开始', heal) then
+	if heal.target:event_dispatch('单位-受到治疗开始', heal) then
 		return heal
 	end
 
@@ -77,20 +77,20 @@ function heal:__call(heal)
 	end
 	
 	--进行治疗
-	heal.target:add('生命', heal.heal)
+	heal.target:add_life(heal.heal)
 
 	--创建漂浮文字
 	text(heal)
 
-	heal.target:event_notify('受到治疗效果', heal)
+	heal.target:event_notify('单位-受到治疗效果', heal)
 
 	return heal
 end
 
 --进行治疗
-function unit.__index:heal(data)
+function Unit.__index:heal(data)
 	data.target = self
-	return heal(data)
+	return Heal(data)
 end
 
-return heal
+return Heal

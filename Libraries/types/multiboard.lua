@@ -1,11 +1,11 @@
 local jass = require 'jass.common'
 
-local multiboard = {}
-setmetatable(multiboard, multiboard)
+local Multiboard = {}
+setmetatable(Multiboard, Multiboard)
 
 --结构
 local mt = {}
-multiboard.__index = mt
+Multiboard.__index = mt
 
 --类型
 mt.type = 'multiboard'
@@ -102,8 +102,8 @@ function mt:remove()
 end
 
 --创建一个多面板
-function multiboard.create(x, y)
-	local mb =	setmetatable({}, multiboard)
+function Multiboard.new(x, y)
+	local mb =	setmetatable({}, Multiboard)
 	mb.handle = jass.CreateMultiboard()
 	mb:setX(x or 0)
 	mb:setY(y or 0)
@@ -120,4 +120,4 @@ function multiboard.create(x, y)
 	return mb
 end
 
-return multiboard
+return Multiboard

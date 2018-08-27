@@ -70,11 +70,11 @@ mt[3] = 0
 --获取坐标
 --	是否重新计算z轴坐标
 function mt:get(getz)
-	return self[1], self[2], getz and self:get_Z() or self[3]
+	return self[1], self[2], getz and self:getZ() or self[3]
 end
 
 --计算地面的z轴坐标
-function mt:get_Z()
+function mt:getZ()
 	jass.MoveLocation(Point.dummy, self[1], self[2])
 	return jass.GetLocationZ(Point.dummy)
 end

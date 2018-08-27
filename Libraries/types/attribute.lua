@@ -1,403 +1,177 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
-local move = require 'types.move'
+local Unit = require 'Libraries.types.unit'
 
 local math = math
 local string_gsub = string.gsub
 
-local mt = ac.unit.__index
+local mt = Unit.__index
 
-local attribute = {
-	['生命']       = true,
-	['生命上限']    = true,
-	['生命恢复']    = true,
-	['生命脱战恢复'] = true,
-	['魔法']       = true,
-	['魔法上限']    = true,
-	['魔法恢复']    = true,
-	['魔法脱战恢复'] = true,
-	['能量获取率']   = true,
-	['攻击']       = true,
-	['护甲']       = true,
-	['攻击间隔']    = true,
-	['攻击速度']    = true,
-	['攻击范围']    = true,
-	['移动速度']    = true,
-	['减耗']       = true,
-	['冷却缩减']    = true,
-	['吸血']       = true,
-	['溅射']       = true,
-	['格挡']       = true,
-	['格挡伤害']    = true,
-	['暴击']       = true,
-	['暴击伤害']    = true,
-	['破甲']       = true,
-	['穿透']       = true,
-	['护盾']       = true,
-}
 
-local set = {}
-local get = {}
-local on_add = {}
-local on_get = {}
-local on_set = {}
-
-function mt:add(name, value)
-	local v1, v2 = 0, 0
-	if name:sub(-1, -1) == '%' then
-		v2 = value
-		name = name:sub(1, -2)
-	else
-		v1 = value
-	end
-	if not attribute[name] then
-		error('错误的属性名:' .. tostring(name))
-		return
-	end
-	local key1 = name
-	local key2 = name .. '%'
-	local attr = self['属性']
-	if not attr then
-		attr = {}
-		self['属性'] = attr
-	end
-	if not attr[key1] then
-		attr[key1] = get[name] and get[name](self) or 0
-		attr[key2] = 0
-	end
-	local f
-	if on_set[name] then
-		f = on_set[name](self)
-	end
-	if on_add[name] then
-		v1, v2 = on_add[name](self, v1, v2)
-	end
-	if v1 then
-		attr[key1] = attr[key1] + v1
-	end
-	if v2 then
-		attr[key2] = attr[key2] + v2
-	end
-	if set[name] then
-		set[name](self, attr[key1] * (1 + attr[key2] / 100))
-	end
-	if f then
-		f()
-	end
+function mt:get_life()
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_LIFE)
 end
 
---可以考虑加入监听器，用来做到男枪的那种方式
-function mt:set(name, value)
-	if not attribute[name] then
-		error('错误的属性名:' .. tostring(name))
-		return
-	end
-	local key1 = name
-	local key2 = name .. '%'
-	local attr = self['属性']
-	if not attr then
-		attr = {}
-		self['属性'] = attr
-	end
-	if not attr[key1] then
-		attr[key1] = get[name] and get[name](self) or 0
-		attr[key2] = 0
-	end
-	local f
-	if on_set[name] then
-		f = on_set[name](self)
-	end
-	attr[key1] = value
-	attr[key2] = 0
-	if set[name] then
-		set[name](self, attr[key1] * (1 + attr[key2] / 100))
-	end
-	if f then
-		f()
-	end
+function mt:set_life(life)
+    return japi.SetUnitState(self.handle, jass.UNIT_STATE_LIFE, life)
 end
 
-function mt:get(name)
-	local type = 0
-	if name:sub(-1, -1) == '%' then
-		name = name:sub(1, -2)
-		type = 1
-	end
-	if not attribute[name] then
-		error('错误的属性名:' .. tostring(name))
-		return
-	end
-	local key1 = name
-	local key2 = name .. '%'
-	local attr = self['属性']
-	if not attr then
-		attr = {}
-		self['属性'] = attr
-	end
-	if not attr[key1] then
-		attr[key1] = get[name] and get[name](self) or 0
-		attr[key2] = 0
-	end
-	if type == 1 then
-		return attr[key2]
-	end
-	if on_get[name] then
-		return on_get[name](self, attr[key1] * (1 + attr[key2] / 100))
-	end
-	return attr[key1] * (1 + attr[key2] / 100)
+function mt:add_life(life)
+    self:set_life(self:get_life() + life)
 end
 
--- 资源相关
--- 能量类型
-mt.resource_type = '魔法'
 
-function mt:add_resource(type, value)
-	local type, match = string_gsub(type, self.resource_type, '魔法')
-	if match == 0 then
-		return
-	end
-	self:add(type, value)
+function mt:get_max_life()
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE)
 end
 
-function mt:get_resource(type)
-	local type, match = string_gsub(type, self.resource_type, '魔法')
-	if match == 0 then
-		return 0
-	end
-	return self:get(type)
+function mt:set_max_life(life)
+    return jass.SetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE, life)
 end
 
-function mt:set_resource(type, value)
-	local type, match = string_gsub(type, self.resource_type, '魔法')
-	if match == 0 then
-		return
-	end
-	self:set(type, value)
+function mt:add_max_life(life)
+    return self:set_max_life(self:get_max_life()+life)
 end
 
-get['生命'] = function(self)
-	return jass.GetWidgetLife(self.handle)
+
+function mt:get_mana()
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_MANA)
 end
 
-set['生命'] = function(self, life)
-	if life > 1 then
-		jass.SetWidgetLife(self.handle, life)
-	else
-		jass.SetWidgetLife(self.handle, 1)
-	end
+function mt:set_mana(mana)
+    return japi.SetUnitState(self.handle, jass.UNIT_STATE_MANA, mana)
 end
 
-on_get['生命'] = function(self, life)
-	if life < 0 then
-		return 0
-	else
-		local max_life = self:get '生命上限'
-		if life > max_life then
-			return max_life
-		end
-	end
-	return life
+function mt:add_mana(mana)
+    self:set_mana(self:get_mana()+mana)
 end
 
-get['生命上限'] = function(self)
-	return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE)
+
+function mt:get_max_mana()
+    return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA)
 end
 
-set['生命上限'] = function(self, max_life, old_max_life)
-	japi.SetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE, max_life)
-	if self.freshDefenceInfo then
-		self:freshDefenceInfo()
-	end
+function mt:set_max_mana(mana)
+    return jass.SetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA, mana)
 end
 
-on_set['生命上限'] = function(self)
-	local rate = self:get '生命' / self:get '生命上限'
-	return function()
-		self:set('生命', self:get '生命上限' * rate)
-	end
+function mt:add_max_mana(mana)
+    return self:set_mana(self:get_mana()+mana)
 end
 
-get['魔法'] = function(self)
-	return jass.GetUnitState(self.handle, jass.UNIT_STATE_MANA)
+
+function mt:get_attack()
+    return japi.GetUnitState(self.handle, 0x12)
 end
 
-set['魔法'] = function(self, mana)
-	jass.SetUnitState(self.handle, jass.UNIT_STATE_MANA, math.ceil(mana))
+function mt:set_attack(atk)
+    return japi.SetUnitState(self.handle, 0x12, atk)
 end
 
-on_add['魔法'] = function(self, v1, v2)
-	v1 = v1 + v1 * self:get '能量获取率' / 100
-	return v1, v2
+function mt:add_attack(atk)
+    return self:set_attack(self:get_attack()+atk)
 end
 
-on_get['魔法'] = function(self, mana)
-	if mana < 0 then
-		return 0
-	else
-		local max_mana = self:get '魔法上限'
-		if mana > max_mana then
-			return max_mana
-		end
-	end
-	return mana
+
+function mt:get_add_attack()
+    return japi.GetUnitState(self.handle, 0x13)
 end
 
-get['魔法上限'] = function(self)
-	return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA)
+function mt:set_add_attack(atk)
+    return japi.SetUnitState(self.handle, 0x13, atk)
 end
 
-set['魔法上限'] = function(self, max_mana)
-	japi.SetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA, max_mana)
+function mt:add_add_attack(atk)
+    return self:set_add_attack(self:get_add_attack(), atk)
 end
 
-on_set['魔法上限'] = function(self)
-	local rate = self:get '魔法' / self:get '魔法上限'
-	return function()
-		self:set('魔法', self:get '魔法上限' * rate)
-	end
+
+function mt:get_attack_range()
+    return jass.GetUnitState(self.handle, jass.ConvertUnitState(0x16))
 end
 
-get['攻击'] = function(self)
-	japi.SetUnitState(self.handle, 0x10, 1)
-	japi.SetUnitState(self.handle, 0x11, 1)
-	return japi.GetUnitState(self.handle, 0x12) + 1
+function mt:set_attack_range(atk)
+    return japi.SetUnitState(self.handle, jass.ConvertUnitState(0x16), atk)
 end
 
-set['攻击'] = function(self, attack)
-	japi.SetUnitState(self.handle, 0x12, attack - 1)
-	if self.freshDamageInfo then
-		self:freshDamageInfo()
-	end
+function mt:add_attack_range(atk)
+    return self:set_attack_range(self:get_attack_range(), atk)
 end
 
-get['护甲'] = function(self)
-	return japi.GetUnitState(self.handle, 0x20)
+
+function mt:get_attack_speed()
+    return japi.GetUnitState(self.handle, 0x51)
 end
 
-set['护甲'] = function(self, defence)
-	japi.SetUnitState(self.handle, 0x20, defence)
-	if self.freshDefenceInfo then
-		self:freshDefenceInfo()
-	end
+function mt:set_attack_speed(spd)
+    return japi.SetUnitState(self.handle, 0x51, spd)
 end
 
-get['攻击间隔'] = function(self)
-	return japi.GetUnitState(self.handle, 0x25)
+function mt:add_attack_speed(spd)
+    return self:set_attack_speed(self:get_attack_speed()+spd)
 end
 
-set['攻击间隔'] = function(self, attack_cool)
-	japi.SetUnitState(self.handle, 0x25, attack_cool)
+
+function mt:get_attack_rate()
+    return japi.GetUnitState(self.handle, 0x25)
 end
 
-set['攻击速度'] = function(self, attack_speed)
-	if attack_speed >= 0 then
-		japi.SetUnitState(self.handle, 0x51, 1 + attack_speed / 100)
-	else
-		--当攻击速度小于0的时候,每点相当于攻击间隔增加1%
-		japi.SetUnitState(self.handle, 0x51, 1 + attack_speed / (100 - attack_speed))
-	end
+function mt:set_attack_rate(rate)
+    return japi.SetUnitState(self.handle, 0x25, rate)
 end
 
-on_set['攻击速度'] = function(self)
-	return self:fresh_cool()
+function mt:add_attack_rate(rate)
+    return self:set_attack_rate(self:get_attack_rate()+rate)
 end
 
-get['攻击范围'] = function(self)
-	return japi.GetUnitState(self.handle, 0x16)
+
+function mt:get_defence()
+    return japi.GetUnitState(self.handle, 0x20)
 end
 
-set['攻击范围'] = function(self, attack_range)
-	japi.SetUnitState(self.handle, 0x16, attack_range)
+function mt:set_defence(def)
+    return japi.SetUnitState(self.handle, 0x20, def)
 end
 
-get['移动速度'] = function(self)
-	return jass.GetUnitDefaultMoveSpeed(self.handle)
+function mt:add_defence(def)
+    return self:set_defence(self:get_defence()+def)
 end
 
-set['移动速度'] = function(self, move_speed)
-	if not self:has_restriction '定身' then
-		jass.SetUnitMoveSpeed(self.handle, move_speed)
-	end
-	move.update_speed(self, on_get['移动速度'](self, move_speed))
-	--英雄属性面板
-	if self.freshMoveSpeedInfo then
-		self:freshMoveSpeedInfo()
-	end
+
+--  @单位的默认移动速度
+function mt:get_base_move_speed()
+    return jass.GetUnitDefaultMoveSpeed(self.handle)
 end
 
-on_get['移动速度'] = function(self, move_speed)
-	if move_speed < 0 then
-		return 0
-	elseif move_speed > 1000 then
-		return 1000
-	end
-	return move_speed
+--  @当前单位的移动速度，计算光环等效果
+function mt:get_current_move_speed()
+    return jass.GetUnitMoveSpeed(self.handle)
 end
 
-on_set['减耗'] = function(self)
-	return self:fresh_cost()
+--增加的移动速度
+mt._add_move_speed = 0
+function mt:get_add_move_speed()
+    return self._add_move_speed
 end
 
-on_get['冷却缩减'] = function(self, cool_reduce)
-	if cool_reduce > 80 then
-		return 80
-	end
-	return cool_reduce
+function mt:set_add_move_speed(speed)
+    self._add_move_speed = speed
 end
 
-on_set['冷却缩减'] = function(self)
-	return self:fresh_cool()
+function mt:add_add_move_speed(speed)
+    self:set_add_move_speed(self:get_add_move_speed() + speed)
 end
 
-on_get['吸血'] = function(self, value)
-	if value > 150 then
-		return 150
-	end
-	return value
+--  @不计算单位光环的加成，即基础速度+额外速度
+function mt:get_move_speed()
+    return self:get_base_move_speed() + self:get_add_move_speed()
 end
 
-on_get['溅射'] = function(self, splash)
-	if splash > 100 then
-		return 100
-	end
-	return splash
+function mt:set_move_speed(speed)
+    jass.SetUnitMoveSpeed(self.handle , speed)
 end
 
-set['格挡'] = function(self)
-	if self.freshDefenceInfo then
-		self:freshDefenceInfo()
-	end
-end
-
-get['格挡伤害'] = function()
-	return 60
-end
-
-set['格挡伤害'] = function()
-	if self.freshDefenceInfo then
-		self:freshDefenceInfo()
-	end
-end
-
-set['暴击'] = function(self)
-	if self.freshDamageInfo then
-		self:freshDamageInfo()
-	end
-end
-
-get['暴击伤害'] = function()
-	return 150
-end
-
-set['暴击伤害'] = function(self)
-	if self.freshDamageInfo then
-		self:freshDamageInfo()
-	end
-end
-
-on_get['穿透'] = function(self, pene_rate)
-	if pene_rate > 40 then
-		return 40
-	end
-	return pene_rate
+function mt:add_move_speed(speed)
+    self:add_add_move_speed(speed)
+    self:set_move_speed(self:get_move_speed())
 end

@@ -1,3 +1,5 @@
+local Point = require 'Libraries.ac.point'
+
 local Circle = {}
 setmetatable(Circle, Circle)
 
@@ -22,7 +24,7 @@ end
 
 --获取圆心
 function mt:get_point()
-	return ac.point(self.x, self.y)
+	return Point.new(self.x, self.y)
 end
 
 

@@ -10,11 +10,13 @@ function Game.register_observer(name, ob)
 end
 
 function Game.init()
-	ac.loop(Game.FRAME * 1000, function()
+	Game.timer = ac.loop(Game.FRAME * 1000, function()
 		for _, ob in ipairs(observer) do
 			ob()
 		end
 	end)
 end
+
+Game.init()
 
 return Game

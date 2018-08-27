@@ -145,15 +145,15 @@ end
 --显示系统警告
 --	警告内容
 function mt:show_sys_warning(msg)
-    local sys_sound = jass.CreateSoundFromLabel("InterfaceError", false, false, false, 10, 10);
+    local sys_sound = jass.CreateSoundFromLabel("InterfaceError", false, false, false, 10, 10)
     if(jass.GetLocalPlayer() == self.handle) then
         if (msg ~= '') and (msg ~= nil) then
-            jass.ClearTextMessages();
-            jass.DisplayTimedTextToPlayer(self.handle, 0.5, -1, 2, '|cffffcc00' .. msg .. '|r');
+            jass.ClearTextMessages()
+            jass.DisplayTimedTextToPlayer(self.handle, 0.5, -1, 2, '|cffffcc00' .. msg .. '|r')
         end
-        jass.StartSound(sys_sound);
+        jass.StartSound(sys_sound)
     end
-    jass.KillSoundWhenDone(sys_sound);
+    jass.KillSoundWhenDone(sys_sound)
 end
 
 --小地图信号
@@ -321,6 +321,13 @@ end
 --	[持续时间]
 function mt:send_msg(text, time)
 	jass.DisplayTimedTextToPlayer(self.handle, 0, 0, time or 60, text)
+end
+
+--发送消息
+--	消息内容
+--	[持续时间]
+function mt:send_warm_msg(text, time)
+	jass.DisplayTimedTextToPlayer(self.handle, 0.5, -1, time or 60, text)
 end
 
 --	消息内容

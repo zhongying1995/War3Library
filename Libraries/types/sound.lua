@@ -76,9 +76,6 @@ function sound.create(name)
 	jass.SetSoundConeOrientation(snd, 0, 0, 0)
 	sound.set_duration(snd, name)
 	
-	--jass.StartSound(snd)
-	--jass.StopSound(snd, false, false)
-	--print('snd', name)
 	return snd
 end
 

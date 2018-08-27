@@ -1,16 +1,15 @@
 
 local jass = require 'jass.common'
-local rect = require 'types.rect'
-local unit = require 'types.unit'
+local Rect = require 'Libraries.types.rect'
 local dbg = require 'jass.debug'
 
-local region = {}
-setmetatable(region, region)
+local Region = {}
+setmetatable(Region, Region)
 
 --不规则区域结构
 local mt = {}
-region.__index = mt
-ac.region = region
+Region.__index = mt
+ac.region = Region
 
 --类型
 mt.type = 'region'
@@ -19,8 +18,8 @@ mt.type = 'region'
 mt.handle = 0
 
 --创建不规则区域
-function region.create(...)
-	local rgn = setmetatable({}, region)
+function Region.new(...)
+	local rgn = setmetatable({}, Region)
 	rgn.handle = jass.CreateRegion()
 	dbg.handle_ref(rgn.handle)
 	for _, rct in ipairs{...} do
@@ -53,43 +52,12 @@ mt.event_enter = nil
 --离开区域事件
 mt.event_leave = nil
 
-local ac_game = ac.game
-
---注册区域事件
---	event_type是字符串,包含e时注册进入事件,包含l时注册离开事件
-function mt:event(name)
-	if name == '区域-进入' and not self.event_enter then
-		self.event_enter = war3.CreateTrigger()
-		jass.TriggerRegisterEnterRegion(self.event_enter, self.handle, nil)
-		jass.TriggerAddCondition(self.event_enter, jass.Condition(function()
-			local unit = unit.j_unit(jass.GetTriggerUnit())
-			if unit then
-				ac.event_notify(self, name, unit, self)
-				ac.game:event_notify(name, unit, self)
-			end
-		end))
-	end
-	
-	if name == '区域-离开' and not self.event_leave then
-		self.event_leave = war3.CreateTrigger(function()
-			local unit = unit.j_unit(jass.GetTriggerUnit())
-			if unit then
-				ac.event_notify(self, name, unit, self)
-				ac.game:event_notify(name, unit, self)
-			end
-		end)
-		jass.TriggerRegisterLeaveRegion(self.event_leave, self.handle, nil)
-	end
-
-	return ac.event_register(self, name)
-end
-
 --在不规则区域中添加/移除区域
---	region = region + other
-function region:__add(other)
+--	Region = Region + other
+function Region:__add(other)
 	if other.type == 'rect' then
 		--添加矩形区域
-		jass.RegionAddRect(self.handle, rect.j_temp(other))
+		jass.RegionAddRect(self.handle, Rect.j_temp(other))
 	elseif other.type == 'point' then
 		--添加单元点
 		jass.RegionAddCell(self.handle, other:get())
@@ -112,11 +80,11 @@ function region:__add(other)
 	return self
 end
 
---	region = region - other
-function region:__sub(other)
+--	Region = Region - other
+function Region:__sub(other)
 	if other.type == 'rect' then
 		--添加矩形区域
-		jass.RegionClearRect(self.handle, rect.j_temp(other))
+		jass.RegionClearRect(self.handle, Rect.j_temp(other))
 	elseif other.type == 'point' then
 		--移除单元点
 		jass.RegionClearCell(self.handle, other:get())
@@ -140,15 +108,15 @@ function region:__sub(other)
 end
 
 --点是否在不规则区域内
---	result = region < point
+--	result = Region < point
 --我觉得用大于会好点吧
-function region:__lt(dest)
+function Region:__lt(dest)
 	local x, y = dest:get_point():get()
 	return jass.IsPointInRegion(self.handle, x, y)
 end
 
-function region:__call(...)
-	return self.create(...)
+function Region:__call(...)
+	return self.new(...)
 end
 
-return region
+return Region

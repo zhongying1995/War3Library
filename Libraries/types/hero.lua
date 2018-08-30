@@ -17,8 +17,11 @@ Hero.__index = mt
 --hero继承unit
 setmetatable(mt, Unit)
 
---类型
-mt.unit_type = '英雄'
+--单位类型
+mt.unit_type = 'hero'
+
+--英雄属性的技能马甲
+local ATTRIBUTE_ABIL_ID = 'Aamk'
 
 --当前经验值
 mt.xp = 0
@@ -49,25 +52,34 @@ function mt:add_level(lv)
 end
 
 
-function mt:get_str()
-	return jass.GetHeroStr(self.handle, true)
+function mt:get_str(is_all)
+	return jass.GetHeroStr(self.handle, is_all and true)
 end
-
-function mt:get_agi()
-	return jass.GetHeroAgi(self.handle, true)
-end
-
-function mt:get_int()
-	return jass.GetHeroInt(self.handle, true)
-end
-
 
 function mt:set_str(n)
 	jass.SetHeroStr(self.handle, n, true)
 end
 
+function mt:add_str(n)
+	self:set_str(self:get_str()+n)
+end
+
+
+function mt:get_agi(is_all)
+	return jass.GetHeroAgi(self.handle, is_all and true)
+end
+
 function mt:set_agi(n)
 	jass.SetHeroAgi(self.handle, n, true)
+end
+
+function mt:add_agi(n)
+	self:set_agi(self:get_agi()+n)
+end
+
+
+function mt:get_int(is_all)
+	return jass.GetHeroInt(self.handle, is_all and true)
 end
 
 function mt:set_int(n)
@@ -75,16 +87,85 @@ function mt:set_int(n)
 end
 
 
-function mt:add_str(n)
-	self:set_str(self:get_str()+n)
-end
-
-function mt:add_agi(n)
-	self:set_agi(self:get_agi()+n)
-end
-
 function mt:add_int(n)
 	self:set_int(self:get_int()+n)
+end
+
+function mt:get_extra_str()
+	return self:get_str(true) - self:get_str()
+end
+
+mt._add_str = 0
+function mt:get_add_str()
+    return self._add_str
+end
+
+function mt:set_add_str(str)
+	self._add_str = str
+	local agi = self:get_add_agi()
+	local int = self:get_add_int()
+	self:remove_ability(ATTRIBUTE_ABIL_ID)
+	self:add_ability(ATTRIBUTE_ABIL_ID)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 108, str)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 109, agi)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 110, int)
+	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
+end
+
+function mt:add_add_str(str)
+	self:set_add_str(self:get_add_str() + str)
+end
+
+
+function mt:get_extra_agi()
+	return self:get_agi(true) - self:get_agi()
+end
+
+mt._add_agi = 0
+function mt:get_add_agi()
+    return self._add_agi
+end
+
+function mt:set_add_agi(agi)
+	self._add_agi = agi
+	local str = self:get_add_str()
+	local int = self:get_add_int()
+	self:remove_ability(ATTRIBUTE_ABIL_ID)
+	self:add_ability(ATTRIBUTE_ABIL_ID)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 108, str)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 109, agi)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 110, int)
+	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
+end
+
+function mt:add_add_agi(agi)
+	self:set_add_agi(self:get_add_agi() + agi)
+end
+
+
+function mt:get_extra_int()
+	return self:get_int(true) - self:get_int()
+end
+
+mt._add_int = 0
+function mt:get_add_int()
+    return self._add_int
+end
+
+function mt:set_add_int(int)
+	self._add_int = int
+	local str = self:get_add_str()
+	local agi = self:get_add_agi()
+	self:remove_ability(ATTRIBUTE_ABIL_ID)
+	self:add_ability(ATTRIBUTE_ABIL_ID)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 108, str)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 109, agi)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 110, int)
+	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
+end
+
+function mt:add_add_int(int)
+	self:set_add_int(self:get_add_int() + int)
 end
 
 

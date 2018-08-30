@@ -510,46 +510,46 @@ end
 
 --移除技能
 --	技能id
-function mt:remove_ability(ability_id)
-	if not ability_id then
+function mt:remove_ability(war3_id)
+	if not war3_id then
 		return false
 	end
-	local ability_id = base.string2id(ability_id)
-	return jass.UnitRemoveAbility(self.handle, ability_id)
+	local war3_id = base.string2id(war3_id)
+	return jass.UnitRemoveAbility(self.handle, war3_id)
 end
 
 --允许技能
 --	技能id
-function mt:enable_ability(ability_id)
-	self:get_owner():enable_ability(ability_id)
+function mt:enable_ability(war3_id)
+	self:get_owner():enable_ability(war3_id)
 end
 
 --禁用技能
 --	技能id
-function mt:disable_ability(ability_id)
-	self:get_owner():disable_ability(ability_id)
+function mt:disable_ability(war3_id)
+	self:get_owner():disable_ability(war3_id)
 end
 
 --获取技能等级
 --	技能id
-function mt:get_ability_level(ability_id)
-	local ability_id = base.string2id(ability_id)
-	return jass.GetUnitAbilityLevel(self.handle, ability_id)
+function mt:get_ability_level(war3_id)
+	local war3_id = base.string2id(war3_id)
+	return jass.GetUnitAbilityLevel(self.handle, war3_id)
 end
 
 --设置技能等级
 --	技能id
 --	[技能等级]
-function mt:set_ability_level(ability_id, lv)
-	local ability_id = base.string2id(ability_id)
-	jass.SetUnitAbilityLevel(self.handle, ability_id, lv or 1)
+function mt:set_ability_level(war3_id, lv)
+	local war3_id = base.string2id(war3_id)
+	jass.SetUnitAbilityLevel(self.handle, war3_id, lv or 1)
 end
 
 --命令单位使用技能
 --	技能id
 --	[目标]
-function mt:cast_ability(ability_id, target)
-	local order = slk.ability[ability_id].Order
+function mt:cast_ability(war3_id, target)
+	local order = slk.ability[war3_id].Order
 	if not target then
 		return jass.IssueImmediateOrder(self.handle, order)
 	elseif target.owner then
@@ -561,12 +561,12 @@ end
 
 --设置技能永久性
 --	技能id
-function mt:make_permanent(ability_id)
-	if not ability_id then
+function mt:make_permanent(war3_id)
+	if not war3_id then
 		return
 	end
-	local ability_id = base.string2id(ability_id)
-	jass.UnitMakeAbilityPermanent(self.handle, true, ability_id)
+	local war3_id = base.string2id(war3_id)
+	jass.UnitMakeAbilityPermanent(self.handle, true, war3_id)
 end
 
 --命令

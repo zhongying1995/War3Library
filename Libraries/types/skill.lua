@@ -47,8 +47,8 @@ mt.unit = nil
 --是被动技能
 mt.passive = false
 
---技能id
-mt.ability_id = nil
+--war3技能id
+mt.war3_id = nil
 
 --技能数据
 mt.data = nil
@@ -65,7 +65,7 @@ function mt:get_handle()
 	if self.owner.removed then
 		return 0
 	end
-	return japi.EXGetUnitAbility(self.owner.handle, base.string2id(self.ability_id))
+	return japi.EXGetUnitAbility(self.owner.handle, base.string2id(self.war3_id))
 end
 
 
@@ -148,7 +148,7 @@ mt.is_enable_ability = true
 
 function mt:enable_ability()
 	self:set('is_enable_ability', true)
-	self.owner:get_owner():enable_ability(self.ability_id)
+	self.owner:get_owner():enable_ability(self.war3_id)
 	self:fresh()
 	return false
 end
@@ -156,7 +156,7 @@ end
 --禁用技能(War3)
 function mt:disable_ability()
 	self:set('is_enable_ability', false)
-	self.owner:get_owner():disable_ability(self.ability_id)
+	self.owner:get_owner():disable_ability(self.war3_id)
 	return false
 end
 
@@ -257,14 +257,14 @@ function mt:remove()
 end
 
 function mt:add_ability()
-	if self.ability_id and not self.no_ability then
-		self.owner:add_ability(self.ability_id)
+	if self.war3_id and not self.no_ability then
+		self.owner:add_ability(self.war3_id)
 	end
 end
 
 function mt:remove_ability()
-	if self.ability_id and not self.no_ability then
-		self.owner:remove_ability(self.ability_id)
+	if self.war3_id and not self.no_ability then
+		self.owner:remove_ability(self.war3_id)
 	end
 end
 
@@ -272,8 +272,9 @@ end
 --英雄添加技能
 --	技能名
 --	[初始数据]
+--	[类型]：普通单位技能(默认)、物品
 --	@技能对象
-function unit.__index:add_skill(name, data)
+function unit.__index:add_skill(name, data, type)
 	if not ac.skill[name] then
 		log.error('技能不存在', name)
 		return false
@@ -299,6 +300,13 @@ function unit.__index:add_skill(name, data)
 
 	if skill.on_add then
 		skill:on_add()
+	end
+
+	if type ~= '物品' then
+		if not data.war3_id then
+			log.error( ('给单位%s添加的技能没有war3_id'):format(self:tostring()) )
+		end
+		self:add_ability(data.war3_id)
 	end
 
 	table.insert(self._skills, skill)

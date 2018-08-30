@@ -121,7 +121,7 @@ function mt:set_attack_rate(rate)
 end
 
 function mt:add_attack_rate(rate)
-    return self:set_attack_rate(self:get_attack_rate()+rate)
+    return self:set_attack_rate(self:get_attack_rate()-rate)
 end
 
 
@@ -148,21 +148,24 @@ function mt:get_current_move_speed()
     return jass.GetUnitMoveSpeed(self.handle)
 end
 
---增加的移动速度
+--@增加的移动速度
 mt._add_move_speed = 0
 function mt:get_add_move_speed()
     return self._add_move_speed
 end
 
-function mt:set_add_move_speed(speed)
+--该接口不应该被外界调用
+function mt:_set_add_move_speed(speed)
     self._add_move_speed = speed
 end
 
-function mt:add_add_move_speed(speed)
-    self:set_add_move_speed(self:get_add_move_speed() + speed)
+--该接口不应该被外界调用
+function mt:_add_add_move_speed(speed)
+    self:_set_add_move_speed(self:get_add_move_speed() + speed)
 end
 
 --  @不计算单位光环的加成，即基础速度+额外速度
+--注：该数值可能大于522，但单位速度不会大于522
 function mt:get_move_speed()
     return self:get_base_move_speed() + self:get_add_move_speed()
 end
@@ -171,7 +174,9 @@ function mt:set_move_speed(speed)
     jass.SetUnitMoveSpeed(self.handle , speed)
 end
 
+--增加单位的移动速度
+--注：当需要增加单位移动速度时，应该使用该接口
 function mt:add_move_speed(speed)
-    self:add_add_move_speed(speed)
+    self:_add_add_move_speed(speed)
     self:set_move_speed(self:get_move_speed())
 end

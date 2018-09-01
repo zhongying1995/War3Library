@@ -44,8 +44,11 @@ mt.owner = nil
 --存活
 mt._is_alive = true
 
---技能
+--技能,字符串，用于初始化单位身上的技能
 mt.skills = nil
+
+--单位所拥有的技能，表
+mt._skills = nil
 
 --家当
 mt.gold = 0
@@ -64,6 +67,88 @@ mt.last_pause_clock = 0
 
 --系数
 mt.proc = 1
+
+
+local function init_unit(handle, p)
+	if Unit.all_units[handle] then
+		return Unit.all_units[handle]
+	end
+	if handle == 0 then
+		return nil
+	end
+	local id = base.id2string(jass.GetUnitTypeId(handle))
+	local name = jass.GetUnitName(handle)
+	local data = ac.unit[id]
+	if type(data) == 'function' then
+		data = ac.unit[name]
+	end
+	if type(data) ~= 'type' then
+		data = Unit
+	end
+	local u = {}
+	setmetatable(u, u)
+	u.__index = data
+
+	dbg.gchash(u, handle)
+	u.gchash = handle
+	--保存到全局单位表中
+	u.handle = handle
+	u.id = id
+	u.war3_id = id
+	u.name = name
+	u.owner = p or Player[jass.GetOwningPlayer(handle)]
+	u.born_point = u:get_point()
+	Unit.all_units[handle] = u
+	
+	--令物体可以飞行
+	u:add_ability 'Arav'
+	u:remove_ability 'Arav'
+	
+	--忽略警戒点
+	jass.RemoveGuardPosition(u.handle)
+	jass.SetUnitCreepGuard(u.handle, true)
+	
+	--设置高度
+	u:set_high(u:get_slk('moveHeight', 0))
+
+	init_skills(u)
+	
+	return u
+end
+
+local function init_skills(unit)
+	if unit.skills then
+		
+	end
+end
+
+function Unit.new(handle, p)
+	if Unit.all_units[handle] then
+		return Unit.all_units[handle]
+	end
+	local u = init_unit(handle, p)
+	if not u then
+		return nil
+	end
+
+	if u:get_ability_level 'Aloc' == 0 then
+		u:event_notify('单位-创建', u)
+	end
+	
+	return u
+end
+
+--转换handle为单位
+function Unit:__call(handle)
+	if not handle or handle == 0 then
+		return
+	end
+	local u = Unit.all_units[handle]
+	if not u then
+		u = Unit.new(handle)
+	end
+	return u
+end
 
 --获得所有者
 function mt:get_owner()
@@ -851,8 +936,8 @@ end
 --创建马甲
 --	位置
 --	朝向
-function mt:create_dummy(id, where, face)
-	local u = self:get_owner():create_dummy(id or self:get_type_id(), where, face)
+function mt:create_dummy(id, where, face, is_aloc)
+	local u = self:get_owner():create_dummy(id or self:get_type_id(), where, face, is_aloc)
 	return u
 end
 
@@ -925,83 +1010,8 @@ function mt:share_visible(p, flag)
 end
 
 
-local function init_unit(handle, p)
-	if Unit.all_units[handle] then
-		return Unit.all_units[handle]
-	end
-	if handle == 0 then
-		return nil
-	end
-	local u = setmetatable({}, Unit)
-	dbg.gchash(u, handle)
-	u.gchash = handle
-	--保存到全局单位表中
-	u.handle = handle
-	u.id = base.id2string(jass.GetUnitTypeId(handle))
-	u.owner = p or Player[jass.GetOwningPlayer(handle)]
-	u.born_point = u:get_point()
-	Unit.all_units[handle] = u
-	
-	--令物体可以飞行
-	u:add_ability 'Arav'
-	u:remove_ability 'Arav'
-	
-	--忽略警戒点
-	jass.RemoveGuardPosition(u.handle)
-	jass.SetUnitCreepGuard(u.handle, true)
-	
-	--设置高度
-	u:set_high(u:get_slk('moveHeight', 0))
-	
-	return u
-end
-
 function Unit.init_illusion(handle, p)
 	local u = init_unit(handle, p)
-	return u
-end
-
-function Unit.init_unit(handle, p)
-	if Unit.all_units[handle] then
-		return Unit.all_units[handle]
-	end
-	local u = init_unit(handle, p)
-	if not u then
-		return nil
-	end
-
-	local data = ac.lni.unit[u:get_name()]
-	if data then
-		u.unit_type = data.type
-		if data.attribute then
-			for k, v in pairs(data.attribute) do
-				u:set(k, v)
-			end
-		end
-		if data.restriction then
-			for _, v in ipairs(data.restriction) do
-				u:add_restriction(v)
-			end
-		end
-	end
-
-	if u:get_ability_level 'Aloc' == 0 then
-		u:event_notify('单位-创建', u)
-	end
-	
-	if data then
-		if data.hero_skill then
-			for _, skl in ipairs(data.hero_skill) do
-				u:add_skill(skl, '英雄')
-			end
-		end
-		if data.hide_skill then
-			for _, skl in ipairs(data.hide_skill) do
-				u:add_skill(skl, '隐藏')
-			end
-		end
-	end
-	
 	return u
 end
 
@@ -1026,10 +1036,10 @@ function Unit.create(player, id, where, face)
 	end
 	
 	ignore_flag = true
-	local handle = jass.CreateUnit(self.handle, j_id, x, y, face or 0)
+	local handle = jass.CreateUnit(player.handle, j_id, x, y, face or 0)
 	dbg.handle_ref(handle)
 	ignore_flag = false
-	local u = Unit.init_unit(handle, self)
+	local u = Unit.new(handle, player)
 	return u
 end
 
@@ -1041,7 +1051,8 @@ function Player.__index:create_unit(id, where, face)
 	Unit.create(self, id, where, face)
 end
 
-function Unit.create_dummy(player, id, where, face)
+--is_aloc:是否添加蝗虫，默认true
+function Unit.create_dummy(player, id, where, face, is_aloc)
 	local x, y
 	if where.type == 'point' then
 		x, y = where:get()
@@ -1053,28 +1064,18 @@ function Unit.create_dummy(player, id, where, face)
 	dbg.handle_ref(handle)
 	ignore_flag = false
 	u._is_dummy = true
-	jass.UnitAddAbility(handle, base.string2id('Aloc'))
-	local u = Unit.init_unit(handle, self)
+	if is_aloc == nil then
+		is_aloc = true
+	end
+	if is_aloc then
+		jass.UnitAddAbility(handle, base.string2id('Aloc'))
+	end
+	local u = Unit.new(handle, player)
 	return u
 end
 
-function Player.__index:create_dummy(id, where, face)
-	return Unit.create_dummy(self, id, where, face)
-end
-
---转换handle为单位
-function Unit:__call(handle)
-	if not handle or handle == 0 then
-		return
-	end
-	local u = Unit.all_units[handle]
-	if not u then
-		if not ignore_flag then
-			log.warn('没有被脚本控制的单位!', handle, base.id2string(jass.GetUnitTypeId(handle)), jass.GetUnitName(handle))
-		end
-		u = Unit.init_unit(handle)
-	end
-	return u
+function Player.__index:create_dummy(id, where, face, is_aloc)
+	return Unit.create_dummy(self, id, where, face, is_aloc)
 end
 
 function mt:event(name)
@@ -1086,12 +1087,12 @@ mt.loop = ac.uloop
 mt.timer = ac.utimer
 
 --初始化
-function Unit.init()
+function init()
 	--全局单位索引
 	Unit.all_units = {}
 	Unit.removed_units = setmetatable({}, { __mode = 'kv' })
 end
 
-Unit.init()
+init()
 
 return Unit

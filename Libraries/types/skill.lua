@@ -101,24 +101,6 @@ local function read_value(self, skill, key)
 	return value
 end
 
---初始化技能
-local function init_skill(self)
-	if self.has_inited then
-		return
-	end
-	self.has_inited = true
-	local data = self.data
-	if not data then
-		data = {}
-		self.data = data
-	end
-	for k, v in pairs(data) do
-		self[k] = v
-	end
-	if data.war3_id then
-		ac.skill[data.war3_id] = self
-	end
-end
 
 function Skill.get_slk_by_id(id, name, default)
 	local ability_data = slk.ability[id]
@@ -234,24 +216,24 @@ function mt:remove()
 	if not hero then
 		return false
 	end
-	if not hero.skills then
+	if not hero._skills then
 		return false
 	end
-
+	if self.on_remove then
+		self:on_remove()
+	end
 	self.removed = true
-	
+
 	local name = self.name
 
-	hero.skills[name] = nil
+	hero._skills[name] = nil
 
 	local order = self:get_order()
 	if order and hero._order_skills then
 		hero._order_skills[order] = nil
 	end
 
-
 	self:remove_ability()
-	
 	
 	return true
 end
@@ -271,10 +253,10 @@ end
 
 --英雄添加技能
 --	技能名
---	[初始数据]
 --	[类型]：普通单位技能(默认)、物品
+--	[初始数据]
 --	@技能对象
-function unit.__index:add_skill(name, data, type)
+function unit.__index:add_skill(name, type, data)
 	if not ac.skill[name] then
 		log.error('技能不存在', name)
 		return false
@@ -283,20 +265,18 @@ function unit.__index:add_skill(name, data, type)
 	if not self._skills then
 		self._skills = {}
 	end
-	
-	if not data then
-		data = {}
-	end
-	for k, v in pairs(ac.skill[name]) do
-		if data[k] == nil then
-			data[k] = v
-		end
+
+	local _data = ac.skill[name]
+	if not _data or type(_data) ~= 'table' then
+		_data = Skill
 	end
 	
-	local skill = setmetatable(data, Skill)
-	skill.__index = skill
+	local skill = data or {}
+	setmetatable(skill, skill)
+	skill.__index = _data
 	skill.owner = self
 	skill:fresh()
+	skill.skill_type = type or '单位'
 
 	if skill.on_add then
 		skill:on_add()
@@ -337,32 +317,17 @@ function unit.__index:find_skill(name)
 end
 
 --遍历单位身上的技能
---	[技能类型]
---	[是否包含未学习的英雄技能]
 --	@list
-function unit.__index:each_skill(type, ignore_level)
-	if not self.skills then
+function unit.__index:each_skill()
+	if not self._skills then
 		return function () end
 	end
 	local result = {}
-	if type then
-		if not self.skills[type] then
-			return function () end
-		end
-		for _, v in pairs(self.skills[type]) do
-			if ignore_level or v:get_level() > 0 then
-				table_insert(result, v)
-			end
-		end
-	else
-		for _, type_skills in pairs(self.skills) do
-			for _, v in pairs(type_skills) do
-				if ignore_level or v:get_level() > 0 then
-					table_insert(result, v)
-				end
-			end
-		end
+	
+	for _, v in pairs(self._skills) do
+		table_insert(result, v)
 	end
+	 
 	local n = 0
 	return function (t, v)
 		n = n + 1
@@ -420,7 +385,25 @@ function mt:create_cast(data)
 	return setmetatable(skill, self)
 end
 
+--注册物品
+local function register_skill(self, data)
+	self.has_inited = true
+	if not data then
+		data = {}
+	end
+	self.data = data
+	for k, v in pairs(data) do
+		self[k] = v
+	end
+	if data.war3_id then
+		ac.skill[data.war3_id] = self
+	end
+	setmetatable(self, self)
+	self.__index = Skill
+	return self
+end
 
+local registered_skills = {}
 local function init()
 	
 	--单位发动技能事件，及其回调
@@ -430,7 +413,8 @@ local function init()
 		local target = Unit(jass.GetSpellTargetUnit()) or ac.point(jass.GetSpellTargetX(), jass.GetSpellTargetY())
 		local name = jass.GetObjectName(id)
 
-		--优先通过id查找
+		--优先通过id查找,id作为拦截器
+		--如果id存在，那么name一定存在
 		local skill = ac.skill[id] or ac.skill[name]
 		
 		if not skill then
@@ -449,27 +433,24 @@ local function init()
 	for i = 1, 13 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, ac.player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_CHANNEL, nil)
 	end
-
+	
+	--不允许同名技能
 	ac.skill = setmetatable({}, {__index = function(self, name)
+		if registered_skills[name] then
+			log.error(('技能%s已经被注册，不应该重复注册！'):format(name))
+			return
+		end
+		registered_skills[name] = true
 		self[name] = {}
-		setmetatable(self[name], Skill)
 		self[name].name = name
-		init_skill(self[name])
-		return self[name]
+		return function(data)
+			return register_skill(self[name], data)
+		end
 	end})
+
 end
 
 init()
 
---保存技能数据
-function Skill:__call(data)
-	self.data = data
-	for k, v in pairs(data) do
-		self[k] = v
-	end
-	self.has_inited = false
-	init_skill(self)
-	return self
-end
 
 return Skill

@@ -9,6 +9,7 @@ end
 
 local function main()
 
+	require 'Kernel.init'
 	require 'Kernel.util._init'
 	require 'Kernel.war3._init'
 	print('->_<-加载基层库完毕！')

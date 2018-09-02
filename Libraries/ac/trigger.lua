@@ -70,3 +70,4 @@ function mt:remove()
 	end)
 end
 
+return Trigger

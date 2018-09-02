@@ -448,6 +448,40 @@ function mt:set_point(point)
 	return true
 end
 
+--移动单位到指定位置(检查碰撞)
+--	移动目标
+--	[无视地形阻挡]
+--	[无视地图边界]
+function mt:set_position(where, path, super)
+	if where:get_point():is_block(path, super) then
+		return false
+	end
+	local x, y = where:get_point():get()
+	local x1, y1, x2, y2 = rect.map:get()
+	if x < x1 then
+		x = x1
+	elseif x > x2 then
+		x = x2
+	end
+	if y < y1 then
+		y = y1
+	elseif y > y2 then
+		y = y2
+	end
+	self:set_point(Point.new(x, y))
+	return true
+end
+
+--传送到指定位置
+--	[无视地形]
+function mt:blink(target, path, not_stop)
+	local source = self:get_point()
+	if self:set_position(target, path) then
+		self:event_notify('单位-传送完成', self, source, target)
+	end
+	if not not_stop then self:issue_order 'stop' end
+end
+
 
 --获取出生点
 function mt:get_born_point()

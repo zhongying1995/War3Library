@@ -17,7 +17,7 @@ function ac.point(x, y, z)
 	return Point.new(x, y, z)
 end
 
-function Point:__tostring()
+function Point:tostring()
     return ('{%.4f, %.4f, %.4f}'):format(self:get(true))
 end
 

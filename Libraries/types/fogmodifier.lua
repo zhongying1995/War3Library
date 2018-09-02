@@ -1,7 +1,7 @@
 
 local jass = require 'jass.common'
 local debug = require 'jass.debug'
-local rect = require 'Libraries.types.rect'
+local rect = require 'Libraries.ac.rect'
 
 local Fogmodifier = {}
 setmetatable(Fogmodifier, Fogmodifier)

@@ -207,7 +207,7 @@ function mt:move()
 		if self.jump_speed ~= 0 then
 			self.jump_speed = self.jump_speed + self.jump_a
 			self.jump_size = self.jump_size + self.jump_speed
-			self:setText(self.string,self.jump_size)
+			self:set_text(self.string,self.jump_size)
 			self.zoffset = self.zoffset + self.jump_speed
 			if self.jump_size < self.size then
 				--停止弹跳

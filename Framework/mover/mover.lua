@@ -3,7 +3,7 @@ local jass = require 'jass.common'
 local dbg = require 'jass.debug'
 local runtime = require 'jass.runtime'
 local math = math
-local game = require 'libraries.types.game'
+local Game = Rount.game
 local runtime = require 'jass.runtime'
 local xpcall = xpcall
 local select = select
@@ -28,7 +28,7 @@ ac.mover.HIT_TYPE_ALLY		= '友方'
 ac.mover.HIT_TYPE_ALL		= '别人'
 
 --帧数
-mover.FRAME = game.FRAME
+mover.FRAME = Game.FRAME
 local gchash = 0
 
 --结构
@@ -190,7 +190,7 @@ mover.__index = {
 
 		if self.missile and not skip_remove then
 			self.mover:kill()
-			self.mover:removeAllEffects()
+			self.mover:remove_all_effects()
 		end
 
 		if not self.missile and self.effect then
@@ -315,7 +315,7 @@ mover.__index = {
 
 				self.hited_units[u] = true
 			end
-			if self:isMissile() and u:event_dispatch('单位-即将被投射物击中', u, self) then
+			if self:is_missile() and u:event_dispatch('单位-即将被投射物击中', u, self) then
 				self:remove()
 			else
 				if self.on_hit and self:on_hit(u) then
@@ -442,7 +442,7 @@ mover.__index = {
 	end,
 
 	--是否是投射物
-	isMissile = function(self)
+	is_missile = function(self)
 		return self.missile
 	end,
 
@@ -493,19 +493,23 @@ function mover.add(mover_data)
 	mover.count = mover.count + 1
 	--print('运动方程计数:', mover.count)
 end
-
-function mover.init()
+ 
+function mover.init(missile_id)
 	--投射物的单位id
-	mover.UNIT_ID = 'e001'
+	if not missile_id then
+		log.error('初始化 应用框架层的mover模块，没有传入通用投射物id')
+		missile_id = 'hfoo'
+	end
+	mover.UNIT_ID = missile_id
 	
-	require 'types.mover.target'
-	require 'types.mover.line'
+	require 'Framework.mover.target'
+	require 'Framework.mover.line'
 	
 	--无限循环
 	mover.mover_group = {}
 	mover.removed_mover = setmetatable({}, { __mode = 'kv' })
 end
---该方法每0.03秒会被调用一次
+
 local move_index
 local function mover_move()
 	if move_index then
@@ -524,7 +528,7 @@ local function mover_move()
 	end
 	move_index = nil
 end
---在main中被调用，开启运动循环
+
 function mover.move()
 	xpcall(mover_move, error_handle)
 end
@@ -542,7 +546,7 @@ local function mover_hit()
 	for i = 1, #tbl do
 		hit_index = tbl[i]
 		if tbl[i].paused <= 0 then
-			tbl[i]:checkHit()
+			tbl[i]:check_hit()
 		end
 	end
 	hit_index = nil
@@ -552,4 +556,4 @@ function mover.hit()
 	xpcall(mover_hit, error_handle)
 end
 
-return mover 
+return mover

@@ -1,11 +1,13 @@
 
-require 'libraries.ac.init'
 require 'libraries.ac.utility'
 require 'libraries.ac.lni'
-require 'libraries.ac.point'
-require 'libraries.ac.cricle'
-require 'libraries.ac.trigger'
+Rount.multiboard = require 'libraries.ac.multiboard'
+Rount.point = require 'libraries.ac.point'
+Rount.rect = require 'libraries.ac.rect'
+Rount.region = require 'libraries.ac.region'
+Rount.circle = require 'libraries.ac.cricle'
+Rount.trigger = require 'libraries.ac.trigger'
 require 'libraries.ac.event'
-require 'libraries.ac.player'
+Rount.player = require 'libraries.ac.player'
 require 'libraries.ac.timer'
 

@@ -4,10 +4,9 @@ local japi = require 'jass.japi'
 local slk = require 'jass.slk'
 local dbg = require 'jass.debug'
 local Player = require 'Libraries.ac.player'
-local rect = require 'Libraries.types.rect'
-local game = require 'Libraries.types.game'
+local Rect = require 'Libraries.ac.rect'
 local order2id = require 'Kernel.war3.order_id'
-local Point = reqire 'Libraries.ac.point'
+local Point = require 'Libraries.ac.point'
 local math = math
 local ignore_flag = false
 local table_insert = table.insert
@@ -457,7 +456,7 @@ function mt:set_position(where, path, super)
 		return false
 	end
 	local x, y = where:get_point():get()
-	local x1, y1, x2, y2 = rect.map:get()
+	local x1, y1, x2, y2 = Rect.map:get()
 	if x < x1 then
 		x = x1
 	elseif x > x2 then

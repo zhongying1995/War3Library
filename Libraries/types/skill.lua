@@ -1,7 +1,6 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
-local hero = require 'types.hero'
-local Unit = require 'types.unit'
+local Unit = require 'Libraries.types.unit'
 local slk = require 'jass.slk'
 local runtime = require 'jass.runtime'
 
@@ -212,11 +211,11 @@ function mt:remove()
 	if self.removed then
 		return false
 	end
-	local hero = self.owner
-	if not hero then
+	local unit = self.owner
+	if not unit then
 		return false
 	end
-	if not hero._skills then
+	if not unit._skills then
 		return false
 	end
 	if self.on_remove then
@@ -226,11 +225,11 @@ function mt:remove()
 
 	local name = self.name
 
-	hero._skills[name] = nil
+	unit._skills[name] = nil
 
 	local order = self:get_order()
-	if order and hero._order_skills then
-		hero._order_skills[order] = nil
+	if order and unit._order_skills then
+		unit._order_skills[order] = nil
 	end
 
 	self:remove_ability()
@@ -256,7 +255,7 @@ end
 --	[类型]：普通单位技能(默认)、物品
 --	[初始数据]
 --	@技能对象
-function unit.__index:add_skill(name, type, data)
+function Unit.__index:add_skill(name, type, data)
 	if not ac.skill[name] then
 		Log.error('技能不存在', name)
 		return false
@@ -298,7 +297,7 @@ end
 --英雄移除技能
 --	技能名
 --	@是否成功
-function unit.__index:remove_skill(name)
+function Unit.__index:remove_skill(name)
 	local skill = self:find_skill(name)
 	if skill then
 		return skill:remove()
@@ -309,7 +308,7 @@ end
 --从单位身上找技能
 --	技能名称
 --	@技能对象
-function unit.__index:find_skill(name)
+function Unit.__index:find_skill(name)
 	if not self._skills and not self._skills[name] then
 		return nil
 	end
@@ -318,7 +317,7 @@ end
 
 --遍历单位身上的技能
 --	@list
-function unit.__index:each_skill()
+function Unit.__index:each_skill()
 	if not self._skills then
 		return function () end
 	end
@@ -336,7 +335,7 @@ function unit.__index:each_skill()
 end
 
 -- 命令使用技能
-function unit.__index:cast(name, target, data)
+function Unit.__index:cast(name, target, data)
 	local skill = self:find_skill(name)
 	if not skill then
 		return false
@@ -345,7 +344,7 @@ function unit.__index:cast(name, target, data)
 end
 
 -- 命令强制使用技能
-function unit.__index:force_cast(name, target, data)
+function Unit.__index:force_cast(name, target, data)
 	local skill = self:find_skill(name)
 	if not skill then
 		return false

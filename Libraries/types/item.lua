@@ -1,6 +1,5 @@
 
 local slk = require 'jass.slk'
-local game = require 'types.game'
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
 local skill = require 'Libraries.types.skill'
@@ -619,7 +618,7 @@ local j_trg = War3.CreateTrigger(function()
 	unit:event_notify('单位-获得物品', unit, it)
 end)
 for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_PICKUP_ITEM, nil)
+	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PICKUP_ITEM, nil)
 end
 
 --失去物品、丢弃物品
@@ -632,7 +631,7 @@ local j_trg = War3.CreateTrigger(function()
 	unit:event_notify('单位-失去物品', unit, it)
 end)
 for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
+	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
 end
 
 --失去物品
@@ -651,7 +650,7 @@ local j_trg = War3.CreateTrigger(function()
 	end)
 end)
 for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_PAWN_ITEM, nil)
+	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PAWN_ITEM, nil)
 end
 
 --获得物品、购买物品
@@ -668,7 +667,7 @@ local j_trg = War3.CreateTrigger(function()
 	shop:event_notify('单位-出售物品', shop, it, unit)
 end)
 for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_SELL_ITEM, nil)
+	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELL_ITEM, nil)
 end
 
 --使用物品
@@ -678,7 +677,7 @@ local j_trg = War3.CreateTrigger(function()
 	unit:event_notify('单位-使用物品', unit, it)
 end)
 for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_UNIT_USE_ITEM, nil)
+	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_USE_ITEM, nil)
 end
 
 --注册物品

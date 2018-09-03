@@ -1,5 +1,5 @@
 
-local Unit = require 'Librares.types.unit'
+local Unit = require 'Libraries.types.unit'
 local dbg = require 'jass.debug'
 local table = table
 local math = math

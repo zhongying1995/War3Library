@@ -235,7 +235,7 @@ end
 --	id:单位id(字符串)
 --	where:创建位置(type:point;type:circle;type:rect;type:unit)
 --	face:面向角度
-function player.__index:create_hero(name, where, face)
+function Player.__index:create_hero(name, where, face)
 	local hero_data = Hero.hero_list[name].data
 	local u = self:create_unit(hero_data.id, where, face)
 	setmetatable(u, hero_data)
@@ -338,7 +338,7 @@ function Hero.register_jass_triggers()
 
 	end)
 	for i = 1, 12 do
-		jass.TriggerRegisterPlayerUnitEvent(j_trg, player[i].handle, jass.EVENT_PLAYER_HERO_LEVEL, nil)
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_HERO_LEVEL, nil)
 	end
 end
 

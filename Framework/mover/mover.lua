@@ -497,7 +497,7 @@ end
 function mover.init(missile_id)
 	--投射物的单位id
 	if not missile_id then
-		log.error('初始化 应用框架层的mover模块，没有传入通用投射物id')
+		Log.error('初始化 应用框架层的mover模块，没有传入通用投射物id')
 		missile_id = 'hfoo'
 	end
 	mover.UNIT_ID = missile_id

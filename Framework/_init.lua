@@ -1,6 +1,9 @@
-print('hello, here is Framwork')
 
-NO_MODEL_UNIT_ID = nil
+print('------------------')
+print('>>>>>>>>开始加载Framework层库代码')
 
 require 'FrameWork.mover._init'
-require 'FrameWork.block._init'
+require 'FrameWork.path_block._init'
+
+print('Framework层库代码加载完毕<<<<<<<<')
+print('------------------')

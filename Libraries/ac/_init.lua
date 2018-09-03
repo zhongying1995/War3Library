@@ -11,4 +11,5 @@ Rount.trigger = require 'libraries.ac.trigger'
 require 'libraries.ac.event'
 Rount.player = require 'libraries.ac.player'
 require 'libraries.ac.timer'
+Rount.Game = require 'libraries.ac.game'
 

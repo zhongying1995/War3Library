@@ -349,6 +349,6 @@ local order2id = {
 	['incineratearrowoff'] = 0xD02C0,
 }
 
-war3.order2id = order2id
+War3.order2id = order2id
 
 return order2id

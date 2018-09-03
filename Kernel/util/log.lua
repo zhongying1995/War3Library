@@ -1,6 +1,6 @@
 
-log = require 'jass.log'
-local log = log
+Log = require 'jass.log'
+local log = Log
 
 local function split(str, p)
 	local rt = {}
@@ -8,9 +8,9 @@ local function split(str, p)
 	return rt
 end
 
-local map_name = MAP_NAME or '未知的地图'
+local map_name = (MAP_NAME or '未知的地图') .. '日志'
 
-log.path = map_name .. '\\日志\\' .. split(log.path, '\\')[2]
+log.path = map_name .. '\\' .. split(log.path, '\\')[2]
 
 local std_print = print
 function print(...)

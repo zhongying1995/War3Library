@@ -7,13 +7,13 @@ function print(...)
 	std_print(('[%.3f]'):format(os.clock()), ...)
 end
 
-local function main()
+local function init()
 
 	require 'Kernel.init'
 	require 'Kernel.util._init'
 	require 'Kernel.war3._init'
-	print('->_<-加载基层库完毕！')
+	print('->_<-Kernel层库加载完毕！->_<-')
 
 end
 
-main()
+init()

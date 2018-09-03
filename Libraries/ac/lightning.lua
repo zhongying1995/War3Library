@@ -245,7 +245,7 @@ function Lightning.update()
 	end
 end
 
-function Lightning.reinit(  )
+function Lightning.reinit( )
 	for ln in pairs(Lightning.group) do
 		ln:remove()
 	end

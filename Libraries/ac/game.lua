@@ -5,7 +5,7 @@ Game.FRAME = 0.03
 local observer = {}
 
 function Game.register_observer(name, ob)
-	log.info('注册观察者', name)
+	Log.info('注册观察者', name)
 	table.insert(observer, ob)
 end
 

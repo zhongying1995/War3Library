@@ -156,7 +156,7 @@ end
 function Path_block.init(unit_id)
 	--碰撞体的单位ID
 	if not unit_id then
-		log.error('初始化 应用框架层的path_block模块，没有传入通用碰撞物id')
+		Log.error('初始化 应用框架层的path_block模块，没有传入通用碰撞物id')
 	end
 	Path_block.UNIT_ID = unit_id
 	Path_block.all_path_blocks = {}

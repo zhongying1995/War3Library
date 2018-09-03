@@ -76,7 +76,7 @@ local function init_unit(handle, p)
 	if handle == 0 then
 		return nil
 	end
-	local id = base.id2string(jass.GetUnitTypeId(handle))
+	local id = Base.id2string(jass.GetUnitTypeId(handle))
 	local name = jass.GetUnitName(handle)
 	local data = ac.unit[id]
 	if type(data) == 'function' then
@@ -250,7 +250,7 @@ end
 function Unit.get_slk_by_id(id, name, default)
 	local unit_data = slk.unit[id]
 	if not unit_data then
-		log.error('单位数据未找到', id)
+		Log.error('单位数据未找到', id)
 		return default
 	end
 	local data = unit_data[name]
@@ -515,8 +515,8 @@ function mt:set_high(high, b, change_time)
 	else
 		self.high = high
 	end
-	jass.UnitAddAbility(self.handle, base.string2id('Arav'))
-	jass.UnitRemoveAbility(self.handle, base.string2id('Arav'))
+	jass.UnitAddAbility(self.handle, Base.string2id('Arav'))
+	jass.UnitRemoveAbility(self.handle, Base.string2id('Arav'))
 	jass.SetUnitFlyHeight(self.handle, self.high, change_time or 0)
 end
 
@@ -616,7 +616,7 @@ function mt:add_ability(sid, lv)
 	if not sid then
 		return false
 	end
-	local id = base.string2id(sid)
+	local id = Base.string2id(sid)
 	if not jass.UnitAddAbility(self.handle, id) then
 		return false
 	end
@@ -633,7 +633,7 @@ function mt:remove_ability(war3_id)
 	if not war3_id then
 		return false
 	end
-	local war3_id = base.string2id(war3_id)
+	local war3_id = Base.string2id(war3_id)
 	return jass.UnitRemoveAbility(self.handle, war3_id)
 end
 
@@ -652,7 +652,7 @@ end
 --获取技能等级
 --	技能id
 function mt:get_ability_level(war3_id)
-	local war3_id = base.string2id(war3_id)
+	local war3_id = Base.string2id(war3_id)
 	return jass.GetUnitAbilityLevel(self.handle, war3_id)
 end
 
@@ -660,7 +660,7 @@ end
 --	技能id
 --	[技能等级]
 function mt:set_ability_level(war3_id, lv)
-	local war3_id = base.string2id(war3_id)
+	local war3_id = Base.string2id(war3_id)
 	jass.SetUnitAbilityLevel(self.handle, war3_id, lv or 1)
 end
 
@@ -684,7 +684,7 @@ function mt:make_permanent(war3_id)
 	if not war3_id then
 		return
 	end
-	local war3_id = base.string2id(war3_id)
+	local war3_id = Base.string2id(war3_id)
 	jass.UnitMakeAbilityPermanent(self.handle, true, war3_id)
 end
 
@@ -715,10 +715,10 @@ function mt:issue_order(order, target)
 end
 
 local id2order = setmetatable({}, {__index = function(self, k)
-	log.info('OrderId2String', k)
+	Log.info('OrderId2String', k)
 	local order = jass.OrderId2String(k)
 	if order then
-		log.error(('%s = 0x%X,'):format(order, k))
+		Log.error(('%s = 0x%X,'):format(order, k))
 		self[k] = order
 	else
 		self[k] = ''
@@ -766,7 +766,7 @@ function mt:pause_timer(flag)
 		end
 	else
 		if self.pause_timer_count == 0 then
-			log.error '计数错误'
+			Log.error '计数错误'
 			return
 		end
 		self.pause_timer_count = self.pause_timer_count - 1
@@ -800,7 +800,7 @@ function mt:pause_buff(flag)
 		end
 	else
 		if self.pause_buff_count == 0 then
-			log.error '计数错误'
+			Log.error '计数错误'
 			return
 		end
 		self.pause_buff_count = self.pause_buff_count - 1
@@ -835,7 +835,7 @@ function mt:pause_skill(flag)
 		end
 	else
 		if self.pause_skill_count == 0 then
-			log.error '计数错误'
+			Log.error '计数错误'
 			return
 		end
 		self.pause_skill_count = self.pause_skill_count - 1
@@ -954,11 +954,11 @@ end
 --添加单位视野(依然不能超过1800)
 function mt:add_sight(r)
 	-- self:add_ability 'A007'
-	-- local handle = japi.EXGetUnitAbility(self.handle, base.string2id 'A007')
+	-- local handle = japi.EXGetUnitAbility(self.handle, Base.string2id 'A007')
 	-- japi.EXSetAbilityDataReal(handle, 2, 108, - r)
 	-- self:set_ability_level('A007', 2)
 	-- self:remove_ability 'A007'
-	log.error('添加单位视野api暂时无法使用')
+	Log.error('添加单位视野api暂时无法使用')
 end
 
 
@@ -1061,7 +1061,7 @@ function mt:create_unit(id, where, face)
 end
 
 function Unit.create(player, id, where, face)
-	local j_id = base.string2id(id)
+	local j_id = Base.string2id(id)
 	local x, y
 	if where.type == 'point' then
 		x, y = where:get()
@@ -1094,7 +1094,7 @@ function Unit.create_dummy(player, id, where, face, is_aloc)
 		x, y = where:get_point():get()
 	end
 	ignore_flag = true
-	local handle = jass.CreateUnit(player.handle, base.string2id(id), x, y, face or 0)
+	local handle = jass.CreateUnit(player.handle, Base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
 	ignore_flag = false
 	u._is_dummy = true
@@ -1102,7 +1102,7 @@ function Unit.create_dummy(player, id, where, face, is_aloc)
 		is_aloc = true
 	end
 	if is_aloc then
-		jass.UnitAddAbility(handle, base.string2id('Aloc'))
+		jass.UnitAddAbility(handle, Base.string2id('Aloc'))
 	end
 	local u = Unit.new(handle, player)
 	return u

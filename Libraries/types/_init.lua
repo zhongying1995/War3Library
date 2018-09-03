@@ -2,7 +2,6 @@
 Rount.game = require 'libraries.types.game'
 Rount.lightning = require 'libraries.types.lightning'
 Rount.texttag = require 'libraries.types.texttag'
-Rount.fogmodifier = require 'libraries.types.fogmodifier'
 Rount.unit = require 'libraries.types.unit'
 Rount.heal = require 'libraries.types.heal'
 require 'libraries.types.attribute'

@@ -62,8 +62,8 @@ function Heal:__call(heal)
 	end
 
 	if heal.skill == nil then
-		log.warnning('治疗没有关联技能')
-		log.warnning(debug.traceback())
+		Log.warnning('治疗没有关联技能')
+		Log.warnning(debug.traceback())
 	end
 	
 	setmetatable(heal, self)

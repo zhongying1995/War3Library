@@ -53,7 +53,9 @@ function Point:__div(dest)
 end
 
 --获取点
-Point.__call = mt.get
+function Point:__call( getz )
+	return self[1], self[2], getz and self:getZ() or self[3]
+end
 
 --结构
 local mt = {}
@@ -70,7 +72,7 @@ mt[3] = 0
 --获取坐标
 --	是否重新计算z轴坐标
 function mt:get(getz)
-	return self[1], self[2], getz and self:getZ() or self[3]
+	return self(getz)
 end
 
 --计算地面的z轴坐标

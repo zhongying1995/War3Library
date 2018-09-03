@@ -1,9 +1,9 @@
 
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
-local rect = require 'types.rect'
-local circle = require 'types.circle'
-local fogmodifier = require 'types.fogmodifier'
+local rect = require 'libraries.ac.rect'
+local circle = require 'libraries.ac.circle'
+local fogmodifier = require 'libraries.ac.fogmodifier'
 local texttag
 local mouse
 
@@ -290,13 +290,13 @@ end
 --禁用技能
 function mt:enable_ability(ability_id)
 	if ability_id then
-		jass.SetPlayerAbilityAvailable(self.handle, base.string2id(ability_id), true)
+		jass.SetPlayerAbilityAvailable(self.handle, Base.string2id(ability_id), true)
 	end
 end
 
 function mt:disable_ability(ability_id)
 	if ability_id then
-		jass.SetPlayerAbilityAvailable(self.handle, base.string2id(ability_id), false)
+		jass.SetPlayerAbilityAvailable(self.handle, Base.string2id(ability_id), false)
 	end
 end
 
@@ -571,7 +571,7 @@ end
 --一些常用事件
 function Player.regist_jass_triggers()
 	--玩家聊天事件
-		local trg = war3.CreateTrigger(function()
+		local trg = War3.CreateTrigger(function()
 			local player = Player(jass.GetTriggerPlayer())
 			player:event_notify('玩家-聊天', player, jass.GetEventPlayerChatString())
 		end)
@@ -581,7 +581,7 @@ function Player.regist_jass_triggers()
 		end
 
 	--玩家离开事件
-		local trg = war3.CreateTrigger(function()
+		local trg = War3.CreateTrigger(function()
 			local p = Player(jass.GetTriggerPlayer())
 			if p:is_player() then
 				Player.count = Player.count - 1
@@ -659,8 +659,6 @@ local function init()
 			Player.count = Player.count + 1
 		end
 
-		log.debug(('玩家[%s][%s]'):format(i, Player[i]:get_name()))
-
 	end
 
 	--保留2个图标位置
@@ -671,7 +669,6 @@ local function init()
 
 	--本地玩家
 	Player.self = Player(jass.GetLocalPlayer())
-	log.debug(('本地玩家[%s][%s]'):format(Player.self:get(), Player.self:get_name()))
 
 	--注册常用事件
 	Player.regist_jass_triggers()

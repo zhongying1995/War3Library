@@ -1,6 +1,6 @@
 
 local jass = require 'jass.common'
-local Rect = require 'Libraries.types.rect'
+local Rect = require 'Libraries.ac.rect'
 local dbg = require 'jass.debug'
 
 local Region = {}
@@ -37,10 +37,10 @@ function mt:remove()
 	self.removed = true
 	jass.RemoveRegion(self.handle)
 	if self.event_enter then
-		war3.DestroyTrigger(self.event_enter)
+		War3.DestroyTrigger(self.event_enter)
 	end
 	if self.event_leave then
-		war3.DestroyTrigger(self.event_leave)
+		War3.DestroyTrigger(self.event_leave)
 	end
 	dbg.handle_unref(self.handle)
 	self.handle = nil

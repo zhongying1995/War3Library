@@ -65,7 +65,7 @@ function mt:get_handle()
 	if self.owner.removed then
 		return 0
 	end
-	return japi.EXGetUnitAbility(self.owner.handle, base.string2id(self.war3_id))
+	return japi.EXGetUnitAbility(self.owner.handle, Base.string2id(self.war3_id))
 end
 
 
@@ -258,7 +258,7 @@ end
 --	@技能对象
 function unit.__index:add_skill(name, type, data)
 	if not ac.skill[name] then
-		log.error('技能不存在', name)
+		Log.error('技能不存在', name)
 		return false
 	end
 
@@ -284,7 +284,7 @@ function unit.__index:add_skill(name, type, data)
 
 	if type ~= '物品' then
 		if not data.war3_id then
-			log.error( ('给单位%s添加的技能没有war3_id'):format(self:tostring()) )
+			Log.error( ('给单位%s添加的技能没有war3_id'):format(self:tostring()) )
 		end
 		self:add_ability(data.war3_id)
 	end
@@ -407,9 +407,9 @@ local registered_skills = {}
 local function init()
 	
 	--单位发动技能事件，及其回调
-	local j_trg = war3.CreateTrigger(function()
+	local j_trg = War3.CreateTrigger(function()
 		local unit = Unit(jass.GetTriggerUnit())
-		local id = base.id2string(jass.GetSpellAbilityId())
+		local id = Base.id2string(jass.GetSpellAbilityId())
 		local target = Unit(jass.GetSpellTargetUnit()) or ac.point(jass.GetSpellTargetX(), jass.GetSpellTargetY())
 		local name = jass.GetObjectName(id)
 
@@ -437,7 +437,7 @@ local function init()
 	--不允许同名技能
 	ac.skill = setmetatable({}, {__index = function(self, name)
 		if registered_skills[name] then
-			log.error(('技能%s已经被注册，不应该重复注册！'):format(name))
+			Log.error(('技能%s已经被注册，不应该重复注册！'):format(name))
 			return
 		end
 		registered_skills[name] = true

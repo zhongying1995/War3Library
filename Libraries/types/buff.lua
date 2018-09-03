@@ -124,7 +124,7 @@ function mt:set_remaining(time_out)
 			local target_pulse_count = self.life_time / self.pulse
 			if target_pulse_count - 1 == self.pulse_count and self:get_pulse() < 0.1 then
 				self.pulse_count = self.pulse_count + 1
-				--log.error('buff on_finish')
+				--Log.error('buff on_finish')
 				if self.on_pulse then
 					self:on_pulse(self.pulse_count)
 				end
@@ -273,7 +273,7 @@ function Unit.__index:add_buff(name, delay)
 	return function(bff)
 		local data = ac.buff[name]
 		if not data then
-			log.error('未找到buff', name)
+			Log.error('未找到buff', name)
 			return
 		end
 		gchash = gchash + 1

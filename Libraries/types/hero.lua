@@ -202,9 +202,9 @@ function mt:transform(target_id)
 		dummy:add_ability 'AEme'
 	end
 	--变身
-	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, base.string2id 'AEme'), 1, 117, base.string2id(self:get_type_id()))
+	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, Base.string2id 'AEme'), 1, 117, Base.string2id(self:get_type_id()))
 	self:add_ability 'AEme'
-	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, base.string2id 'AEme'), base.string2id(target_id))
+	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, Base.string2id 'AEme'), Base.string2id(target_id))
 	self:remove_ability 'AEme'
 
 	--修改ID

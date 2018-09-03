@@ -175,7 +175,7 @@ function Unit.__index:damage(data)
 	Damage(data)
 end
 
-local j_trg = war3.CreateTrigger(function()
+local j_trg = War3.CreateTrigger(function()
 	local source = Unit(jass.GetEventDamageSource())
 	local target = Unit(jass.GetTriggerUnit())
 	local damage_val = jass.GetEventDamage()
@@ -186,7 +186,7 @@ local j_trg = war3.CreateTrigger(function()
 
 	if not target or target:is_removed() then
 		if target then
-			log.info(('%s对【已被移除的%s】造成伤害'):format(source and source:tostring(), target:tostring()))
+			Log.info(('%s对【已被移除的%s】造成伤害'):format(source and source:tostring(), target:tostring()))
 		end
 		return
 	end
@@ -199,7 +199,7 @@ local j_trg = war3.CreateTrigger(function()
 	end
 
 	if source:is_removed() then
-		log.info(('【已被移除的%s】对%s造成伤害'):format(source:tostring(), target:tostring()))
+		Log.info(('【已被移除的%s】对%s造成伤害'):format(source:tostring(), target:tostring()))
 		return
 	end
 

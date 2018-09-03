@@ -56,7 +56,7 @@ mt.player = nil
 --该状态时，不应该执行获得、失去、移动物品的逻辑
 local drop_flag = false
 
-local dummy_id = base.string2id 'ches'
+local dummy_id = Base.string2id 'ches'
 
 --格子，1-6
 function Unit.__index:get_slot_item(slotid)
@@ -69,7 +69,7 @@ function Item.new(handle)
 	if handle == 0 then
 		return nil
 	end
-	local war3_id = base.id2string(jass.GetItemTypeId(handle))
+	local war3_id = Base.id2string(jass.GetItemTypeId(handle))
 	local name = jass.GetItemName(handle)
 	local data = ac.item[war3_id] 
 	if type(data) == 'function' then
@@ -109,7 +109,7 @@ end
 function Item.get_slk_by_id(id, name, default)
 	local item_data = slk.item[id]
 	if not item_data then
-		log.error('物品数据未找到', id)
+		Log.error('物品数据未找到', id)
 		return default
 	end
 	local data = item_data[name]
@@ -325,20 +325,20 @@ end
 function mt:set_tip(tip, player)
 	if player then
 		if Player.self == player then
-			japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
+			japi.EXSetItemDataString(Base.string2id(self.id), 3, tip)
 		end
 	else
-		japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
+		japi.EXSetItemDataString(Base.string2id(self.id), 3, tip)
 	end
 end
 
 function mt:set_title(title)
 	if player then
 		if Player.self == player then
-			japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
+			japi.EXSetItemDataString(Base.string2id(self.id), 4, tip)
 		end
 	else
-		japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
+		japi.EXSetItemDataString(Base.string2id(self.id), 4, tip)
 	end
 end
 
@@ -346,10 +346,10 @@ end
 function mt:set_art(art)
 	if player then
 		if Player.self == player then
-			japi.EXSetItemDataString(base.string2id(self.id), 1, art)
+			japi.EXSetItemDataString(Base.string2id(self.id), 1, art)
 		end
 	else
-		japi.EXSetItemDataString(base.string2id(self.id), 1, art)
+		japi.EXSetItemDataString(Base.string2id(self.id), 1, art)
 	end
 	self:fresh()
 end
@@ -439,11 +439,11 @@ function mt:on_add_attribute()
 				if skl then
 					unit:add_skill(skl, '物品')
 				else
-					log.error(('物品%s的skills字段存在没初始化的技能%s(被添加的)，请检查！！'):format(self:get_title(), name))
+					Log.error(('物品%s的skills字段存在没初始化的技能%s(被添加的)，请检查！！'):format(self:get_title(), name))
 				end
 			end
 		else
-			log.error(('物品%s的skills字段不为字符串，请检查！！'):format(self:get_title()))
+			Log.error(('物品%s的skills字段不为字符串，请检查！！'):format(self:get_title()))
 		end
 	end
 
@@ -516,11 +516,11 @@ function mt:on_remove_attribute()
 				if skl then
 					unit:remove_skill(skl)
 				else
-					log.error(('物品%s的skills字段存在没初始化的技能%s(被移除的)，请检查！！'):format(self:get_title(), name))
+					Log.error(('物品%s的skills字段存在没初始化的技能%s(被移除的)，请检查！！'):format(self:get_title(), name))
 				end
 			end
 		else
-			log.error(('物品%s的skills字段不为字符串，请检查！！'):format(self:get_title()))
+			Log.error(('物品%s的skills字段不为字符串，请检查！！'):format(self:get_title()))
 		end
 	end
 
@@ -610,7 +610,7 @@ ac.game:event '单位-发布指令' (function(trg, hero, order, target, player_o
 end)
 
 --获得物品、捡起物品
-local j_trg = war3.CreateTrigger(function()
+local j_trg = War3.CreateTrigger(function()
 	if drop_flag then
 		return
 	end
@@ -623,7 +623,7 @@ for i = 1, 16 do
 end
 
 --失去物品、丢弃物品
-local j_trg = war3.CreateTrigger(function()
+local j_trg = War3.CreateTrigger(function()
 	if drop_flag then
 		return
 	end
@@ -636,7 +636,7 @@ for i = 1, 16 do
 end
 
 --失去物品
-local j_trg = war3.CreateTrigger(function()
+local j_trg = War3.CreateTrigger(function()
 	if drop_flag then
 		return
 	end
@@ -655,7 +655,7 @@ for i = 1, 16 do
 end
 
 --获得物品、购买物品
-local j_trg = war3.CreateTrigger(function()
+local j_trg = War3.CreateTrigger(function()
 	if drop_flag then
 		return
 	end
@@ -672,7 +672,7 @@ for i = 1, 16 do
 end
 
 --使用物品
-local j_trg = war3.CreateTrigger(function()
+local j_trg = War3.CreateTrigger(function()
 	local unit = Unit(jass.GetTriggerUnit())
 	local it = Item(jass.GetManipulatedItem())
 	unit:event_notify('单位-使用物品', unit, it)
@@ -706,7 +706,7 @@ local function init()
 
 	ac.item = setmetatable({}, {__index = function(self, name)
 		if registered_items[name] then
-			log.error(('物品%s已经被注册，不应该重复注册！'):format(name))
+			Log.error(('物品%s已经被注册，不应该重复注册！'):format(name))
 			return
 		end
 		registered_items[name] = true

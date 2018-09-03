@@ -36,7 +36,7 @@ function sound.pool_get(name)
 	end
 	local sound = list[#list]
 	table.remove(list)
-	log.info('音效池', name)
+	Log.info('音效池', name)
 	return sound
 end
 
@@ -56,8 +56,8 @@ function sound.set_duration(snd, name)
 	if dur == 0 then
 		dur = 10000
 		sound.init(name, dur)
-		log.warn('没有注册的音效:' .. name)
-		log.info(([=[sound.init([[%s]], %d)]=]):format(name, jass.GetSoundDuration(snd)))
+		Log.warn('没有注册的音效:' .. name)
+		Log.info(([=[sound.init([[%s]], %d)]=]):format(name, jass.GetSoundDuration(snd)))
 	end
 	jass.SetSoundDuration(snd, dur)
 end
@@ -66,7 +66,7 @@ end
 --	音效路径
 function sound.create(name)
 	local snd = jass.CreateSound(name, false, false, false, 10, 10, '')
-	log.info('音效创建', name, jass.GetSoundDuration(snd))
+	Log.info('音效创建', name, jass.GetSoundDuration(snd))
 	jass.SetSoundChannel(snd, 0)
 	jass.SetSoundVolume(snd, 127)
 	jass.SetSoundPitch(snd, 1)

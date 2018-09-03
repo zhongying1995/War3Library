@@ -1,7 +1,7 @@
 
 local jass = require 'jass.common'
 local debug = require 'jass.debug'
-local rect = require 'Libraries.ac.rect'
+local Rect = require 'Libraries.ac.rect'
 
 local Fogmodifier = {}
 setmetatable(Fogmodifier, Fogmodifier)
@@ -33,7 +33,7 @@ function Fogmodifier.new(p, where, see, share, over)
 	
 	local j_handle
 	if where.type == 'rect' then
-		j_handle = jass.CreateFogModifierRect(p.handle, see, rect.j_temp(where), share, over)
+		j_handle = jass.CreateFogModifierRect(p.handle, see, Rect.j_temp(where), share, over)
 	elseif where.type == 'circle' then
 		local x, y, r = where:get()
 		j_handle = jass.CreateFogModifierRadius(p.handle, see, x, y, r, share, over)

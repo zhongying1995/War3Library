@@ -106,16 +106,28 @@ function mt:set_alliance(dest, al, flag)
 end
 
 function mt:set_alliance_simple(dest, flag)
-	jass.SetPlayerAlliance(self.handle, dest.handle, 0, flag)		--ALLIANCE_PASSIVE
-	jass.SetPlayerAlliance(self.handle, dest.handle, 1, false)	--ALLIANCE_HELP_REQUEST
-	jass.SetPlayerAlliance(self.handle, dest.handle, 2, false)	--ALLIANCE_HELP_RESPONSE
-	jass.SetPlayerAlliance(self.handle, dest.handle, 3, flag)		--ALLIANCE_SHARED_XP
-	jass.SetPlayerAlliance(self.handle, dest.handle, 4, flag)		--ALLIANCE_SHARED_SPELLS
-	jass.SetPlayerAlliance(self.handle, dest.handle, 5, flag)		--ALLIANCE_SHARED_VISION
-	--jass.SetPlayerAlliance(self, dest, 6, flag)	--ALLIANCE_SHARED_CONTROL
-	--jass.SetPlayerAlliance(self, dest, 7, flag)	--ALLIANCE_SHARED_ADVANCED_CONTROL
+	jass.SetPlayerAlliance(self.handle, dest.handle, 0, flag)		--ALLIANCE_PASSIVE结盟不侵犯
+	jass.SetPlayerAlliance(self.handle, dest.handle, 1, false)	--ALLIANCE_HELP_REQUEST救援请求
+	jass.SetPlayerAlliance(self.handle, dest.handle, 2, false)	--ALLIANCE_HELP_RESPONSE救援回应
+	jass.SetPlayerAlliance(self.handle, dest.handle, 3, flag)		--ALLIANCE_SHARED_XP共享经验
+	jass.SetPlayerAlliance(self.handle, dest.handle, 4, flag)		--ALLIANCE_SHARED_SPELLS盟友魔法锁定
+	jass.SetPlayerAlliance(self.handle, dest.handle, 5, flag)		--ALLIANCE_SHARED_VISION共享视野
+	--jass.SetPlayerAlliance(self, dest, 6, flag)	--ALLIANCE_SHARED_CONTROL共享单位
+	--jass.SetPlayerAlliance(self, dest, 7, flag)	--ALLIANCE_SHARED_ADVANCED_CONTROL完全共享控制权
 	--jass.SetPlayerAlliance(self, dest, 8, flag)	--ALLIANCE_RESCUABLE
 	--jass.SetPlayerAlliance(self, dest, 9, flag)	--ALLIANCE_SHARED_VISION_FORCED
+end
+
+function mt:set_alliance_ally( dest, is_ally )
+	if is_ally == nil then
+		is_ally = true
+	end
+	self:set_alliance(dest, 0, is_ally)
+	self:set_alliance(dest, 1, is_ally)
+	self:set_alliance(dest, 2, is_ally)
+	self:set_alliance(dest, 3, is_ally)
+	self:set_alliance(dest, 4, is_ally)
+	self:set_alliance(dest, 5, is_ally)
 end
 
 --队伍

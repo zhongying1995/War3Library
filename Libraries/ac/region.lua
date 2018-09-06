@@ -18,7 +18,7 @@ mt.type = 'region'
 mt.handle = 0
 
 --创建不规则区域
-function Region.new(...)
+function Region:new(...)
 	local rgn = setmetatable({}, Region)
 	rgn.handle = jass.CreateRegion()
 	dbg.handle_ref(rgn.handle)
@@ -116,7 +116,7 @@ function Region:__lt(dest)
 end
 
 function Region:__call(...)
-	return self.new(...)
+	return self:new(...)
 end
 
 return Region

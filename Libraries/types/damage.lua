@@ -119,7 +119,7 @@ function mt:add_damage(damage)
 end
 
 function Damage:__call(data)
-	local damage = Damage.new(data)
+	local damage = Damage:new(data)
 	local source = damage.source
 	local target = damage.target
 
@@ -187,12 +187,13 @@ local j_trg = War3.CreateTrigger(function()
 		return
 	end
 
-	local damage
+	local damage = Damage:new()
 	if source._is_damage_dummy then
 		damage = source.damage
 		init_damage_dummy(source)
 		source = damage.source
 	end
+	damage.damage = damage_val
 
 	if source:is_removed() then
 		Log.info(('【已被移除的%s】对%s造成伤害'):format(source:tostring(), target:tostring()))
@@ -219,7 +220,9 @@ local j_trg = War3.CreateTrigger(function()
 		target:event_notify('单位-即将受到致命伤害', damage)
 	end
 	
-	japi.EXSetEventDamage(damage.damage)
+	if damage.damage ~= damage_val then
+		japi.EXSetEventDamage(damage.damage)
+	end
 end)
 
 ac.game:event '单位-创建'(function(trg, unit)

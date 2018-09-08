@@ -30,14 +30,12 @@ mt.finish_time = 0
 
 function mt:new( time, title )
     local j_timer = jass.CreateTimer()
-    local j_dialog = jass.CreateTimerDialog(j_dialog)
+    local j_dialog = jass.CreateTimerDialog(j_timer)
     
     local o = setmetatable({}, Timerdialog)
     o.timer_handle = j_timer
     o.handle = j_dialog
-    o.current_time = math.ceil(math.max(0, time or 0))
-    jass.TimerStart(j_timer, time, false, null)
-    jass.PauseTimer(j_timer)
+    o:set_time( time )
     if title then
         o:set_title(title)
     end
@@ -47,7 +45,7 @@ end
 
 function mt:set_title( title )
     self.title = title
-    jass.TimerDialogSetTitle(self.timer_handle, title)
+    jass.TimerDialogSetTitle(self.handle, title)
     return self
 end
 
@@ -90,6 +88,8 @@ end
 --设置当前的运行时间
 function mt:set_time( time )
     self.current_time = math.max(0, time or 0)
+    jass.TimerStart(self.timer_handle, self.current_time, false, nil)
+    jass.PauseTimer(self.timer_handle)
     return self
 end
 
@@ -130,6 +130,7 @@ function mt:run( finish_time )
             if self.on_click then
                 self:on_click()
             end
+            t:remove()
         end
     end)
 end

@@ -11,7 +11,7 @@ local Player = {}
 setmetatable(Player, Player)
 ac.player = Player
 
-function Player:__tostring()
+function Player:tostring()
     return ('玩家%02d|%s|%s'):format(self.id, self.base_name, jass.GetPlayerName(self.handle))
 end
 
@@ -32,6 +32,9 @@ mt.gold = 0
 
 --零钱
 mt.gold_pool = 0
+
+--本地玩家
+mt.self = nil
 
 
 --获取玩家id

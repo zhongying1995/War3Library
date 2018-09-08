@@ -67,6 +67,11 @@ mt.last_pause_clock = 0
 --系数
 mt.proc = 1
 
+local function init_skills(unit)
+	if unit.skills then
+		
+	end
+end
 
 local function init_unit(handle, p)
 	if Unit.all_units[handle] then
@@ -115,11 +120,6 @@ local function init_unit(handle, p)
 	return u
 end
 
-local function init_skills(unit)
-	if unit.skills then
-		
-	end
-end
 
 function Unit.new(handle, p)
 	if Unit.all_units[handle] then
@@ -1081,7 +1081,7 @@ end
 --	位置
 --	[朝向]
 function Player.__index:create_unit(id, where, face)
-	Unit.create(self, id, where, face)
+	return Unit.create(self, id, where, face)
 end
 
 --is_aloc:是否添加蝗虫，默认true

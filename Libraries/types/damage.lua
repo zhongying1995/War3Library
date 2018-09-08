@@ -1,11 +1,7 @@
 local jass = require 'jass.common'
-local slk = require 'jass.slk'
+local japi = require 'jass.japi'
 local Unit = require 'Libraries.types.unit'
 local setmetatable = setmetatable
-local tostring = tostring
-local math = math
-local ac_event_dispatch = ac.event_dispatch
-local ac_event_notify = ac.event_notify
 local table_insert = table.insert
 local table_remove = table.remove
 
@@ -227,7 +223,7 @@ local j_trg = War3.CreateTrigger(function()
 end)
 
 ac.game:event '单位-创建'(function(trg, unit)
-	jass.TriggerRegisterUnitEvent(j_trg, u.handle, jass.EVENT_UNIT_DAMAGED)
+	jass.TriggerRegisterUnitEvent(j_trg, unit.handle, jass.EVENT_UNIT_DAMAGED)
 end)
 
 return Damage

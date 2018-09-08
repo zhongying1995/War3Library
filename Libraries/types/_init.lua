@@ -1,5 +1,6 @@
 
 Rount.texttag = require 'libraries.types.texttag'
+Rount.timerdialog = require 'libraries.types.timerdialog'
 Rount.unit = require 'libraries.types.unit'
 Rount.heal = require 'libraries.types.heal'
 require 'libraries.types.attribute'

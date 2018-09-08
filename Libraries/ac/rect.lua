@@ -28,6 +28,10 @@ function mt:get_point()
 	return Point.new((self.minx + self.maxx) / 2, (self.miny + self.maxy) / 2)
 end
 
+--获取随机点
+function mt:get_random_point(  )
+	return Point.new(math.random(self.minx, self.maxx), math.random(self.miny, self.maxy))
+end
 
 --创建矩形区域
 ---Rect.new(最小x, 最小y, 最大x, 最大y)

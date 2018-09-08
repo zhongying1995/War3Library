@@ -583,27 +583,37 @@ end
 --一些常用事件
 function Player.regist_jass_triggers()
 	--玩家聊天事件
-		local trg = War3.CreateTrigger(function()
-			local player = Player(jass.GetTriggerPlayer())
-			player:event_notify('玩家-聊天', player, jass.GetEventPlayerChatString())
-		end)
+	local trg = War3.CreateTrigger(function()
+		local player = Player(jass.GetTriggerPlayer())
+		player:event_notify('玩家-聊天', player, jass.GetEventPlayerChatString())
+	end)
 
-		for i = 1, 16 do
-			jass.TriggerRegisterPlayerChatEvent(trg, Player[i].handle, '', false)
-		end
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerChatEvent(trg, Player[i].handle, '', false)
+	end
 
 	--玩家离开事件
-		local trg = War3.CreateTrigger(function()
-			local p = Player(jass.GetTriggerPlayer())
-			if p:is_player() then
-				Player.count = Player.count - 1
-			end
-			p:event_notify('玩家-离开', p)
-		end)
-
-		for i = 1, 16 do
-			jass.TriggerRegisterPlayerEvent(trg, Player[i].handle, jass.EVENT_PLAYER_LEAVE)
+	local trg = War3.CreateTrigger(function()
+		local p = Player(jass.GetTriggerPlayer())
+		if p:is_player() then
+			Player.count = Player.count - 1
 		end
+		p:event_notify('玩家-离开', p)
+	end)
+
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerEvent(trg, Player[i].handle, jass.EVENT_PLAYER_LEAVE)
+	end
+
+	--玩家按下esc事件
+	local trg = War3.CreateTrigger(function()
+		local p = Player(jass.GetTriggerPlayer())
+		p:event_notify('玩家-按下esc', p)
+	end)
+
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerEvent(trg, Player[i].handle, jass.EVENT_PLAYER_END_CINEMATIC)
+	end
 end
 
 --默认结盟

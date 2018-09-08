@@ -2,21 +2,8 @@
 local setmetatable = setmetatable
 local table = table
 
-local Trigger = {}
-setmetatable(Trigger, Trigger)
-
-function Trigger.new(event, callback)
-	return setmetatable({event = event, callback = callback}, Trigger)
-end
-
-function ac.trigger(event, callback)
-	local trg = Trigger.new(event, callback)
-	table.insert(event, trg)
-	return trg
-end
-
 local mt = {}
-Trigger.__index = mt
+mt.__index = mt
 
 --结构
 mt.type = 'trigger'
@@ -70,4 +57,9 @@ function mt:remove()
 	end)
 end
 
-return Trigger
+
+function ac.trigger(event, callback)
+	local trg = setmetatable({event = event, callback = callback}, mt)
+	table.insert(event, trg)
+	return trg
+end

@@ -686,8 +686,6 @@ local function init()
 
 	end
 
-	--保留2个图标位置
-	jass.SetReservedLocalHeroButtons(2)
 
 	--结盟
 	Player.set_default_ally()

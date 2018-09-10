@@ -586,7 +586,7 @@ ac.game:event '单位-使用物品' (function(trg, unit, it)
 end)
 
 --监听在物品栏中移动物品
-ac.game:event '单位-发布指令' (function(trg, hero, order, target, player_order, order_id)
+ac.game:event '单位-发布指令' (function(trg, hero, order, target, order_id)
 	local slotid = order_id - 852001
 	if slotid >= 1 and slotid <= 6 and not drop_flag then
 		local j_it = jass.GetOrderTargetItem()

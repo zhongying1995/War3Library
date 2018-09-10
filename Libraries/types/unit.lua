@@ -296,7 +296,7 @@ end
 --杀死单位
 --杀死自己，killer是凶手
 --	[致死伤害]
-function mt:kill(killer)
+function mt:killed(killer)
 	if not self:is_alive() then
 		return false
 	end
@@ -312,22 +312,24 @@ function mt:kill(killer)
 		self:event_notify('单位-死亡', self, killer)
 	end
 
-
 	--删除Buff
-	if self.buffs then
-		local buffs = {}
-		for bff in pairs(self.buffs) do
+	if self._buffs then
+		local _buffs = {}
+		for bff in pairs(self._buffs) do
 			if not bff.keep then
-				buffs[#buffs + 1] = bff
+				_buffs[#_buffs + 1] = bff
 			end
 		end
-		for i = 1, #buffs do
-			buffs[i]:remove()
+		for i = 1, #_buffs do
+			_buffs[i]:remove()
 		end
 	end
 
 	if not self:is_hero() then
-		self:remove()
+		local time = self:get_slk('death', 5)
+		ac.wait(time * 1000, function (  )
+			self:remove()
+		end)
 	end
 	return true
 end
@@ -362,13 +364,13 @@ function mt:remove()
 	self:remove_all_effects()
 
 	--移除单位的所有Buff
-	if self.buffs then
-		local buffs = {}
-		for bff in pairs(self.buffs) do
-			buffs[#buffs + 1] = bff
+	if self._buffs then
+		local _buffs = {}
+		for bff in pairs(self._buffs) do
+			_buffs[#_buffs + 1] = bff
 		end
-		for i = 1, #buffs do
-			buffs[i]:remove()
+		for i = 1, #_buffs do
+			_buffs[i]:remove()
 		end
 	end
 	
@@ -379,7 +381,7 @@ function mt:remove()
 
 	--移除单位身上的物品
 	for i = 1, 6 do
-		local it = self:find_skill(i, '物品')
+		local it = self:get_slot_item()
 		if it then
 			it:remove()
 		end
@@ -392,14 +394,11 @@ function mt:remove()
 		end
 	end
 
-	ignore_flag = true
 	jass.RemoveUnit(self.handle)
-	ignore_flag = false
 	
 	--从表中删除单位
 	Unit.all_units[self.handle] = nil
 
-	Unit.removed_units[self] = self
 	dbg.handle_unref(self.handle)
 end
 
@@ -687,15 +686,12 @@ function mt:make_permanent(war3_id)
 	jass.UnitMakeAbilityPermanent(self.handle, true, war3_id)
 end
 
---命令
-mt.script_order = false
 
 --发布命令
 --	命令
 --	[目标]
 function mt:issue_order(order, target)
 	local res
-	self.script_order = true
 	if not target then
 		res = jass.IssueImmediateOrder(self.handle, order)
 	elseif target.owner then
@@ -709,7 +705,6 @@ function mt:issue_order(order, target)
 		end
 		res = jass.IssuePointOrder(self.handle, order, x, y)
 	end
-	self.script_order = false
 	return res
 end
 
@@ -791,8 +786,8 @@ function mt:pause_buff(flag)
 	if flag then
 		self.pause_buff_count = self.pause_buff_count + 1
 		if self.pause_buff_count == 1 then
-			if self.buffs then
-				for buff in pairs(self.buffs) do
+			if self._buffs then
+				for buff in pairs(self._buffs) do
 					buff:pause(true)
 				end
 			end
@@ -804,8 +799,8 @@ function mt:pause_buff(flag)
 		end
 		self.pause_buff_count = self.pause_buff_count - 1
 		if self.pause_buff_count == 0 then
-			if self.buffs then
-				for buff in pairs(self.buffs) do
+			if self._buffs then
+				for buff in pairs(self._buffs) do
 					buff:pause(false)
 				end
 			end
@@ -1119,11 +1114,113 @@ mt.wait = ac.uwait
 mt.loop = ac.uloop
 mt.timer = ac.utimer
 
+function unit.register_jass_triggers()
+	--单位发布指定目标事件
+	local j_trg = war3.CreateTrigger(function()
+		local u = unit(jass.GetTriggerUnit())
+		if not u then
+			return
+		end
+		local j_target_unit = jass.GetOrderTargetUnit()
+		if not j_target_unit then
+			return
+		end
+		
+		local order = jass.GetIssuedOrderId()
+		local target_unit = Unit(j_target_unit)
+		u:event_notify('单位-发布指令', u, id2order[order], target_unit, order)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, nil)
+	end
+
+	--单位发布点目标事件
+	local j_trg = war3.CreateTrigger(function()
+		local u = Unit(jass.GetTriggerUnit())
+		if not u then
+			return
+		end
+		local order = jass.GetIssuedOrderId()
+		u:event_notify('单位-发布指令', u, id2order[order], ac.point(jass.GetOrderPointX(), jass.GetOrderPointY()), order)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, nil)
+	end
+
+	--单位发布无目标事件
+	local j_trg = war3.CreateTrigger(function()
+		local u = Unit(jass.GetTriggerUnit())
+		if not u then
+			return
+		end
+		local order = jass.GetIssuedOrderId()
+		u:event_notify('单位-发布指令', u, id2order[order], nil, order)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_ORDER, nil)
+	end
+
+	--单位攻击事件
+	local j_trg = war3.CreateTrigger(function()
+		local source = Unit(jass.GetAttacker())
+		if not source then
+			--此时可能由某些war3技能引起的攻击事件，例如刀阵旋风
+			return
+		end
+		local target = Unit(jass.GetTriggerUnit())
+		
+		source:event_notify('单位-攻击', source, target)
+		target:event_notify('单位-被攻击', target, source)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ATTACKED, nil)
+	end
+
+	--单位死亡事件
+	local j_trg = war3.CreateTrigger(function()
+		local u = Unit(jass.GetTriggerUnit())
+		local killer = Unit(jass.GetKillingUnit())
+
+		if not killer then
+			--此时凶手已经被移除
+			return
+		end
+		
+		if killer._is_damage_dummy then
+			killer = killer.damage.source
+		end
+		
+		u:killed(killer)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DEATH, nil)
+	end
+
+	--单位召唤事件
+	local j_trg = war3.CreateTrigger(function()
+		local summoned = Unit(jass.GetSummonedUnit())
+		if not summoned then
+			--分身技能会导致两次召唤事件，第一次是无效的
+			return
+		end
+		local summoning = Unit(jass.GetSummoningUnit())
+		summoned:event_notify( '单位-被召唤', summoned, summoning)
+		summoning:event_notify( '单位-召唤', summoning, summoned)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SUMMON, nil)
+	end
+	
+end
+
+
 --初始化
 function init()
 	--全局单位索引
 	Unit.all_units = {}
-	Unit.removed_units = setmetatable({}, { __mode = 'kv' })
+
+	--注册事件
+	unit.register_jass_triggers()
 end
 
 init()

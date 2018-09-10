@@ -430,7 +430,7 @@ local function init()
 		end)
 	end)
 	for i = 1, 13 do
-		jass.TriggerRegisterPlayerUnitEvent(j_trg, ac.player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_CHANNEL, nil)
+		-- jass.TriggerRegisterPlayerUnitEvent(j_trg, ac.player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_CHANNEL, nil)
 	end
 	
 	--不允许同名技能

@@ -220,7 +220,7 @@ function mt:remove()
 	end
 	
 	--print('buff移除', self.name)
-	self.target.buffs[self] = nil
+	self.target._buffs[self] = nil
 	local new_buff
 	if self.cover_type == 1 then
 		--可以共存的Buff,查表
@@ -280,8 +280,8 @@ function Unit.__index:add_buff(name, delay)
 		dbg.gchash(bff, gchash)
 		bff.gchash = gchash
 		setmetatable(bff, data)
-		if not self.buffs then
-			self.buffs = {}
+		if not self._buffs then
+			self._buffs = {}
 		end
 
 		--初始化数据
@@ -387,7 +387,7 @@ function mt:add()
 	--回调buff获得
 	--
 	--print('获得状态', self.name)
-	self.target.buffs[self] = true
+	self.target._buffs[self] = true
 
 	--开启计时器
 	--周期buff
@@ -479,17 +479,17 @@ function mt:disable()
 end
 
 function Unit.__index.each_buff(self, name)
-	if not self.buffs then
+	if not self._buffs then
 		return function () end
 	end
-	local buffs = {}
-	for buff in pairs(self.buffs) do
-		buffs[buff] = true
+	local _buffs = {}
+	for buff in pairs(self._buffs) do
+		_buffs[buff] = true
 	end
 	if not name then
-		return pairs(buffs)
+		return pairs(_buffs)
 	end
-	local next, s, var = pairs(buffs)
+	local next, s, var = pairs(_buffs)
 	return function (s, var)
 		while true do
 			local r = next(s, var)
@@ -502,11 +502,11 @@ end
 
 --移除buff
 function Unit.__index.remove_buff(self, name)
-	if not self.buffs then
+	if not self._buffs then
 		return
 	end
 	local tbl = {}
-	for buff in pairs(self.buffs) do
+	for buff in pairs(self._buffs) do
 		if buff.name == name then
 			tbl[#tbl + 1] = buff
 		end
@@ -518,10 +518,10 @@ end
 
 --找buff
 function Unit.__index.find_buff(self, name)
-	if not self.buffs then
+	if not self._buffs then
 		return
 	end
-	for buff in pairs(self.buffs) do
+	for buff in pairs(self._buffs) do
 		if buff.name == name then
 			return buff
 		end

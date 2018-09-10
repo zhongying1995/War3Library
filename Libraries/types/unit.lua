@@ -86,7 +86,7 @@ local function init_unit(handle, p)
 	if type(data) == 'function' then
 		data = ac.unit[name]
 	end
-	if type(data) ~= 'type' then
+	if type(data) ~= 'unit' then
 		data = Unit
 	end
 	local u = {}
@@ -108,9 +108,12 @@ local function init_unit(handle, p)
 	u:add_ability 'Arav'
 	u:remove_ability 'Arav'
 	
-	--忽略警戒点
-	jass.RemoveGuardPosition(u.handle)
+	-- --忽略警戒点
+	print('handle:', u.handle, handle)
+	print(jass.GetUnitName(handle), jass.GetUnitName(u.handle))
+
 	jass.SetUnitCreepGuard(u.handle, true)
+	jass.RemoveGuardPosition(u.handle)
 	
 	--设置高度
 	u:set_high(u:get_slk('moveHeight', 0))
@@ -1114,10 +1117,10 @@ mt.wait = ac.uwait
 mt.loop = ac.uloop
 mt.timer = ac.utimer
 
-function unit.register_jass_triggers()
+local function register_jass_triggers()
 	--单位发布指定目标事件
-	local j_trg = war3.CreateTrigger(function()
-		local u = unit(jass.GetTriggerUnit())
+	local j_trg = War3.CreateTrigger(function()
+		local u = Unit(jass.GetTriggerUnit())
 		if not u then
 			return
 		end
@@ -1135,7 +1138,7 @@ function unit.register_jass_triggers()
 	end
 
 	--单位发布点目标事件
-	local j_trg = war3.CreateTrigger(function()
+	local j_trg = War3.CreateTrigger(function()
 		local u = Unit(jass.GetTriggerUnit())
 		if not u then
 			return
@@ -1147,21 +1150,25 @@ function unit.register_jass_triggers()
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, nil)
 	end
 
-	--单位发布无目标事件
-	local j_trg = war3.CreateTrigger(function()
-		local u = Unit(jass.GetTriggerUnit())
-		if not u then
-			return
-		end
+	-- --单位发布无目标事件
+	local j_trg = War3.CreateTrigger(function()
+		local j_handle = jass.GetTriggerUnit()
 		local order = jass.GetIssuedOrderId()
-		u:event_notify('单位-发布指令', u, id2order[order], nil, order)
+		ac.wait(0, function ( )
+			local u = Unit(j_handle)
+			if not u then
+				return
+			end
+			u:event_notify('单位-发布指令', u, id2order[order], nil, order)
+		end)
+		
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_ORDER, nil)
 	end
 
 	--单位攻击事件
-	local j_trg = war3.CreateTrigger(function()
+	local j_trg = War3.CreateTrigger(function()
 		local source = Unit(jass.GetAttacker())
 		if not source then
 			--此时可能由某些war3技能引起的攻击事件，例如刀阵旋风
@@ -1177,7 +1184,7 @@ function unit.register_jass_triggers()
 	end
 
 	--单位死亡事件
-	local j_trg = war3.CreateTrigger(function()
+	local j_trg = War3.CreateTrigger(function()
 		local u = Unit(jass.GetTriggerUnit())
 		local killer = Unit(jass.GetKillingUnit())
 
@@ -1197,7 +1204,7 @@ function unit.register_jass_triggers()
 	end
 
 	--单位召唤事件
-	local j_trg = war3.CreateTrigger(function()
+	local j_trg = War3.CreateTrigger(function()
 		local summoned = Unit(jass.GetSummonedUnit())
 		if not summoned then
 			--分身技能会导致两次召唤事件，第一次是无效的
@@ -1220,7 +1227,7 @@ function init()
 	Unit.all_units = {}
 
 	--注册事件
-	unit.register_jass_triggers()
+	register_jass_triggers()
 end
 
 init()

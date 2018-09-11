@@ -43,7 +43,7 @@ end
 function Rect:__add(dest)
 	local minx0, miny0, maxx0, maxy0 = self:get()
 	local minx1, miny1, maxx1, maxy1 = table.unpack(dest)
-	return Rect.new(minx0 + minx1, miny0 + miny1, maxx0 + maxx1, maxy0 + maxy1)
+	return Rect:new(minx0 + minx1, miny0 + miny1, maxx0 + maxx1, maxy0 + maxy1)
 end
 
 --转化jass中的矩形区域
@@ -52,7 +52,7 @@ Rect.j_rects = {}
 function Rect.j_rect(name)
 	if not Rect.j_rects[name] then
 		local j_rect = jass['gg_rct_' .. name]
-		Rect.j_rects[name] = Rect.new(jass.GetRectMinX(j_rect), jass.GetRectMinY(j_rect), jass.GetRectMaxX(j_rect), jass.GetRectMaxY(j_rect))
+		Rect.j_rects[name] = Rect:new(jass.GetRectMinX(j_rect), jass.GetRectMinY(j_rect), jass.GetRectMaxX(j_rect), jass.GetRectMaxY(j_rect))
 	end
 	return Rect.j_rects[name]
 end
@@ -76,7 +76,7 @@ end
 
 --注册
 function Rect.init()
-	Rect.MAP = Rect.new(
+	Rect.MAP = Rect:new(
 		jass.GetCameraBoundMinX() - jass.GetCameraMargin(jass.CAMERA_MARGIN_LEFT) + 32,
 		jass.GetCameraBoundMinY() - jass.GetCameraMargin(jass.CAMERA_MARGIN_BOTTOM) + 32,
 		jass.GetCameraBoundMaxX() + jass.GetCameraMargin(jass.CAMERA_MARGIN_RIGHT) - 32,

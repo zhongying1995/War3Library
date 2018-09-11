@@ -51,19 +51,19 @@ Rect.j_rects = {}
 
 function Rect.j_rect(name)
 	if not Rect.j_rects[name] then
-		local jRect = jass['gg_rct_' .. name]
-		Rect.j_rects[name] = Rect.new(jass.GetRectMinX(jRect), jass.GetRectMinY(jRect), jass.GetRectMaxX(jRect), jass.GetRectMaxY(jRect))
+		local j_rect = jass['gg_rct_' .. name]
+		Rect.j_rects[name] = Rect.new(jass.GetRectMinX(j_rect), jass.GetRectMinY(j_rect), jass.GetRectMaxX(j_rect), jass.GetRectMaxY(j_rect))
 	end
 	return Rect.j_rects[name]
 end
 
---转化jass中的矩形区域为点
+--转化jass中的矩形区域为点,取其中心点
 Rect.j_points = {}
 
 function Rect.j_point(name)
 	if not Rect.j_points[name] then
-		local jRect = jass['gg_rct_' .. name]
-		Rect.j_points[name] = Point.new(jass.GetRectCenterX(jRect), jass.GetRectCenterY(jRect))
+		local j_rect = jass['gg_rct_' .. name]
+		Rect.j_points[name] = Point.new(jass.GetRectCenterX(j_rect), jass.GetRectCenterY(j_rect))
 	end
 	return Rect.j_points[name]
 end

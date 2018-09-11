@@ -1,4 +1,5 @@
 
+Rount.multiboard = require 'libraries.types.multiboard'
 Rount.texttag = require 'libraries.types.texttag'
 Rount.timerdialog = require 'libraries.types.timerdialog'
 Rount.unit = require 'libraries.types.unit'

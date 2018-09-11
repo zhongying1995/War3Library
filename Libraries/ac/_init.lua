@@ -1,6 +1,5 @@
 
 require 'libraries.ac.utility'
-Rount.multiboard = require 'libraries.ac.multiboard'
 Rount.point = require 'libraries.ac.point'
 Rount.rect = require 'libraries.ac.rect'
 Rount.region = require 'libraries.ac.region'

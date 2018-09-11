@@ -25,12 +25,12 @@ end
 
 --获取点
 function mt:get_point()
-	return Point.new((self.minx + self.maxx) / 2, (self.miny + self.maxy) / 2)
+	return Point:new((self.minx + self.maxx) / 2, (self.miny + self.maxy) / 2)
 end
 
 --获取随机点
 function mt:get_random_point(  )
-	return Point.new(math.random(self.minx, self.maxx), math.random(self.miny, self.maxy))
+	return Point:new(math.random(self.minx, self.maxx), math.random(self.miny, self.maxy))
 end
 
 --创建矩形区域
@@ -63,7 +63,7 @@ Rect.j_points = {}
 function Rect.j_point(name)
 	if not Rect.j_points[name] then
 		local j_rect = jass['gg_rct_' .. name]
-		Rect.j_points[name] = Point.new(jass.GetRectCenterX(j_rect), jass.GetRectCenterY(j_rect))
+		Rect.j_points[name] = Point:new(jass.GetRectCenterX(j_rect), jass.GetRectCenterY(j_rect))
 	end
 	return Rect.j_points[name]
 end

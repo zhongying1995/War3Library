@@ -24,7 +24,7 @@ end
 
 --获取圆心
 function mt:get_point()
-	return Point.new(self.x, self.y)
+	return Point:new(self.x, self.y)
 end
 
 

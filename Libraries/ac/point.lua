@@ -9,12 +9,12 @@ local ipairs = ipairs
 local Point = {}
 setmetatable(Point, Point)
 
-function Point.new(x, y, z)
-	return setmetatable({x, y, z}, Point)
+function Point:new(x, y, z)
+	return setmetatable({x, y, z}, self)
 end
 
 function ac.point(x, y, z)
-	return Point.new(x, y, z)
+	return Point:new(x, y, z)
 end
 
 function Point:tostring()
@@ -25,7 +25,7 @@ end
 --按照直角坐标系移动(point + {x, y})
 --	@新点
 function Point:__add(data)
-	return Point.new(self[1] + data[1], self[2] + data[2], self[3] + (data[3] or 0))
+	return Point:new(self[1] + data[1], self[2] + data[2], self[3] + (data[3] or 0))
 end
 
 --按照极坐标系移动(point - {angle, distance})
@@ -33,7 +33,7 @@ end
 function Point:__sub(data)
 	local x, y = self:get()
 	local angle, distance = data[1], data[2]
-	return Point.new(x + distance * math.cos(angle), y + distance * math.sin(angle))
+	return Point:new(x + distance * math.cos(angle), y + distance * math.sin(angle))
 end
 
 --求2个点的距离/方向
@@ -88,7 +88,7 @@ end
 
 --复制点
 function mt:copy()
-	return Point.new(self[1], self[2], self[3])
+	return Point:new(self[1], self[2], self[3])
 end
 
 --转换点
@@ -162,7 +162,7 @@ function mt:add_block(x, y, air)
 	local x0, y0 = self[1], self[2]
 	for dx = - x / 2, x / 2, 32 do
 		for dy = - y / 2, y / 2, 32 do
-			local p = Point.new(x0 + dx, y0 + dy)
+			local p = Point:new(x0 + dx, y0 + dy)
 			p.block_air = air
 			table_insert(self.block_points, p)
 		end

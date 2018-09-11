@@ -81,7 +81,7 @@ local function init_damage_dummy(self, u)
 end
 
 local function add_damage_dummy()
-	local dummy = Unit.create_dummy(Player[16], 'ndog', Point.new(0,0))
+	local dummy = Unit.create_dummy(Player[16], 'ndog', Point:new(0,0))
 	dummy._is_damage_dummy = true
 	dummy:pause(true)
 	dummy:show(false)

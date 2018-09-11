@@ -65,7 +65,7 @@ mt.string = '无文本'
 mt.size = 10
 
 --初始位置
-mt.position = Point.new(0, 0)
+mt.position = Point:new(0, 0)
 
 --Z轴偏移（仅在绑定目标时有效）
 mt.zoffset = 0

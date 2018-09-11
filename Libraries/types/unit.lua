@@ -361,7 +361,7 @@ function mt:remove()
 	end
 	self.removed = true
 	
-	self._last_point = Point.new(jass.GetUnitX(self.handle), jass.GetUnitY(self.handle))
+	self._last_point = Point:new(jass.GetUnitX(self.handle), jass.GetUnitY(self.handle))
 	self:event_notify('单位-移除', self)
 
 	self:remove_all_effects()
@@ -437,7 +437,7 @@ function mt:get_point()
 	if self.removed then
 		return self._last_point:copy()
 	else
-		return Point.new(jass.GetUnitX(self.handle), jass.GetUnitY(self.handle))
+		return Point:new(jass.GetUnitX(self.handle), jass.GetUnitY(self.handle))
 	end
 end
 
@@ -469,7 +469,7 @@ function mt:set_position(where, path, super)
 	elseif y > y2 then
 		y = y2
 	end
-	self:set_point(Point.new(x, y))
+	self:set_point(Point:new(x, y))
 	return true
 end
 

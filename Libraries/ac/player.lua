@@ -512,8 +512,8 @@ end
 --	[是否共享]
 --	[是否覆盖单位视野]
 function mt:create_fogmodifier(p, r, ...)
-	local cir = circle.create(p, r)
-	return fogmodifier.create(self, cir, ...)
+	local cir = circle:new(p, r)
+	return fogmodifier:new(self, cir, ...)
 end
 
 --滤镜

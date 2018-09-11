@@ -28,7 +28,7 @@ function mt:get_point()
 end
 
 
-function Circle.new(...)
+function Circle:new(...)
 	local x, y, r
 	if select('#', ...) == 3 then
 		x, y, r = ...
@@ -37,7 +37,7 @@ function Circle.new(...)
 		p, r = ...
 		x, y = p:get_point():get()
 	end
-	return setmetatable({x = x, y = y, r = r}, Circle)
+	return setmetatable({x = x, y = y, r = r}, self)
 end
 
 return Circle

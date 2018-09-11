@@ -15,13 +15,18 @@ mt.type = 'fogmodifier'
 --句柄
 mt.handle = 0
 
+--可见状态
+--	1:黑色迷雾
+--	2:战争迷雾
+--	4:可见
+
 --创建可见度修正器
 --	玩家
 --	位置
---	[是否可见]
---	[是否共享]
---	[是否覆盖单位视野]
-function Fogmodifier.new(p, where, see, share, over)
+--	可见状态：默认可见
+--	[是否共享]：默认共享
+--	[是否覆盖单位视野]：默认否
+function Fogmodifier:new(p, where, see, share, over)
 	--默认可见
 	see = see == false and 2 or 4
 
@@ -40,7 +45,7 @@ function Fogmodifier.new(p, where, see, share, over)
 	end
 	debug.handle_ref(j_handle)
 	jass.FogModifierStart(j_handle)
-	return setmetatable({handle = j_handle}, Fogmodifier)
+	return setmetatable({handle = j_handle}, self)
 end
 
 --启用修正器

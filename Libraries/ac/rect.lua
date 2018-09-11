@@ -35,8 +35,8 @@ end
 
 --创建矩形区域
 ---Rect.new(最小x, 最小y, 最大x, 最大y)
-function Rect.new(minx, miny, maxx, maxy)
-	return setmetatable({minx = minx, miny = miny, maxx = maxx, maxy = maxy}, Rect)
+function Rect:new(minx, miny, maxx, maxy)
+	return setmetatable({minx = minx, miny = miny, maxx = maxx, maxy = maxy}, self)
 end
 
 --扩展矩形区域

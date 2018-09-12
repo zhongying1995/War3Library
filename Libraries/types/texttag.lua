@@ -22,9 +22,6 @@ function Texttag.new( texttag )
 	texttag:set_permanent()
 
 	if texttag.target then
-		gchash = gchash + 1
-		dbg.gchash(texttag, gchash)
-		texttag.gchash = gchash
 		self.group[texttag] = true
 	end
 	
@@ -33,7 +30,6 @@ function Texttag.new( texttag )
 	return texttag
 end
 
-local gchash = 0
 function Texttag:__call(texttag)
 	return Texttag.new(texttag)
 end

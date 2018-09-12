@@ -266,7 +266,6 @@ mt.on_pulse = nil
 --覆盖同名buff
 mt.on_cover = nil
 
-local gchash = 0
 
 --添加buff
 function Unit.__index:add_buff(name, delay)
@@ -276,9 +275,6 @@ function Unit.__index:add_buff(name, delay)
 			Log.error('未找到buff', name)
 			return
 		end
-		gchash = gchash + 1
-		dbg.gchash(bff, gchash)
-		bff.gchash = gchash
 		setmetatable(bff, data)
 		if not self._buffs then
 			self._buffs = {}

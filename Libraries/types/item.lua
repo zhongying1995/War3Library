@@ -80,8 +80,6 @@ function Item.new(handle)
 	local it = {}
 	setmetatable(it, it)
 	it.__index = data
-	dbg.gchash(it, handle)
-	it.gchash = handle
 	it.handle = handle
 	it.id = war3_id
 	it.war3_id = war3_id

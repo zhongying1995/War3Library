@@ -29,7 +29,6 @@ ac.mover.HIT_TYPE_ALL		= '别人'
 
 --帧数
 mover.FRAME = Game.FRAME
-local gchash = 0
 
 --结构
 mover.__index = {
@@ -356,9 +355,6 @@ mover.__index = {
 
 	--初始化
 	init = function(self)
-		gchash = gchash + 1
-		dbg.gchash(self, gchash)
-		self.gchash = gchash
 		if not self.source then
 			self.source = self.mover
 		end

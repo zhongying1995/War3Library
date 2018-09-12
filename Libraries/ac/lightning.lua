@@ -17,8 +17,6 @@ function Lightning.new(name, start, target, oz1, oz2)
 	local x2, y2, z2 = target:get_point(true):get()
 	ln.handle = jass.AddLightningEx(name, false, x1, y1, z1 + ln.oz1, x2, y2, z2 + ln.oz2)
 	dbg.handle_ref(ln.handle)
-	dbg.gchash(ln, ln.handle)
-	ln.gchash = ln.handle
 	Lightning.group[ln] = true
 	ln:check_visible()
 

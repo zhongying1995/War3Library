@@ -93,8 +93,6 @@ local function init_unit(handle, p)
 	setmetatable(u, u)
 	u.__index = data
 
-	dbg.gchash(u, handle)
-	u.gchash = handle
 	--保存到全局单位表中
 	u.handle = handle
 	u.id = id

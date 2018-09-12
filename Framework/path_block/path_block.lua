@@ -103,12 +103,8 @@ function mt:remove_mover(mover)
 end
 
 --创建动态阻挡
-local gchash = 0
 function Unit.__index:create_block(data)
 	setmetatable(data, Path_block)
-	gchash = gchash + 1
-	dbg.gchash(data, gchash)
-	data.gchash = gchash
 	data.source = self
 	data.point = data.point or self:get_point()
 	data.team = data.team or self:get_team()

@@ -1,5 +1,6 @@
 local Player = Rount.player
 
+local mt = Player.__index
 
 --获得金钱
 --	金钱数量

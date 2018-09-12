@@ -6,16 +6,16 @@ local Point = require 'libraries.ac.point'
 
 local Texttag = {}
 setmetatable(Texttag, Texttag)
-ac.texttag = Texttag
+
 
 --创建漂浮文字
-function Texttag.new( texttag )
+function Texttag:new( texttag )
 	
 	setmetatable(texttag, self)
 	texttag.handle = jass.CreateTextTag()
 
 	texttag:set_text()
-	texttag:set_position()
+	texttag:set_point()
 	texttag:set_color()
 	texttag:set_speed()
 	texttag:set_life_time()
@@ -30,9 +30,6 @@ function Texttag.new( texttag )
 	return texttag
 end
 
-function Texttag:__call(texttag)
-	return Texttag.new(texttag)
-end
 
 --结构
 local mt = {}
@@ -55,13 +52,13 @@ mt.handle = 0
 mt.player = Player[16]
 
 --文本内容
-mt.string = '无文本'
+mt.text = '无文本'
 
 --文本大小
 mt.size = 10
 
 --初始位置
-mt.position = Point:new(0, 0)
+mt.point = Point:new(0, 0)
 
 --Z轴偏移（仅在绑定目标时有效）
 mt.zoffset = 0
@@ -73,10 +70,10 @@ mt.speed = 0
 mt.angle = 90
 
 --颜色、百分比
-mt.red = 100
-mt.green = 100
-mt.blue = 100
-mt.alpha = 100
+mt.red = 255
+mt.green = 255
+mt.blue = 255
+mt.alpha = 255
 
 --生命周期
 mt.life = 3
@@ -99,21 +96,21 @@ mt.jump_speed = 0
 mt.jump_a = 0
 
 --设置文本
-function mt:set_text(string, size)
-	if string then
-		self.string = string
+function mt:set_text(text, size)
+	if text then
+		self.text = text
 	end
-	jass.SetTextTagText(self.handle, string or self.string, (size or self.size) * 0.0023)
+	jass.SetTextTagText(self.handle, text or self.text, (size or self.size) * 0.0023)
 end
 
 --设置位置
-function mt:set_position(position)
-	jass.SetTextTagPos(self.handle, (position or self.position):get_point():get())
+function mt:set_point(point)
+	jass.SetTextTagPos(self.handle, (point or self.point):get_point():get())
 end
 
 --设置颜色
 function mt:set_color(red, green, blue, alpha)
-	jass.SetTextTagColor(self.handle, (red or self.red) * 2.55, (green or self.green) * 2.55, (blue or self.blue) * 2.55, (alpha or self.alpha) * 2.55)
+	jass.SetTextTagColor(self.handle, math.min(255, math.max(0, (red or self.red))),  math.min(255, math.max(0, (green or self.green))),  math.min(255, math.max(0, (blue or self.blue))),  math.min(255, math.max(0, (alpha or self.alpha))) )
 end
 
 --设置速度
@@ -153,7 +150,7 @@ function mt:set_show(show)
 		if self.target then 
 			return self.target:is_visible(Player.self)
 		else 
-			return Player.self:is_visible(self.position)
+			return Player.self:is_visible(self.point)
 		end
 	end
 	if has_flag(show, Texttag.SHOW_FOG) or is_visible() then
@@ -191,7 +188,7 @@ function mt:remove()
 end
 
 --文字弹跳，仅对绑定在单位的文字有效
-function mt:jump(speed,a)
+function mt:jump(speed, a)
 	self.jump_size = self.size
 	self.jump_speed = speed 
 	self.jump_a = a
@@ -203,17 +200,17 @@ function mt:move()
 		if self.jump_speed ~= 0 then
 			self.jump_speed = self.jump_speed + self.jump_a
 			self.jump_size = self.jump_size + self.jump_speed
-			self:set_text(self.string,self.jump_size)
+			self:set_text(self.text,self.jump_size)
 			self.zoffset = self.zoffset + self.jump_speed
 			if self.jump_size < self.size then
 				--停止弹跳
-				self:set_text(self.string,self.size)
+				self:set_text(self.text,self.size)
 				self.jump_speed = 0
 			end
 		end
 		local p = target:get_point() 
 		p.z = self.zoffset
-		self:set_position(p)
+		self:set_point(p)
 
 		self:set_show()
 	end

@@ -12,3 +12,7 @@ Rount.skill = require 'libraries.types.skill'
 Rount.item = require 'libraries.types.item'
 Rount.hero = require 'libraries.types.hero'
 Rount.damage = require 'libraries.types.damage'
+
+local game = Rount.game
+game.register_observer('texttag', Rount.texttag.update)
+

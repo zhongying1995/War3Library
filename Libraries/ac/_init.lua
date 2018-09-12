@@ -12,3 +12,4 @@ require 'libraries.ac.timer'
 Rount.game = require 'libraries.ac.game'
 Rount.lightning = require 'libraries.ac.lightning'
 
+Rount.game.register_observer('lightning', Rount.lightning.update)

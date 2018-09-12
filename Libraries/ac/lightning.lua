@@ -6,8 +6,8 @@ local math = math
 local Lightning = {}
 setmetatable(Lightning, Lightning)
 
-function Lightning.new(name, start, target, oz1, oz2)
-	local ln = setmetatable({}, Lightning)
+function Lightning:new(name, start, target, oz1, oz2)
+	local ln = setmetatable({}, self)
 
 	ln.start = start
 	ln.target = target
@@ -24,7 +24,7 @@ function Lightning.new(name, start, target, oz1, oz2)
 end
 
 function ac.lightning(name, start, target, oz1, oz2)
-	Lightning.new(name, start, target, oz1, oz2)
+	return Lightning:new(name, start, target, oz1, oz2)
 end
 
 local mt = {}
@@ -213,7 +213,8 @@ end
 -- DEKAN
 --speed > 0 淡入 （未验证）
 --speed < 0 淡出
-function mt:fade(speed,dont_remove) --默认淡出后直接删除，若isremove有值则淡出后不删除 , 速度为每0.02秒减少的alpha值
+--默认淡出后直接删除，若isremove有值则淡出后不删除 , 速度为每0.02秒减少的alpha值
+function mt:fade(speed, dont_remove)
 	self.isremove = 1
 	if dont_remove or speed > 0 then
 		self.isremove = 0

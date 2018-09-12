@@ -137,8 +137,8 @@ function mt:remove()
 end
 
 --创建一个多面板
-function Multiboard.new(x, y)
-	local mb =	setmetatable({}, Multiboard)
+function Multiboard:new(x, y)
+	local mb =	setmetatable({}, self)
 	mb.handle = jass.CreateMultiboard()
 	mb:set_x(x or 0)
 		:set_y(y or 0)

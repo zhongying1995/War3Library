@@ -1,6 +1,6 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
-local Unit = require 'Libraries.types.unit'
+local Unit = require 'libraries.types.unit'
 local setmetatable = setmetatable
 local table_insert = table.insert
 local table_remove = table.remove

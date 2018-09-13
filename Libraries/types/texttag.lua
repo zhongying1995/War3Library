@@ -159,17 +159,13 @@ function mt:set_show(show)
 		else
 			if has_flag(show, Texttag.SHOW_SELF) and Player.self == self.player then
 				flag = true
-			else
-				if has_flag(show, Texttag.SHOW_ALLY) and not self.player:is_enemy(Player.self) then
-					flag = true
-				end
 			end
 		end
 	end
 	if(show == Texttag.SHOW_NONE)then
 		flag = false;
 	end
-
+	print('flag:', flag)
 	jass.SetTextTagVisibility(self.handle, flag)
 
 	return flag

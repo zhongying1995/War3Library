@@ -1,4 +1,4 @@
-local Point = require 'Libraries.ac.point'
+local Point = require 'libraries.ac.point'
 
 local Circle = {}
 setmetatable(Circle, Circle)

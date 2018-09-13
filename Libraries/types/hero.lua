@@ -2,8 +2,8 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
 local dbg = require 'jass.debug'
-local Unit = require 'Libraries.types.unit'
-local Player = require 'Libraries.ac.player'
+local Unit = require 'libraries.types.unit'
+local Player = require 'libraries.ac.player'
 local slk = require 'jass.slk'
 local math = math
 

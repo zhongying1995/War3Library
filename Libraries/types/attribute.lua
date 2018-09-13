@@ -1,6 +1,6 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
-local Unit = require 'Libraries.types.unit'
+local Unit = require 'libraries.types.unit'
 
 local math = math
 local string_gsub = string.gsub

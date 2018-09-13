@@ -15,7 +15,7 @@ local dummy_group = jass.CreateGroup()
 local GroupEnumUnitsInRange = jass.GroupEnumUnitsInRange
 local FirstOfGroup = jass.FirstOfGroup
 local GroupRemoveUnit = jass.GroupRemoveUnit
-local Unit = require 'Libraries.types.unit'
+local Unit = require 'libraries.types.unit'
 
 local Selector = {}
 setmetatable(Selector, Selector)

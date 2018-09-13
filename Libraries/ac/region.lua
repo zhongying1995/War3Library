@@ -1,6 +1,6 @@
 
 local jass = require 'jass.common'
-local Rect = require 'Libraries.ac.rect'
+local Rect = require 'libraries.ac.rect'
 local dbg = require 'jass.debug'
 
 local Region = {}

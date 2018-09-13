@@ -1,5 +1,6 @@
 local jass = require 'jass.common'
-local Player = require 'Libraries.ac.player'
+print('加载计时器面板模块')
+local Player = require 'libraries.ac.player'
 
 local Timerdialog = {}
 setmetatable(Timerdialog, Timerdialog)

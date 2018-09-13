@@ -2,9 +2,9 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
 local dbg = require 'jass.debug'
-local Point = require 'Libraries.ac.point'
-local Player = require 'Libraries.ac.player'
-local Unit = require 'Libraries.types.unit'
+local Point = require 'libraries.ac.point'
+local Player = require 'libraries.ac.player'
+local Unit = require 'libraries.types.unit'
 local math = math
 
 local Effect = {}

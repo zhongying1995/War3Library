@@ -67,10 +67,18 @@ mt.last_pause_clock = 0
 --系数
 mt.proc = 1
 
+--初始化单位身上的技能
 local function init_skills(unit)
-	if unit.skills then
-		
+	if unit.skill_names then
+		for name in unit.skill_names:gmatch('%S+') do
+			unit:add_skill(name)
+		end
 	end
+end
+
+--初始化单位（初始化单位属性，想想要怎么做吧）
+local function init_attribute(unit)
+
 end
 
 local function init_unit(handle, p)
@@ -82,13 +90,18 @@ local function init_unit(handle, p)
 	end
 	local id = Base.id2string(jass.GetUnitTypeId(handle))
 	local name = jass.GetUnitName(handle)
+
+	--查找已经注册的单位表，优先通过war3_id
 	local data = ac.unit[id]
 	if type(data) == 'function' then
 		data = ac.unit[name]
 	end
-	if type(data) ~= 'unit' then
+
+	--当前单位没有被注册，直接继承自Unit
+	if data.type ~= 'unit' then
 		data = Unit
 	end
+
 	local u = {}
 	setmetatable(u, u)
 	u.__index = data
@@ -105,16 +118,13 @@ local function init_unit(handle, p)
 	--令物体可以飞行
 	u:add_ability 'Arav'
 	u:remove_ability 'Arav'
-	
-	-- --忽略警戒点
-	print('handle:', u.handle, handle)
-	print(jass.GetUnitName(handle), jass.GetUnitName(u.handle))
 
 	jass.SetUnitCreepGuard(u.handle, true)
-	jass.RemoveGuardPosition(u.handle)
 	
 	--设置高度
 	u:set_high(u:get_slk('moveHeight', 0))
+
+	init_attribute(u)
 
 	init_skills(u)
 	
@@ -217,6 +227,11 @@ end
 --id
 mt.id = ''
 
+--获取单位id,一般与get_type_id 一样
+function mt:get_id()
+	return id
+end
+
 --获得单位id
 function mt:get_type_id()
 	return jass.GetUnitTypeId(self.handle)
@@ -293,10 +308,7 @@ function mt:get_data(key)
 	return self.user_data[key]
 end
 
---死亡	
---杀死单位
 --杀死自己，killer是凶手
---	[致死伤害]
 function mt:killed(killer)
 	if not self:is_alive() then
 		return false
@@ -311,6 +323,9 @@ function mt:killed(killer)
 	if not self:is_dummy() then
 		killer:event_notify('单位-杀死单位', killer, self)
 		self:event_notify('单位-死亡', self, killer)
+		if self == killer then
+			self:event_notify('单位-自杀', self)
+		end
 	end
 
 	--删除Buff
@@ -327,7 +342,13 @@ function mt:killed(killer)
 	end
 
 	if not self:is_hero() then
-		local time = self:get_slk('death', 5)
+		local death_type = self:get_slk('deathtype')
+		local time
+		if death_type == 0 or death_type == 1 then
+			time = self:get_slk('death', 5)
+		else
+			time = BONE_DECAY_TIME or 5
+		end
 		ac.wait(time * 1000, function (  )
 			self:remove()
 		end)
@@ -1218,6 +1239,15 @@ local function register_jass_triggers()
 	
 end
 
+local function register_unit(self, name, data)
+	self[name] = data
+	self[name].name = name
+	setmetatable(data, data)
+	data.__index = Unit
+	if data.war3_id then
+		ac.unit[war3_id] = self[name]
+	end
+end
 
 --初始化
 function init()
@@ -1226,6 +1256,12 @@ function init()
 
 	--注册事件
 	register_jass_triggers()
+
+	ac.unit = setmetatable({}, {__index = function(self, name)
+		return function(data)
+			return register_unit(self, name, data)
+		end
+	end})
 end
 
 init()

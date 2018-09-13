@@ -587,8 +587,8 @@ end
 --创建玩家(一般不允许外部创建)
 function Player:new(id, jPlayer)
 	local p = {}
-	setmetatable(p, self)
-
+	setmetatable(p, p)
+	p.__index = self
 	--初始化
 	--句柄
 	p.handle = jPlayer

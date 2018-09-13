@@ -1,5 +1,4 @@
 local jass = require 'jass.common'
-print('加载计时器面板模块')
 local Player = require 'libraries.ac.player'
 
 local Timerdialog = {}
@@ -33,7 +32,10 @@ function mt:new( time, title )
     local j_timer = jass.CreateTimer()
     local j_dialog = jass.CreateTimerDialog(j_timer)
     
-    local o = setmetatable({}, Timerdialog)
+    local o = {}
+    setmetatable(o, o)
+    o.__index = self
+    
     o.timer_handle = j_timer
     o.handle = j_dialog
     o:set_time( time )

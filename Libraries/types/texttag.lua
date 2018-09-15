@@ -165,7 +165,7 @@ function mt:set_show(show)
 	if(show == Texttag.SHOW_NONE)then
 		flag = false;
 	end
-	print('flag:', flag)
+	
 	jass.SetTextTagVisibility(self.handle, flag)
 
 	return flag

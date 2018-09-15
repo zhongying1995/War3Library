@@ -6,6 +6,7 @@ local Point = require 'libraries.ac.point'
 local Player = require 'libraries.ac.player'
 local Unit = require 'libraries.types.unit'
 local math = math
+local table_insert = table.insert
 
 local Effect = {}
 setmetatable(Effect, Effect)
@@ -38,10 +39,11 @@ Effect.DUMMY_ID = 'nalb'
 
 --创建在地上
 --	模型路径
+--	表数据
 function Point.__index:add_effect(model, data)
 	local ang = 270
 	local eff = setmetatable({}, Effect)
-	if type(data) == 'table' then
+	if data and type(data) == 'table' then
 		ang = data.angle
 		japi.EXSetUnitString(Base.string2id(effect.UNIT_ID), 13, model)
 		local dummy = Unit.create_dummy(Player(16), Effect.DUMMY_ID, self, angle)
@@ -63,7 +65,10 @@ function Unit.__index:add_effect(model, socket)
 	local eff = setmetatable({handle = j_eff}, Effect)
 	eff.model = model
 	eff.unit = self
-	table.insert(self._effect_list, eff)
+	if not self._effect_list then
+		self._effect_list = {}
+	end
+	table_insert(self._effect_list, eff)
 	return eff
 end
 

@@ -1,5 +1,6 @@
 
 local Unit = require 'libraries.types.unit'
+local Texttag = require 'libraries.types.texttag'
 
 local Heal = {}
 setmetatable(Heal, Heal)
@@ -28,31 +29,22 @@ mt.skill = nil
 
 --创建漂浮文字
 local function text(heal)
-	if heal.target ~= ac.player.self.hero then
-		return
-	end
-	local tag = heal.target.heal_texttag
-	if tag and ac.clock() - tag.time < 2000 then
-		tag.heal = tag.heal + heal.heal
-		tag:setText(('%.f'):format(tag.heal), 8 + (tag.heal ^ 0.5) / 5)
-	else
-		local x, y = heal.target:get_point():get()
-		local z = heal.target:get_point():getZ()
-		local tag = ac.texttag
-		{
-			string = ('+%.f'):format(heal.heal),
-			size = 8 + (heal.heal ^ 0.5) / 5,
-			position = ac.point(x - 60, y, z - 30),
-			speed = 86,
-			angle = -45,
-			red = 20,
-			green = 100,
-			blue = 20,
-			heal = heal.heal,
-			time = ac.clock(),
-		}
-		heal.target.heal_texttag = tag
-	end
+	
+	local x, y = heal.target:get_point():get()
+	local z = heal.target:get_point():getZ()
+	local size = math.min( 16, 10 + (heal.heal ^ 0.5) / 5)
+	local tag = Texttag:new{
+		text = ('+ %.f'):format(heal.heal),
+		size = size,
+		point = ac.point(x - 60, y, z - 30),
+		show = Texttag.SHOW_ALL,
+		speed = 86,
+		angle = math.random(360),
+		red = 0,
+		green = 255,
+		blue = 0,
+	}
+	
 end
 
 --创建治疗
@@ -68,6 +60,7 @@ function Heal:__call(heal)
 	
 	setmetatable(heal, self)
 
+	heal.source:event_notify('单位-给予治疗开始', heal)
 	if heal.target:event_dispatch('单位-受到治疗开始', heal) then
 		return heal
 	end
@@ -82,6 +75,7 @@ function Heal:__call(heal)
 	--创建漂浮文字
 	text(heal)
 
+	heal.source:event_notify('单位-给予治疗效果', heal)
 	heal.target:event_notify('单位-受到治疗效果', heal)
 
 	return heal
@@ -89,7 +83,10 @@ end
 
 --进行治疗
 function Unit.__index:heal(data)
-	data.target = self
+	data.source = self
+	if not data.target then
+		data.target = self
+	end
 	return Heal(data)
 end
 

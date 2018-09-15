@@ -12,7 +12,7 @@ local ignore_flag = false
 local table_insert = table.insert
 local table_remove = table.remove
 
-local last_summoned_unit
+local _last_summoned_unit
 
 local Unit = {}
 setmetatable(Unit, Unit)
@@ -81,7 +81,7 @@ local function init_attribute(unit)
 
 end
 
-local function init_unit(handle, p)
+local function init_unit(handle)
 	if Unit.all_units[handle] then
 		return Unit.all_units[handle]
 	end
@@ -98,7 +98,7 @@ local function init_unit(handle, p)
 	end
 
 	--当前单位没有被注册，直接继承自Unit
-	if data.type ~= 'unit' then
+	if type(data) ~= 'table' or data.type ~= 'unit' then
 		data = Unit
 	end
 
@@ -111,7 +111,7 @@ local function init_unit(handle, p)
 	u.id = id
 	u.war3_id = id
 	u.name = name
-	u.owner = p or Player[jass.GetOwningPlayer(handle)]
+	u.owner = Player[jass.GetOwningPlayer(handle)]
 	u.born_point = u:get_point()
 	Unit.all_units[handle] = u
 	
@@ -123,22 +123,30 @@ local function init_unit(handle, p)
 	
 	--设置高度
 	u:set_high(u:get_slk('moveHeight', 0))
-
-	init_attribute(u)
-
-	init_skills(u)
 	
 	return u
 end
 
+local function init_unit_datas(unit)
+	init_attribute(unit)
 
-function Unit.new(handle, p)
+	init_skills(unit)
+end
+
+--根据handle创建单位
+--	单位handle
+--	是否根据数据初始化单位，默认：true
+function Unit.new(handle, is_init_datas)
 	if Unit.all_units[handle] then
 		return Unit.all_units[handle]
 	end
-	local u = init_unit(handle, p)
+	local u = init_unit(handle)
 	if not u then
 		return nil
+	end
+
+	if is_init_datas == nil or is_init_datas then
+		init_unit_datas(u)
 	end
 
 	if u:get_ability_level 'Aloc' == 0 then
@@ -148,7 +156,7 @@ function Unit.new(handle, p)
 	return u
 end
 
---转换handle为单位
+--转换handle为单位,若没有，则创建
 function Unit:__call(handle)
 	if not handle or handle == 0 then
 		return
@@ -160,10 +168,6 @@ function Unit:__call(handle)
 	return u
 end
 
---获得所有者
-function mt:get_owner()
-	return self.owner
-end
 
 function mt:get_player()
 	return Player(jass.GetOwningPlayer(self.handle))
@@ -477,7 +481,7 @@ function mt:set_position(where, path, super)
 		return false
 	end
 	local x, y = where:get_point():get()
-	local x1, y1, x2, y2 = Rect.map:get()
+	local x1, y1, x2, y2 = Rect.MAP:get()
 	if x < x1 then
 		x = x1
 	elseif x > x2 then
@@ -592,7 +596,6 @@ function mt:add_size(size)
 end
 
 --是否是近战
---	默认值
 function mt:is_melee()
 	return jass.IsUnitType(self.handle, jass.UNIT_TYPE_MELEE_ATTACKER)
 end
@@ -611,13 +614,6 @@ function mt:fresh_cool()
 	end
 end
 
-function mt:fresh_cost()
-	return function()
-		for skl in self:each_skill() do
-			skl:set_cost()
-		end
-	end
-end
 
 --等级
 mt.level = 1
@@ -730,6 +726,27 @@ function mt:issue_order(order, target)
 	return res
 end
 
+--使用id发布命令
+--	命令
+--	[目标]
+function mt:issue_order_by_id(id, target)
+	local res
+	if not target then
+		res = jass.IssueImmediateOrderById(self.handle, id)
+	elseif target.owner then
+		res = jass.IssueTargetOrderById(self.handle, id, target.handle)
+	else
+		local x, y
+		if target.type == 'point' then
+			x, y = target:get()
+		else
+			x, y = target:get_point():get()
+		end
+		res = jass.IssuePointOrderById(self.handle, id, x, y)
+	end
+	return res
+end
+
 local id2order = setmetatable({}, {__index = function(self, k)
 	Log.info('OrderId2String', k)
 	local order = jass.OrderId2String(k)
@@ -748,8 +765,8 @@ end
 --获得命令
 --	@命令
 function mt:get_order()
-	local order = jass.GetUnitCurrentOrder(self.handle)
-	return id2order[order], order
+	local order_id = jass.GetUnitCurrentOrder(self.handle)
+	return id2order[order_id], order_id
 end
 
 --获取单位的碰撞体积
@@ -869,36 +886,36 @@ function mt:is_pause_skill()
 end
 
 --颜色
-mt.red = 100
-mt.green = 100
-mt.blue = 100
-mt.alpha = 100
+mt.red = 255
+mt.green = 255
+mt.blue = 255
+mt.alpha = 255
 
 --设置单位颜色
---	[红(%)]
---	[绿(%)]
---	[蓝(%)]
+--	[红]
+--	[绿]
+--	[蓝]
 function mt:set_color(red, green, blue)
 	self.red, self.green, self.blue = red, green, blue
 	jass.SetUnitVertexColor(
 		self.handle,
-		self.red * 2.55,
-		self.green * 2.55,
-		self.blue * 2.55,
-		self.alpha * 2.55
+		self.red,
+		self.green,
+		self.blue,
+		self.alpha
 	)
 end
 
 --设置单位透明度
---	透明度(%)
+--	透明度
 function mt:set_alpha(alpha)
 	self.alpha = alpha
 	jass.SetUnitVertexColor(
 		self.handle,
-		self.red * 2.55,
-		self.green * 2.55,
-		self.blue * 2.55,
-		self.alpha * 2.55
+		self.red,
+		self.green,
+		self.blue,
+		self.alpha
 	)
 end
 
@@ -967,19 +984,26 @@ function mt:set_search_range(r)
 	jass.SetUnitAcquireRange(self.handle, r)
 end
 
+--视野技能
+local _sight_ability = SIGHT_ABILITY
+
 --添加单位视野(依然不能超过1800)
 function mt:add_sight(r)
-	-- self:add_ability 'A007'
-	-- local handle = japi.EXGetUnitAbility(self.handle, Base.string2id 'A007')
-	-- japi.EXSetAbilityDataReal(handle, 2, 108, - r)
-	-- self:set_ability_level('A007', 2)
-	-- self:remove_ability 'A007'
-	Log.error('添加单位视野api暂时无法使用')
+	self:add_ability(_sight_ability)
+	local handle = japi.EXGetUnitAbility(self.handle, Base.string2id(_sight_ability))
+	japi.EXSetAbilityDataReal(handle, 2, 108, - r)
+	self:set_ability_level(_sight_ability, 2)
+	self:remove_ability(_sight_ability)
 end
 
+--获得所有者
+function mt:get_owner()
+	return self.owner
+end
 
 -- 设置所有者
 function mt:set_owner(p, color)
+	self.owner = p
 	jass.SetUnitOwner(self.handle, p.handle, not not color)
 end
 
@@ -991,40 +1015,48 @@ function mt:create_dummy(id, where, face, is_aloc)
 	return u
 end
 
+local _illusion_ability = ILLUSION_ABILITY
+
 --创建镜像
+--	攻击力比
+--	受到伤害比
+--	持续时间
 --	位置
---	朝向
---	不复制物品
-function mt:create_illusion(p, no_item)
+function mt:create_illusion(attack, damaged, time, point)
 	ignore_flag = true
+	
+	--设置幻象数据
+	local attack = attack / 100
+	local damaged = damaged / 100
+	ac.dummy:remove_ability(_illusion_ability)
+	ac.dummy:add_ability(_illusion_ability)
+	local handle = japi.EXGetUnitAbility(ac.dummy.handle, Base.string2id(_illusion_ability))
+	japi.EXSetAbilityDataReal(handle, 2, 102, time or 1)
+	japi.EXSetAbilityDataReal(handle, 2, 103, time or 1)
+	japi.EXSetAbilityDataReal(handle, 2, 108, attack)
+	japi.EXSetAbilityDataReal(handle, 2, 109, attdamagedack)
+	ac.dummy:set_ability_level(_illusion_ability, 2)
+
+	local player = self:get_owner()
 	--852274 幻象权杖
-	jass.IssueTargetOrderById(ac.dummy.handle, 852274, self.handle)
+	jass.SetUnitOwner( ac.dummy.handle, player.handle)
+	jass.IssueTargetOrderById( ac.dummy.handle, 852274, self.handle) 
+	jass.SetUnitOwner( ac.dummy.handle, Player[16].handle)
 	ignore_flag = false
-	if not last_summoned_unit then
-		self:get_owner():send_warm_msg('|cffff0000创建幻象失败！|r')
+	if not _last_summoned_unit then
+		player:send_warm_msg('|cffff0000创建幻象失败！|r')
 		return
 	end
-	local handle = last_summoned_unit
+	local handle = _last_summoned_unit
 	if not handle then
 		return
 	end
 	dbg.handle_ref(handle)
-	last_summoned_unit = nil
-	jass.SetUnitOwner(handle, self:get_owner().handle, false)
-	local dummy = Unit.init_illusion(handle, self:get_owner())
+	_last_summoned_unit = nil
+	jass.SetUnitOwner(handle, player.handle, false)
+	local dummy = Unit.init_illusion(handle)
 	jass.SetUnitBlendTime(handle, dummy:get_slk('blend', 0))
-	dummy:set_position(p, true, true)
-	setmetatable(dummy, getmetatable(self))
-	dummy.unit_type = self.unit_type
-	dummy._is_illusion = true
-	dummy.hero_data = self.hero_data
-	if dummy:get_ability_level 'Aloc' == 0 then
-		dummy:event_notify('单位-创建', dummy)
-	end
-
-	for k, v in pairs(self.hero_data.attribute) do
-		dummy:set(k, v)
-	end
+	dummy:set_position(point or self:get_point(), true, true)
 	
 	return dummy
 end
@@ -1060,8 +1092,9 @@ function mt:share_visible(p, flag)
 end
 
 
-function Unit.init_illusion(handle, p)
-	local u = init_unit(handle, p)
+function Unit.init_illusion(handle)
+	local u = Unit.new(handle, false)
+	u._is_illusion = true
 	return u
 end
 
@@ -1089,7 +1122,7 @@ function Unit.create(player, id, where, face)
 	local handle = jass.CreateUnit(player.handle, j_id, x, y, face or 0)
 	dbg.handle_ref(handle)
 	ignore_flag = false
-	local u = Unit.new(handle, player)
+	local u = Unit.new(handle)
 	return u
 end
 
@@ -1120,7 +1153,7 @@ function Unit.create_dummy(player, id, where, face, is_aloc)
 	if is_aloc then
 		jass.UnitAddAbility(handle, Base.string2id('Aloc'))
 	end
-	local u = Unit.new(handle, player)
+	local u = Unit.new(handle, false)
 	return u
 end
 
@@ -1169,7 +1202,7 @@ local function register_jass_triggers()
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, nil)
 	end
 
-	-- --单位发布无目标事件
+	--单位发布无目标事件
 	local j_trg = War3.CreateTrigger(function()
 		local j_handle = jass.GetTriggerUnit()
 		local order = jass.GetIssuedOrderId()
@@ -1194,7 +1227,8 @@ local function register_jass_triggers()
 			return
 		end
 		local target = Unit(jass.GetTriggerUnit())
-		
+		source:set_active()
+		target:set_active()
 		source:event_notify('单位-攻击', source, target)
 		target:event_notify('单位-被攻击', target, source)
 	end)
@@ -1212,6 +1246,7 @@ local function register_jass_triggers()
 			return
 		end
 		
+		--不需要初始化马甲，因为在伤害模块已经还原了
 		if killer._is_damage_dummy then
 			killer = killer.damage.source
 		end
@@ -1224,17 +1259,19 @@ local function register_jass_triggers()
 
 	--单位召唤事件
 	local j_trg = War3.CreateTrigger(function()
-		local summoned = Unit(jass.GetSummonedUnit())
-		if not summoned then
+		local summoned_handle = jass.GetSummonedUnit()
+		_last_summoned_unit = summoned_handle
+		if not summoned_handle then
 			--分身技能会导致两次召唤事件，第一次是无效的
 			return
 		end
+		summoned = Unit(summoned_handle)
 		local summoning = Unit(jass.GetSummoningUnit())
 		summoned:event_notify( '单位-被召唤', summoned, summoning)
 		summoning:event_notify( '单位-召唤', summoning, summoned)
 	end)
-	for i = 1, 16 do
-		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SUMMON, nil)
+	for i = 0, 15 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, jass.Player(i), jass.EVENT_PLAYER_UNIT_SUMMON, nil)
 	end
 	
 end
@@ -1249,10 +1286,20 @@ local function register_unit(self, name, data)
 	end
 end
 
+local _ac_dummy_id = AC_UNIT_DUMMY_ID
+--创建单位马甲
+function create_ac_dummy()
+	ac.dummy = Unit.create(Player[16], _ac_dummy_id, ac.point(0, 0))
+end
+
+
 --初始化
 function init()
 	--全局单位索引
 	Unit.all_units = {}
+
+	--创建dummy
+	create_ac_dummy()
 
 	--注册事件
 	register_jass_triggers()

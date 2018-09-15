@@ -1039,9 +1039,9 @@ function mt:create_illusion(attack, damaged, time, point)
 
 	local player = self:get_owner()
 	--852274 幻象权杖
-	jass.SetUnitOwner( ac.dummy.handle, player.handle)
+	jass.SetUnitOwner( ac.dummy.handle, player.handle, false)
 	jass.IssueTargetOrderById( ac.dummy.handle, 852274, self.handle) 
-	jass.SetUnitOwner( ac.dummy.handle, Player[16].handle)
+	jass.SetUnitOwner( ac.dummy.handle, Player[16].handle, false)
 	ignore_flag = false
 	if not _last_summoned_unit then
 		player:send_warm_msg('|cffff0000创建幻象失败！|r')
@@ -1053,7 +1053,7 @@ function mt:create_illusion(attack, damaged, time, point)
 	end
 	dbg.handle_ref(handle)
 	_last_summoned_unit = nil
-	jass.SetUnitOwner(handle, player.handle, false)
+	jass.SetUnitOwner(handle, player.handle, true)
 	local dummy = Unit.init_illusion(handle)
 	jass.SetUnitBlendTime(handle, dummy:get_slk('blend', 0))
 	dummy:set_position(point or self:get_point(), true, true)

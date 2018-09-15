@@ -20,13 +20,14 @@ local Unit = require 'libraries.types.unit'
 local Selector = {}
 setmetatable(Selector, Selector)
 
-function Selector.new( )
-	return setmetatable({filters = {}}, mt)
+function Selector:new( )
+	return setmetatable({filters = {}}, self)
 end
 
 function ac.selector()
-	return Selector.new()
+	return Selector:new()
 end
+
 
 local api = {}
 Selector.__index = api
@@ -178,9 +179,6 @@ end
 
 --对选取到的单位进行过滤
 function api:do_filter(u)
-	if not self.is_allow_god and u:has_restriction '无敌' then
-		return false
-	end
 	if not self.is_allow_dead and not u:is_alive() then
 		return false
 	end

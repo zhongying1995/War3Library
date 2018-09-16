@@ -7,15 +7,6 @@ local math = math
 local Buff = {}
 setmetatable(Buff, Buff)
 
-ac.buff = setmetatable({}, {__index = function (self, key)
-	local obj = {}
-	obj.name = key
-	obj.__index = obj
-	setmetatable(obj, Buff)
-	self[key] = obj
-	return obj
-end})
-
 local mt = {}
 
 Buff.__index = mt
@@ -224,8 +215,8 @@ function mt:remove()
 	local new_buff
 	if self.cover_type == 1 then
 		--可以共存的Buff,查表
-		if self.target.buff_list and self.target.buff_list[self.name] then
-			local list = self.target.buff_list[self.name]
+		if self.target._buff_list and self.target._buff_list[self.name] then
+			local list = self.target._buff_list[self.name]
 			for i = 1, #list do
 				if self == list[i] then
 					table.remove(list, i)
@@ -271,18 +262,20 @@ mt.on_cover = nil
 function Unit.__index:add_buff(name, delay)
 	return function(bff)
 		local data = ac.buff[name]
-		if not data then
+		if type(data) == 'function' then
 			Log.error('未找到buff', name)
 			return
 		end
-		setmetatable(bff, data)
+
+		local bff = bff or {}
+		setmetatable(bff, bff)
+		bff.__index = data
 		if not self._buffs then
 			self._buffs = {}
 		end
 
 		--初始化数据
 		bff.name = bff.name or name
-		bff.target = self
 		bff.target = self
 		if not bff.source then
 			bff.source = self
@@ -308,7 +301,6 @@ function mt:add()
 	self.added = true
 	local name = self.name
 	
-	self.source = self.source
 
 	if self.target:is_enemy(self.source) then
 		self.source:set_active(self.target)
@@ -342,13 +334,13 @@ function mt:add()
 		end
 	elseif self.cover_type == 1 then
 		--可以共存的Buff,查表
-		if not self.target.buff_list then
-			self.target.buff_list = {}
+		if not self.target._buff_list then
+			self.target._buff_list = {}
 		end
-		if not self.target.buff_list[name] then
-			self.target.buff_list[name] = {}
+		if not self.target._buff_list[name] then
+			self.target._buff_list[name] = {}
 		end
-		local list = self.target.buff_list[name]
+		local list = self.target._buff_list[name]
 		for i = 1, #list + 1 do
 			local this_buff = list[i]
 			if not this_buff then
@@ -474,7 +466,7 @@ function mt:disable()
 	end
 end
 
-function Unit.__index.each_buff(self, name)
+function Unit.__index:each_buff( name)
 	if not self._buffs then
 		return function () end
 	end
@@ -497,7 +489,7 @@ function Unit.__index.each_buff(self, name)
 end
 
 --移除buff
-function Unit.__index.remove_buff(self, name)
+function Unit.__index:remove_buff( name)
 	if not self._buffs then
 		return
 	end
@@ -513,7 +505,7 @@ function Unit.__index.remove_buff(self, name)
 end
 
 --找buff
-function Unit.__index.find_buff(self, name)
+function Unit.__index:find_buff(name)
 	if not self._buffs then
 		return
 	end
@@ -524,3 +516,23 @@ function Unit.__index.find_buff(self, name)
 	end
 end
 
+local function register_buff(self, name, data)
+	self[name] = data
+	self[name].name = name
+	setmetatable(data, data)
+	data.__index = Buff
+end
+
+local function init()
+
+	ac.buff = setmetatable({}, {__index = function (self, name)
+		return function(data)
+			return register_buff(self, name, data)
+		end
+	end})
+	
+end
+
+init()
+
+return Buff

@@ -104,7 +104,7 @@ end
 function Skill.get_slk_by_id(id, name, default)
 	local ability_data = slk.ability[id]
 	if not ability_data then
-		print('技能数据未找到', id)
+		-- print('技能数据未找到', id)
 		return default
 	end
 	local data = ability_data[name]
@@ -200,6 +200,16 @@ function mt:get(key)
 	end
 end
 
+--刷新技能cd
+function mt:fresh_cool()
+
+end
+
+--暂停技能
+function mt:pause_skill()
+
+end
+
 --刷新物编技能
 function mt:fresh()
 	self:update_data()
@@ -226,11 +236,7 @@ function mt:remove()
 	local name = self.name
 
 	unit._skills[name] = nil
-
-	local order = self:get_order()
-	if order and unit._order_skills then
-		unit._order_skills[order] = nil
-	end
+	unit._skills[self.war3_id] = nil
 
 	self:remove_ability()
 	
@@ -252,45 +258,60 @@ end
 
 --英雄添加技能
 --	技能名
---	[类型]：普通单位技能(默认)、物品
+--	[类型]：单位技能(默认)、物品
 --	[初始数据]
 --	@技能对象
-function Unit.__index:add_skill(name, type, data)
-	if not ac.skill[name] then
-		Log.error('技能不存在', name)
-		return false
-	end
-
-	if not self._skills then
-		self._skills = {}
-	end
-
-	local _data = ac.skill[name]
-	if not _data or type(_data) ~= 'table' then
-		_data = Skill
-	end
-	
-	local skill = data or {}
-	setmetatable(skill, skill)
-	skill.__index = _data
-	skill.owner = self
-	skill:fresh()
-	skill.skill_type = type or '单位'
-
-	if skill.on_add then
-		skill:on_add()
-	end
-
-	if type ~= '物品' then
-		if not data.war3_id then
-			Log.error( ('给单位%s添加的技能没有war3_id'):format(self:tostring()) )
+function Unit.__index:add_skill(name, skill_type)
+	return function(skl)
+		--优先通过名字查找，再通过war3_id
+		local data = ac.skill[name]
+		
+		if type(data) == 'function' then
+			if not skl or not skl.war3_id then
+				Log.error(('%s无法添加技能：%s'):format(self:tostring(), name))
+				return false
+			end
+			data = ac.skill[skl.war3_id]
 		end
-		self:add_ability(data.war3_id)
+
+		--当前技能没有被注册，直接继承自Unit
+		if type(data) == 'function' then
+			Log.error(('%s无法添加技能：%s'):format(self:tostring(), name))
+			return false
+		end
+		
+		local skill = skl or {}
+		setmetatable(skill, skill)
+		skill.__index = data
+		skill.owner = self
+		skill:fresh()
+		skill.skill_type = skill_type or '单位'
+
+		if skill.on_add then
+			skill:on_add()
+		end
+
+		if skill_type ~= '物品' then
+			if not skl.war3_id then
+				Log.error( ('给单位%s添加的技能没有war3_id'):format(self:tostring()) )
+			end
+			self:add_ability(skl.war3_id)
+		end
+		
+		if not self._skills then
+			self._skills = {}
+		end
+
+		-- table.insert(self._skills, skill)
+		local war3_id = skl.war3_id
+		if not war3_id then
+			war3_id = data.war3_id
+		end
+		self._skills[name] = skill
+		self._skills[war3_id] = skill
+
+		return skill
 	end
-
-	table.insert(self._skills, skill)
-
-	return skill
 end
 
 
@@ -306,11 +327,14 @@ function Unit.__index:remove_skill(name)
 end
 
 --从单位身上找技能
---	技能名称
+--	技能名称/或者war3_id
 --	@技能对象
 function Unit.__index:find_skill(name)
-	if not self._skills and not self._skills[name] then
+	if not self._skills then
 		return nil
+	end
+	if not self._skills[name] then
+		local data = ac.skill[name]
 	end
 	return self._skills[name]
 end
@@ -377,32 +401,27 @@ function mt:create_cast(data)
 	local skill = data or {}
 	skill.is_cast_flag = true
 	skill.parent_skill = self
-	setmetatable(skill, cast_mt)
-	for k in pairs(self.data) do
-		skill[k] = read_value(self, skill, k)
-	end
-	return setmetatable(skill, self)
+	-- setmetatable(skill, cast_mt)
+	-- for k in pairs(self.data) do
+	-- 	skill[k] = read_value(self, skill, k)
+	-- end
+	setmetatable(skill, skill)
+	skill.__index = self
+	return skill
 end
 
 --注册物品
-local function register_skill(self, data)
-	self.has_inited = true
-	if not data then
-		data = {}
-	end
-	self.data = data
-	for k, v in pairs(data) do
-		self[k] = v
-	end
+local function register_skill(self, name, data)
+	self[name] = data
+	self[name].name = name
+	setmetatable(data, data)
+	data.__index = Skill
 	if data.war3_id then
-		ac.skill[data.war3_id] = self
+		self[data.war3_id] = self[name]
 	end
-	setmetatable(self, self)
-	self.__index = Skill
-	return self
+	return self[name]
 end
 
-local registered_skills = {}
 local function init()
 	
 	--单位发动技能事件，及其回调
@@ -411,39 +430,35 @@ local function init()
 		local id = Base.id2string(jass.GetSpellAbilityId())
 		local target = Unit(jass.GetSpellTargetUnit()) or ac.point(jass.GetSpellTargetX(), jass.GetSpellTargetY())
 		local name = jass.GetObjectName(id)
-
+		
 		--优先通过id查找,id作为拦截器
 		--如果id存在，那么name一定存在
 		local skill = ac.skill[id] or ac.skill[name]
-		
+		-- for k, v in pairs(ac.skill) do
+		-- 	print('ac.skill:', k, v)
+		-- end
+		-- print('id:', id)
 		if not skill then
 			return
 		end
 
-		local skl = unit:find_skill(name)
+		local skl = unit:find_skill(id)
 		if not skl then
-			skl = unit:add_skill(name)
+			skl = unit:add_skill(name){war3_id = id}
 		end
-
+		-- print('发动技能效果：', skl)
 		ac.wait(0, function()
 			skl:cast(target)
 		end)
 	end)
-	for i = 1, 13 do
-		-- jass.TriggerRegisterPlayerUnitEvent(j_trg, ac.player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_CHANNEL, nil)
+	for i = 0, 15 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, jass.Player(i), jass.EVENT_PLAYER_UNIT_SPELL_EFFECT, nil)
 	end
 	
 	--不允许同名技能
 	ac.skill = setmetatable({}, {__index = function(self, name)
-		if registered_skills[name] then
-			Log.error(('技能%s已经被注册，不应该重复注册！'):format(name))
-			return
-		end
-		registered_skills[name] = true
-		self[name] = {}
-		self[name].name = name
 		return function(data)
-			return register_skill(self[name], data)
+			return register_skill(self, name, data)
 		end
 	end})
 

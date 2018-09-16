@@ -1289,8 +1289,9 @@ local function register_unit(self, name, data)
 	setmetatable(data, data)
 	data.__index = Unit
 	if data.war3_id then
-		ac.unit[war3_id] = self[name]
+		self[data.war3_id] = self[name]
 	end
+	return self[name]
 end
 
 --初始化

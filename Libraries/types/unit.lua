@@ -1276,6 +1276,13 @@ local function register_jass_triggers()
 	
 end
 
+
+local _ac_dummy_id = AC_UNIT_DUMMY_ID
+--创建单位马甲
+function create_ac_dummy()
+	ac.dummy = Unit.create(Player[16], _ac_dummy_id, ac.point(0, 0))
+end
+
 local function register_unit(self, name, data)
 	self[name] = data
 	self[name].name = name
@@ -1285,13 +1292,6 @@ local function register_unit(self, name, data)
 		ac.unit[war3_id] = self[name]
 	end
 end
-
-local _ac_dummy_id = AC_UNIT_DUMMY_ID
---创建单位马甲
-function create_ac_dummy()
-	ac.dummy = Unit.create(Player[16], _ac_dummy_id, ac.point(0, 0))
-end
-
 
 --初始化
 function init()

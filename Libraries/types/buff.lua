@@ -263,7 +263,7 @@ function Unit.__index:add_buff(name, delay)
 	return function(bff)
 		local data = ac.buff[name]
 		if type(data) == 'function' then
-			Log.error('未找到buff', name)
+			Log.error('未找到buff：', name)
 			return
 		end
 
@@ -521,6 +521,7 @@ local function register_buff(self, name, data)
 	self[name].name = name
 	setmetatable(data, data)
 	data.__index = Buff
+	return self[name]
 end
 
 local function init()

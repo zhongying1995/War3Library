@@ -28,7 +28,7 @@ end
 function mt:set_max_life(life)
     local current_life = self:get_life()
     local max_life = self:get_max_life()
-    jass.SetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE, life)
+    japi.SetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE, life)
     self:set_life( life * current_life / max_life )
 end
 
@@ -57,7 +57,7 @@ end
 function mt:set_max_mana(mana)
     local current_mana = self:get_mana()
     local max_mana = self:get_max_mana()
-    jass.SetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA, mana)
+    japi.SetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA, mana)
     self:set_mana( mana * current_mana / max_mana )
 end
 

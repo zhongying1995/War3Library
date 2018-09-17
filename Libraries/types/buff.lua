@@ -523,7 +523,7 @@ local function register_buff(self, name, data)
 	buff = {}
 	setmetatable(buff, buff)
 	buff.__index = data
-	buff.__call = function() end
+	buff.__call = function(self, data) self.data = data; end
 	buff.name = name
 	buff.data = data
 	

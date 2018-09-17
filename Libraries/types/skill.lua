@@ -361,6 +361,7 @@ local function register_skill(self, name, data)
 	skill = {}
 	setmetatable(skill, skill)
 	skill.__index = data
+	skill.__call = function(self, data) self.data = data; end
 	skill.name = name
 	skill.data = data
 	if data.war3_id then

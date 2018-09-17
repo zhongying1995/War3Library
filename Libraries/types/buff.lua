@@ -517,10 +517,17 @@ function Unit.__index:find_buff(name)
 end
 
 local function register_buff(self, name, data)
-	self[name] = data
-	self[name].name = name
+
 	setmetatable(data, data)
 	data.__index = Buff
+	buff = {}
+	setmetatable(buff, buff)
+	buff.__index = data
+	buff.__call = function() end
+	buff.name = name
+	buff.data = data
+	
+	self[name] = buff
 	return self[name]
 end
 

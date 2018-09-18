@@ -8,6 +8,7 @@ local japi = require 'jass.japi'
 local runtime = require 'jass.runtime'
 local Player = require 'libraries.ac.player'
 local Unit = require 'libraries.types.unit'
+local Point = require 'libraries.ac.point'
 local setmetatable = setmetatable
 local xpcall = xpcall
 local select = select
@@ -57,26 +58,64 @@ local drop_flag = false
 
 local dummy_id = Base.string2id 'ches'
 
+--根据war3_id获取对应的lua物品的名称
+_ITEM_NAMES = {}
+local function get_item_name_by_id(id)
+	return _ITEM_NAMES[id] or id
+end
+local function get_item_id_by_name(name)
+	return _ITEM_NAMES[name] or name
+end
+
 --格子，1-6
 function Unit.__index:get_slot_item(slotid)
 	local handle = jass.UnitItemInSlot(self.handle, slotid-1)
 	return Item(handle)
 end
 
+--创建物品
+function Unit.__index:add_item(name)
+	local id = get_item_id_by_name(name)
+	print('单位创建物品：', id, name)
+	local item = Item:create_item(id, self)
+	item:set_player(self)
+	jass.UnitAddItem(self.handle, item.handle)
+	return item
+end
+
+function Point.__index:add_item(name)
+	local id = get_item_id_by_name(name)
+	local item = Item:create_item(id, self)
+	return item
+end
+
+--根据id创建物品
+function mt:create_item(id, where)
+	local point = where
+	if where.type == 'unit' then
+		point = where:get_point()
+	end
+	local x, y = point:get()
+	local handle = jass.CreateItem(Base.string2id(id), x, y)
+	local item = Item.new(handle)
+	return item
+end
+
 function Item.new(handle)
 	
-	if handle == 0 then
+	if handle == 0 or not handle then
 		return nil
 	end
 	local war3_id = Base.id2string(jass.GetItemTypeId(handle))
-	local name = jass.GetItemName(handle)
+	local name = get_item_name_by_id(war3_id)
 	local data = ac.item[war3_id] 
 	if type(data) == 'function' then
 		data = ac.item[name]
 	end
-	if type(data) ~= 'type' then
+	if type(data) == 'function' then
 		data = Item
 	end
+
 	local it = {}
 	setmetatable(it, it)
 	it.__index = data
@@ -132,15 +171,15 @@ function mt:get_id()
 end
 
 --需要修改
-local function add_item_slot(skill, slotid)
-	if skill.removed or not skill.item_id then
+local function add_item_slot(item, slotid)
+	if item.removed or not item.item_id then
 		return false
 	end
-	local u = skill.owner
+	local u = item.owner
 	if not u:is_alive() then
 		u:event '单位-复活' (function(trg)
 			trg:remove()
-			add_item_slot(skill, slotid)
+			add_item_slot(item, slotid)
 		end)
 		return false
 	end
@@ -154,18 +193,18 @@ local function add_item_slot(skill, slotid)
 			table.insert(j_its, j_it)
 		end
 	end
-	local res = jass.UnitAddItem(u.handle, skill.handle)
+	local res = jass.UnitAddItem(u.handle, item.handle)
 	--移除占位物品
 	for i = 1, #j_its do
 		jass.RemoveItem(j_its[i])
 		dbg.handle_unref(j_its[i])
 	end
 	if res then
-		skill._in_slot = true
+		item._in_slot = true
 		return true
 	else
 		u:wait(100, function()
-			add_item_slot(skill, slotid)
+			add_item_slot(item, slotid)
 		end)
 		return false
 	end
@@ -429,9 +468,9 @@ function mt:on_add_attribute()
 		end
 	end
 
-	if it.skills then
-		if type(it.skills) == 'string' then
-			for name in it.skills:gmatch('%S+') do
+	if self.skills then
+		if type(self.skills) == 'string' then
+			for name in self.skills:gmatch('%S+') do
 				local skl = ac.skill[name]
 				if skl then
 					unit:add_skill(skl, '物品')
@@ -447,7 +486,7 @@ function mt:on_add_attribute()
 end
 
 function mt:on_remove_attribute()
-	local unit = self.owner
+	local unit = self.last_owner
 
 	if self.life then
 		unit:add_max_life(-self.life)
@@ -506,9 +545,9 @@ function mt:on_remove_attribute()
 		end
 	end
 
-	if it.skills then
-		if type(it.skills) == 'string' then
-			for name in it.skills:gmatch('%S+') do
+	if self.skills then
+		if type(self.skills) == 'string' then
+			for name in self.skills:gmatch('%S+') do
 				local skl = ac.skill[name]
 				if skl then
 					unit:remove_skill(skl)
@@ -606,111 +645,116 @@ ac.game:event '单位-发布指令' (function(trg, hero, order, target, order_id
 	end
 end)
 
---获得物品、捡起物品
-local j_trg = War3.CreateTrigger(function()
-	if drop_flag then
-		return
-	end
-	local unit = Unit(jass.GetTriggerUnit())
-	local it = Item(GetManipulatedItem())
-	unit:event_notify('单位-获得物品', unit, it)
-end)
-for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PICKUP_ITEM, nil)
-end
+local function register_jass_triggers()
 
---失去物品、丢弃物品
-local j_trg = War3.CreateTrigger(function()
-	if drop_flag then
-		return
-	end
-	local unit = Unit(jass.GetTriggerUnit())
-	local it = Item(jass.GetManipulatedItem())
-	unit:event_notify('单位-失去物品', unit, it)
-end)
-for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
-end
-
---失去物品
-local j_trg = War3.CreateTrigger(function()
-	if drop_flag then
-		return
-	end
-	local unit = Unit(jass.GetTriggerUnit())
-	local it = Item(jass.GetSoldItem())
-	local shop = Unit(jass.GetBuyingUnit())
-	ac.wait(0, function()
-		unit:event_notify('单位-失去物品', unit, it)
-		unit:event_notify('单位-抵押物品', unit, it, shop)
-		shop:event_notify('单位-收购物品', shop, it, unit)
-		it:remove()
+	--获得物品、捡起物品
+	local j_trg = War3.CreateTrigger(function()
+		if drop_flag then
+			return
+		end
+		local unit = Unit(jass.GetTriggerUnit())
+		local it = Item(jass.GetManipulatedItem())
+		unit:event_notify('单位-获得物品', unit, it)
 	end)
-end)
-for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PAWN_ITEM, nil)
-end
-
---获得物品、购买物品
-local j_trg = War3.CreateTrigger(function()
-	if drop_flag then
-		return
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PICKUP_ITEM, nil)
 	end
-	local unit = Unit(jass.GetBuyingUnit())
-	local it = Item(jass.GetSoldItem())
-	local shop = Unit(jass.GetSellingUnit())
-	it:set_player(unit)
-	unit:event_notify('单位-获得物品', unit, it)
-	unit:event_notify('单位-购买物品', unit, it, shop)
-	shop:event_notify('单位-出售物品', shop, it, unit)
-end)
-for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELL_ITEM, nil)
-end
 
---使用物品
-local j_trg = War3.CreateTrigger(function()
-	local unit = Unit(jass.GetTriggerUnit())
-	local it = Item(jass.GetManipulatedItem())
-	unit:event_notify('单位-使用物品', unit, it)
-end)
-for i = 1, 16 do
-	jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_USE_ITEM, nil)
+	--失去物品、丢弃物品
+	local j_trg = War3.CreateTrigger(function()
+		if drop_flag then
+			return
+		end
+		local unit = Unit(jass.GetTriggerUnit())
+		local it = Item(jass.GetManipulatedItem())
+		unit:event_notify('单位-失去物品', unit, it)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
+	end
+
+	--失去物品
+	local j_trg = War3.CreateTrigger(function()
+		if drop_flag then
+			return
+		end
+		local unit = Unit(jass.GetTriggerUnit())
+		local it = Item(jass.GetSoldItem())
+		local shop = Unit(jass.GetBuyingUnit())
+		ac.wait(0, function()
+			unit:event_notify('单位-失去物品', unit, it)
+			unit:event_notify('单位-抵押物品', unit, it, shop)
+			shop:event_notify('单位-收购物品', shop, it, unit)
+			it:remove()
+		end)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PAWN_ITEM, nil)
+	end
+
+	--获得物品、购买物品
+	local j_trg = War3.CreateTrigger(function()
+		if drop_flag then
+			return
+		end
+		local unit = Unit(jass.GetBuyingUnit())
+		local it = Item(jass.GetSoldItem())
+		local shop = Unit(jass.GetSellingUnit())
+		it:set_player(unit)
+		unit:event_notify('单位-获得物品', unit, it)
+		unit:event_notify('单位-购买物品', unit, it, shop)
+		shop:event_notify('单位-出售物品', shop, it, unit)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELL_ITEM, nil)
+	end
+
+	--使用物品
+	local j_trg = War3.CreateTrigger(function()
+		local unit = Unit(jass.GetTriggerUnit())
+		local it = Item(jass.GetManipulatedItem())
+		unit:event_notify('单位-使用物品', unit, it)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_USE_ITEM, nil)
+	end
+
 end
 
 --注册物品
-local function register_item(self, data)
-	self.has_inited = true
-	if not data then
-		data = {}
+local function register_item(self, name, data)
+	local war3_id = data.war3_id
+	if not war3_id or war3_id == '' then
+		Log.error(('注册%s物品时，不能没有war3_id'):format(name) )
+		return
 	end
-	self.data = data
-	for k, v in pairs(data) do
-		self[k] = v
-	end
-	if data.war3_id then
-		ac.item[data.war3_id] = self
-	end
-	setmetatable(self, self)
-	self.__index = Item
-	return self
+	_ITEM_NAMES[war3_id] = name
+	_ITEM_NAMES[name] = war3_id
+	
+	setmetatable(data, data)
+	data.__index = Item
+
+	local item = {}
+	setmetatable(item, item)
+	item.__index = data
+	item.__call = function(self, data) self.data = data; end
+	item.name = name
+	item.data = data
+	self[name] = item
+	self[war3_id] = item
+	return item
 end
 
-local registered_items = {}
 local function init()
 
 	Item.all_items = {}
 
+	--注册常用的jass事件
+	register_jass_triggers()
+
 	ac.item = setmetatable({}, {__index = function(self, name)
-		if registered_items[name] then
-			Log.error(('物品%s已经被注册，不应该重复注册！'):format(name))
-			return
-		end
-		registered_items[name] = true
-		self[name] = {}
-		self[name].name = name
 		return function(data)
-			return register_item(self[name], data)
+			return register_item(self, name, data)
 		end
 	end})
 
@@ -718,4 +762,4 @@ end
 
 init()
 
-return item
+return Item

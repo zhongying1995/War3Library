@@ -13,7 +13,7 @@ function mt:get_life()
 end
 
 function mt:set_life(life)
-    japi.SetUnitState(self.handle, jass.UNIT_STATE_LIFE, life)
+    jass.SetUnitState(self.handle, jass.UNIT_STATE_LIFE, life)
 end
 
 function mt:add_life(life)
@@ -42,7 +42,7 @@ function mt:get_mana()
 end
 
 function mt:set_mana(mana)
-    return japi.SetUnitState(self.handle, jass.UNIT_STATE_MANA, mana)
+    return jass.SetUnitState(self.handle, jass.UNIT_STATE_MANA, mana)
 end
 
 function mt:add_mana(mana)
@@ -62,7 +62,7 @@ function mt:set_max_mana(mana)
 end
 
 function mt:add_max_mana(mana)
-    return self:set_mana(self:get_mana()+mana)
+    return self:set_max_mana(self:get_max_mana()+mana)
 end
 
 --攻击
@@ -78,30 +78,37 @@ function mt:add_attack(atk)
     return self:set_attack(self:get_attack()+atk)
 end
 
+local _add_attack_ability = UNIT_ATTRIBUTE_ADD_ATTACK_ABILITY_ID
 --额外攻击（绿色攻击）
+mt._extra_attack = 0
 function mt:get_add_attack()
-    return japi.GetUnitState(self.handle, 0x13)
+    return self._extra_attack
 end
 
 function mt:set_add_attack(atk)
-    return japi.SetUnitState(self.handle, 0x13, atk)
+    self._extra_attack = atk
+    self:remove_ability(_add_attack_ability)
+    self:add_ability(_add_attack_ability)
+    local abil = japi.EXGetUnitAbility(self.handle, Base.string2id(_add_attack_ability))
+    japi.EXSetAbilityDataReal(abil, 2, 108, atk)
+    jass.SetUnitAbilityLevel( self.handle, Base.string2id(_add_attack_ability), 2)
 end
 
 function mt:add_add_attack(atk)
-    return self:set_add_attack(self:get_add_attack(), atk)
+    return self:set_add_attack(self:get_add_attack() + atk)
 end
 
 --攻击范围
 function mt:get_attack_range()
-    return jass.GetUnitState(self.handle, jass.ConvertUnitState(0x16))
+    return japi.GetUnitState(self.handle, jass.ConvertUnitState(0x16))
 end
 
-function mt:set_attack_range(atk)
-    return japi.SetUnitState(self.handle, jass.ConvertUnitState(0x16), atk)
+function mt:set_attack_range(range)
+    return japi.SetUnitState(self.handle, jass.ConvertUnitState(0x16), range)
 end
 
-function mt:add_attack_range(atk)
-    return self:set_attack_range(self:get_attack_range(), atk)
+function mt:add_attack_range(range)
+    return self:set_attack_range(self:get_attack_range()+range)
 end
 
 --攻击速度
@@ -126,9 +133,37 @@ function mt:set_attack_rate(rate)
     return japi.SetUnitState(self.handle, 0x25, rate)
 end
 
+mt._complementary_attack_rate = 0
+--单位的攻击间隔最小为0.1，使用补差来调控过多降低单位的攻击间隔
 function mt:add_attack_rate(rate)
-    return self:set_attack_rate(self:get_attack_rate()-rate)
+    if not rate or rate == 0 then
+    	return
+    end
+    if self._complementary_attack_rate > 0 then
+    	if rate > 0 then
+    		self._complementary_attack_rate = self._complementary_attack_rate + rate
+    		return
+    	else
+    		rate = self._complementary_attack_rate + rate
+    		if rate < 0 then
+    			self._complementary_attack_rate = 0
+    		else
+    			self._complementary_attack_rate = rate
+    			return
+    		end
+    	end
+    end
+    local current_rate = self:get_attack_rate()
+    if rate > 0 then
+    	if current_rate - rate < 0.1 then
+    		local difference = current_rate - 0.1
+    		self._complementary_attack_rate = rate - difference
+    		rate = difference
+    	end
+    end
+    self:set_attack_rate(current_rate - rate)
 end
+
 
 --防御
 function mt:get_defence()
@@ -180,8 +215,14 @@ function mt:set_move_speed(speed)
     jass.SetUnitMoveSpeed(self.handle , speed)
 end
 
+--极值移动速度
+_MIN_MOVE_SPEED = UNIT_MIN_MOVE_SPEED or 150
+_MAX_MOVE_SPEED = UNIT_MAX_MOVE_SPEED or 522
+
 --溢出的移动速度
 mt._overflow_move_speed = 0
+--补差的移动速度
+mt._complementary_move_speed = 0
 
 --增加单位的移动速度
 --注：当需要增加单位移动速度时，应该使用该接口
@@ -205,10 +246,34 @@ function mt:add_move_speed(speed)
 			end
 		end
 	end
+
+	local complementary = self._complementary_move_speed
+	if complementary > 0 then
+		if speed < 0 then
+			complementary = complementary - speed
+			self._complementary_move_speed = complementary
+			return
+		else
+			if complementary > speed then
+				complementary = complementary - speed
+				self._complementary_move_speed = complementary
+				return
+			else
+				speed = speed - complementary
+				self._complementary_move_speed = 0
+			end
+		end
+	end
+
 	local current_move = self:get_pure_move_speed()
-	if current_move + speed > 522 then
+	local temp = current_move + speed
+	if temp > 522 then
 		self._overflow_move_speed = current_move + speed - 522
 		speed = 522 - self:get_pure_move_speed()
+	elseif temp < _MIN_MOVE_SPEED then
+		local difference = current_move - _MIN_MOVE_SPEED
+		self._complementary_move_speed = math.abs(speed + difference)
+		speed = -difference
 	end
     add_add_move_speed(self, speed)
     self:set_move_speed(self:get_pure_move_speed())

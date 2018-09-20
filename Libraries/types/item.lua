@@ -35,6 +35,8 @@ mt.level = 1
 mt.gold = 0
 
 --物品所在的格子,1-6
+--	-1:无所有者
+--	nil:已被移除
 mt.slotid = nil
 
 --物品是否唯一
@@ -52,19 +54,70 @@ mt.owner = nil
 --原始拥有者
 mt.player = nil
 
---系统丢弃物品标志
---该状态时，不应该执行获得、失去、移动物品的逻辑
-local drop_flag = false
+
+--应该被忽略的物品组,该状态时，不应该执行获得、失去、移动物品的逻辑
+local _ignore_flag_items = {}
+
+--用享元模式来控制占位物品的获取
+--占位物品表
+local _placeholder_items = {}
 
 local dummy_id = Base.string2id 'ches'
 
+--初始化占位物品的状态
+local function init_placeholder_item(j_item)
+	local item = _placeholder_items[j_item]
+	jass.SetItemVisible(j_item, false)
+	item._is_leisure = true
+end
+
+--增加占位物品
+local function add_placeholder_item()
+	local j_item = jass.CreateItem(dummy_id, 0, 0)
+	dbg.handle_ref(j_item)
+	_ignore_flag_items[j_item] = true
+
+	local item = {}
+	item.handle = j_item
+	item._is_leisure = true
+	_placeholder_items[j_item] = item
+	init_placeholder_item(j_item)
+
+	return item
+end
+
+--获取占位物品
+--	@物品的handle
+local function get_placeholder_item()
+	local item 
+	for _, it in pairs(_placeholder_items) do
+		if it._is_leisure then
+			item = it
+			break
+		end
+	end
+	if not item then
+		item = add_placeholder_item()
+	end
+	local j_item = item.handle
+	jass.SetItemVisible(j_item, true)
+	item._is_leisure = false
+	return j_item
+end
+
+--重置占位物品的状态
+local function reclaim_placeholder_item(j_item)
+	init_placeholder_item(j_item)
+end
+
+
 --根据war3_id获取对应的lua物品的名称
-_ITEM_NAMES = {}
+_ITEM_NAMES_AND_IDS = {}
 local function get_item_name_by_id(id)
-	return _ITEM_NAMES[id] or id
+	return _ITEM_NAMES_AND_IDS[id] or id
 end
 local function get_item_id_by_name(name)
-	return _ITEM_NAMES[name] or name
+	return _ITEM_NAMES_AND_IDS[name] or name
 end
 
 --格子，1-6
@@ -74,31 +127,57 @@ function Unit.__index:get_slot_item(slotid)
 end
 
 --创建物品
-function Unit.__index:add_item(name)
+function Unit.__index:add_item(name, data)
 	local id = get_item_id_by_name(name)
-	print('单位创建物品：', id, name)
-	local item = Item:create_item(id, self)
-	item:set_player(self)
-	jass.UnitAddItem(self.handle, item.handle)
+	local item = Item.create_item(id, self, data)
 	return item
 end
 
 function Point.__index:add_item(name)
 	local id = get_item_id_by_name(name)
-	local item = Item:create_item(id, self)
+	local item = Item.create_item(id, self)
 	return item
 end
 
 --根据id创建物品
-function mt:create_item(id, where)
-	local point = where
-	if where.type == 'unit' then
-		point = where:get_point()
+function Item.create_item(id, who, data)
+	local j_id = Base.string2id(id)
+	if who.type == 'point' then
+		local x, y = who:get()
+		local handle = jass.CreateItem(j_id, x, y)
+		dbg.handle_ref(handle)
+		local item = Item.new(handle)
+		return item
+	elseif who.type == 'unit' then
+		local unit = who
+		point = unit:get_point()
+		local x, y = point:get()
+		local handle = jass.CreateItem(j_id, x, y)
+		dbg.handle_ref(handle)
+		local item = Item.new(handle)
+		item:set_player(unit)
+		if data and data.slotid then
+			local j_its = {}
+			for i = 1, data.slotid - 1 do
+				--创建占位物品
+				if jass.UnitItemInSlot(unit.handle, i - 1) == 0 then
+					local j_it = get_placeholder_item()
+					jass.UnitAddItem(unit.handle, j_it)
+					table.insert(j_its, j_it)
+				end
+			end
+			local res = jass.UnitAddItem(unit.handle, handle)
+			--移除占位物品
+			for i = 1, #j_its do
+				reclaim_placeholder_item(j_its[i])
+			end
+		else
+			jass.UnitAddItem(unit.handle, handle)
+		end
+		
+		return item
 	end
-	local x, y = point:get()
-	local handle = jass.CreateItem(Base.string2id(id), x, y)
-	local item = Item.new(handle)
-	return item
+	
 end
 
 function Item.new(handle)
@@ -136,6 +215,7 @@ function Item:__call(handle)
 		return nil
 	end
 	local it = Item.all_items[handle]
+	local old_it = it
 	if not it then
 		it = Item.new(handle)
 	end
@@ -162,52 +242,20 @@ function mt:get_slk(name, default)
 	return Item.get_slk_by_id(self.id, name, default)
 end
 
+function mt:get_type_name()
+	return jass.GetItemName(self.handle)
+end
+
+function mt:get_name()
+	return self.name
+end
+
 --获取物品的物编id
 function mt:get_id()
 	if not self.id then
 		self.id = jass.GetItemTypeId(self.handle)
 	end
 	return self.id
-end
-
---需要修改
-local function add_item_slot(item, slotid)
-	if item.removed or not item.item_id then
-		return false
-	end
-	local u = item.owner
-	if not u:is_alive() then
-		u:event '单位-复活' (function(trg)
-			trg:remove()
-			add_item_slot(item, slotid)
-		end)
-		return false
-	end
-	local j_its = {}
-	for i = 1, slotid - 1 do
-		--创建占位物品
-		if jass.UnitItemInSlot(u.handle, i - 1) == 0 then
-			local j_it = jass.CreateItem(dummy_id, 0, 0)
-			dbg.handle_ref(j_it)
-			jass.UnitAddItem(u.handle, j_it)
-			table.insert(j_its, j_it)
-		end
-	end
-	local res = jass.UnitAddItem(u.handle, item.handle)
-	--移除占位物品
-	for i = 1, #j_its do
-		jass.RemoveItem(j_its[i])
-		dbg.handle_unref(j_its[i])
-	end
-	if res then
-		item._in_slot = true
-		return true
-	else
-		u:wait(100, function()
-			add_item_slot(item, slotid)
-		end)
-		return false
-	end
 end
 
 function mt:is_removed()
@@ -226,11 +274,6 @@ function mt:remove()
 	dbg.handle_unref(self.handle)
 	Item[self.handle] = nil
 	self.handle = nil
-end
-
---卖出物品给钱
-function mt:sell()
-	self:remove()
 end
 
 function mt:get_gold()
@@ -265,19 +308,17 @@ function mt:fresh()
 		return
 	end
 	if not self.owner:is_alive() then
-		self._wait_fresh_item = true
 		return
 	end
+	_ignore_flag_items[self.handle] = true
 	local u = self.owner
 	local slotid = self.slotid
-	drop_flag = true
 	jass.SetItemPosition(self.handle, 0, 0)
 	local j_its = {}
 	for i = 1, slotid - 1 do
 		--创建占位物品
 		if jass.UnitItemInSlot(u.handle, i - 1) == 0 then
-			local j_it = jass.CreateItem(dummy_id, 0, 0)
-			dbg.handle_ref(j_it)
+			local j_it = get_placeholder_item()
 			jass.UnitAddItem(u.handle, j_it)
 			table.insert(j_its, j_it)
 		end
@@ -285,10 +326,9 @@ function mt:fresh()
 	jass.UnitAddItem(u.handle, self.handle)
 	--移除占位物品
 	for i = 1, #j_its do
-		jass.RemoveItem(j_its[i])
-		dbg.handle_unref(j_its[i])
+		reclaim_placeholder_item(j_its[i])
 	end
-	drop_flag = false
+	_ignore_flag_items[self.handle] = nil
 end
 
 --显示冷却时间
@@ -450,24 +490,20 @@ function mt:on_add_attribute()
 		unit:add_move_speed(unit._item_move_speed)
 	end
 
-	if self.str then
-		if unit:is_hero() then
+	if unit:is_type_hero() then
+		if self.str then
 			unit:add_add_str(self.str)
 		end
-	end
-
-	if self.agi then
-		if unit:is_hero() then
+		
+		if self.agi then
 			unit:add_add_agi(self.agi)
 		end
-	end
-
-	if self.int then
-		if unit:is_hero() then
+		
+		if self.int then
 			unit:add_add_int(self.int)
 		end
 	end
-
+		
 	if self.skills then
 		if type(self.skills) == 'string' then
 			for name in self.skills:gmatch('%S+') do
@@ -486,8 +522,7 @@ function mt:on_add_attribute()
 end
 
 function mt:on_remove_attribute()
-	local unit = self.last_owner
-
+	local unit = self.owner
 	if self.life then
 		unit:add_max_life(-self.life)
 	end
@@ -527,20 +562,16 @@ function mt:on_remove_attribute()
 		unit:add_move_speed(unit._item_move_speed)
 	end
 
-	if self.str then
-		if unit:is_hero() then
+	if unit:is_type_hero() then
+		if self.str then
 			unit:add_add_str(-self.str)
 		end
-	end
 
-	if self.agi then
-		if unit:is_hero() then
+		if self.agi then
 			unit:add_add_agi(-self.agi)
 		end
-	end
 
-	if self.int then
-		if unit:is_hero() then
+		if self.int then
 			unit:add_add_int(-self.int)
 		end
 	end
@@ -565,6 +596,12 @@ end
 
 --获得物品,加成属性
 function mt:on_adding()
+	local unit = self.owner
+
+	if unit.is_backpack_container then
+		return
+	end
+
 	if self.on_add_before then
 		self:on_add_before()
 	end
@@ -578,6 +615,12 @@ end
 
 --失去物品,减少属性
 function mt:on_dropping()
+	local unit = self.owner
+	
+	if unit.is_backpack_container then
+		return
+	end
+
 	if self.on_drop then
 		self:on_drop()
 	end
@@ -600,9 +643,11 @@ ac.game:event '单位-失去物品' (function(trg, unit, it)
 	if it.removed then
 		return
 	end
+	it:on_dropping()
 	it.owner = nil
 	it.last_owner = unit
-	it:on_dropping()
+	it._in_slot = false
+	it.slotid = -1
 end)
 
 
@@ -611,6 +656,8 @@ ac.game:event '单位-获得物品' (function(trg, unit, it)
 		return
 	end
 	it.owner = unit
+	it._in_slot = true
+	it:get_slotid(true)
 	it:on_adding()
 end)
 
@@ -625,8 +672,12 @@ end)
 --监听在物品栏中移动物品
 ac.game:event '单位-发布指令' (function(trg, hero, order, target, order_id)
 	local slotid = order_id - 852001
-	if slotid >= 1 and slotid <= 6 and not drop_flag then
+	if slotid >= 1 and slotid <= 6 then
 		local j_it = jass.GetOrderTargetItem()
+		if _ignore_flag_items[j_it] then
+			return
+		end
+
 		local it = Item(j_it)
 		--原地移动物品(右键双击)
 		if it.slotid == slotid then
@@ -649,11 +700,12 @@ local function register_jass_triggers()
 
 	--获得物品、捡起物品
 	local j_trg = War3.CreateTrigger(function()
-		if drop_flag then
+		local j_it = jass.GetManipulatedItem()
+		if _ignore_flag_items[j_it] then
 			return
 		end
 		local unit = Unit(jass.GetTriggerUnit())
-		local it = Item(jass.GetManipulatedItem())
+		local it = Item(j_it)
 		unit:event_notify('单位-获得物品', unit, it)
 	end)
 	for i = 1, 16 do
@@ -662,11 +714,12 @@ local function register_jass_triggers()
 
 	--失去物品、丢弃物品
 	local j_trg = War3.CreateTrigger(function()
-		if drop_flag then
+		local j_it = jass.GetManipulatedItem()
+		if _ignore_flag_items[j_it] then
 			return
 		end
 		local unit = Unit(jass.GetTriggerUnit())
-		local it = Item(jass.GetManipulatedItem())
+		local it = Item(j_it)
 		unit:event_notify('单位-失去物品', unit, it)
 	end)
 	for i = 1, 16 do
@@ -675,16 +728,17 @@ local function register_jass_triggers()
 
 	--失去物品
 	local j_trg = War3.CreateTrigger(function()
-		if drop_flag then
+		local j_it = jass.GetSoldItem()
+		if _ignore_flag_items[j_it] then
 			return
 		end
 		local unit = Unit(jass.GetTriggerUnit())
-		local it = Item(jass.GetSoldItem())
+		local it = Item(j_it)
 		local shop = Unit(jass.GetBuyingUnit())
 		ac.wait(0, function()
-			unit:event_notify('单位-失去物品', unit, it)
 			unit:event_notify('单位-抵押物品', unit, it, shop)
 			shop:event_notify('单位-收购物品', shop, it, unit)
+			unit:event_notify('单位-失去物品', unit, it)
 			it:remove()
 		end)
 	end)
@@ -694,11 +748,12 @@ local function register_jass_triggers()
 
 	--获得物品、购买物品
 	local j_trg = War3.CreateTrigger(function()
-		if drop_flag then
+		local j_it = jass.GetSoldItem()
+		if _ignore_flag_items[j_it] then
 			return
 		end
 		local unit = Unit(jass.GetBuyingUnit())
-		local it = Item(jass.GetSoldItem())
+		local it = Item(j_it)
 		local shop = Unit(jass.GetSellingUnit())
 		it:set_player(unit)
 		unit:event_notify('单位-获得物品', unit, it)
@@ -728,8 +783,8 @@ local function register_item(self, name, data)
 		Log.error(('注册%s物品时，不能没有war3_id'):format(name) )
 		return
 	end
-	_ITEM_NAMES[war3_id] = name
-	_ITEM_NAMES[name] = war3_id
+	_ITEM_NAMES_AND_IDS[war3_id] = name
+	_ITEM_NAMES_AND_IDS[name] = war3_id
 	
 	setmetatable(data, data)
 	data.__index = Item

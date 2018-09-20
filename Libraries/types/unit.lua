@@ -187,8 +187,16 @@ function mt:show(show)
 	jass.ShowUnit(self.handle, show and true)
 end
 
+function mt:is_type(type)
+	return jass.IsUnitType(self.handle, type)
+end
+
+function mt:is_tyoe_hero()
+	self:is_type(jass.UNIT_TYPE_HERO)
+end
+
 function mt:is_hero()
-	return jass.IsUnitType(self.handle, jass.UNIT_TYPE_HERO)
+	return self.is_hero or self:is_type_hero()
 end
 
 --注册单位事件

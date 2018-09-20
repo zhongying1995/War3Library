@@ -180,7 +180,7 @@ function mt:pause(pause)
 end
 
 function mt:show(show)
-	if not show then
+	if show == nil then
 		show = true
 	end
 	jass.ShowUnit(self.handle, show and true)
@@ -1152,6 +1152,7 @@ function Unit.create_dummy(player, id, where, face, is_aloc)
 	ignore_flag = true
 	local handle = jass.CreateUnit(player.handle, Base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
+	local u = Unit.new(handle, false)
 	ignore_flag = false
 	u._is_dummy = true
 	if is_aloc == nil then
@@ -1160,7 +1161,7 @@ function Unit.create_dummy(player, id, where, face, is_aloc)
 	if is_aloc then
 		jass.UnitAddAbility(handle, Base.string2id('Aloc'))
 	end
-	local u = Unit.new(handle, false)
+	
 	return u
 end
 

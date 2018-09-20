@@ -1,6 +1,8 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
 local Unit = require 'libraries.types.unit'
+local Player = require 'libraries.ac.player'
+local Point = require 'libraries.ac.point'
 local setmetatable = setmetatable
 local table_insert = table.insert
 local table_remove = table.remove
@@ -10,7 +12,8 @@ setmetatable(Damage, Damage)
 
 function Damage:new(data)
 	local data = data or {}
-	setmetatable(data, Damage)
+	setmetatable(data, data)
+	data.__index = self
 	return data
 end
 
@@ -61,15 +64,6 @@ local WEAPON_TYPE = {
 	['普通'] = jass.WEAPON_TYPE_WHOKNOWS,
 }
 
-local function get_leisure_dummy( )
-	for _, u in pairs(_all_damage_dummies) do
-		if u._is_leisure then
-			return u
-		end
-	end
-	return add_damage_dummy()
-end
-
 local function init_damage_dummy(self, u)
 	if u then
 		self._is_leisure = false
@@ -89,6 +83,16 @@ local function add_damage_dummy()
 	table.insert(_all_damage_dummies, dummy)
 	return dummy
 end
+
+local function get_leisure_dummy( )
+	for _, u in pairs(_all_damage_dummies) do
+		if u._is_leisure then
+			return u
+		end
+	end
+	return add_damage_dummy()
+end
+
 
 function mt:is_attack()
 	return self.is_attack and true
@@ -127,7 +131,7 @@ function Damage:__call(data)
 	init_damage_dummy(dummy, source)
 
 	damage.original_source = source
-	damage.source = dummy
+	damage.source = source
 	damage.original_damage = damage.damage
 	dummy.damage = damage
 
@@ -158,12 +162,16 @@ function Damage:__call(data)
 	local weapon_type = WEAPON_TYPE['普通']
 	damage.weapon_type = '普通'
 
-	jass.UnitDamageTarget(damage.source, damage.target.handle, damage.damage, is_attack, is_range, attack_type, damage_type, weapon_type)
+	jass.UnitDamageTarget(dummy.handle, target.handle, damage.damage, is_attack, is_range, attack_type, damage_type, weapon_type)
 end
 
 function Unit.__index:damage(data)
-	if not data or data and not data.target then
+	if not data then
+		Log.error(('%s欲造成伤害，但无伤害数据表！'):format(self:tostring()))
 		return
+	end
+	if not data.target then
+		data.target = self
 	end
 	if not data.source then
 		data.source = self
@@ -175,14 +183,15 @@ local j_trg = War3.CreateTrigger(function()
 	local source = Unit(jass.GetEventDamageSource())
 	local target = Unit(jass.GetTriggerUnit())
 	local damage_val = jass.GetEventDamage()
-
-	if damage_val < 0 then
+	
+	if damage_val <= 0 then
+		--这些是非法伤害，不做捕捉
 		return
 	end
 
-	if not target or target:is_removed() then
-		if target then
-			Log.info(('%s对【已被移除的%s】造成伤害'):format(source and source:tostring(), target:tostring()))
+	if not source or source:is_removed() then
+		if source then
+			Log.warn(('【已被移除的%s】对%s造成伤害'):format(source and source:tostring(), target:tostring()))
 		end
 		return
 	end
@@ -194,21 +203,19 @@ local j_trg = War3.CreateTrigger(function()
 		source = damage.source
 	end
 	damage.damage = damage_val
-
-	if source:is_removed() then
-		Log.info(('【已被移除的%s】对%s造成伤害'):format(source:tostring(), target:tostring()))
-		return
+	if not damage.original_damage then
+		damage.original_damage = damage_val
 	end
 
-	if japi.EXGetEventDamageData(1) ~= 0 then
+	if not damage.is_physical and japi.EXGetEventDamageData(1) ~= 0 then
 		damage.is_physical = true
 	end
 
-	if japi.EXGetEventDamageData(2) ~= 0 then
+	if not damage.is_attack and japi.EXGetEventDamageData(2) ~= 0 then
 		damage.is_attack = true
 	end
 
-	if japi.EXGetEventDamageData(3) ~= 0 then
+	if not damage.is_range and japi.EXGetEventDamageData(3) ~= 0 then
 		damage.is_range = true
 	end
 

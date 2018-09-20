@@ -43,14 +43,15 @@ mt.owner = nil
 --存活
 mt._is_alive = true
 
+--是否是背包单位
+mt.is_backpack_container = nil
+
 --技能,字符串，用于初始化单位身上的技能
-mt.skills = nil
+mt.skill_names = nil
 
 --单位所拥有的技能，表
 mt._skills = nil
 
---家当
-mt.gold = 0
 
 --选取半径
 mt.selected_radius = 16
@@ -64,8 +65,6 @@ mt.paused_clock = 0
 --上一次暂停开始的时间
 mt.last_pause_clock = 0
 
---系数
-mt.proc = 1
 
 --初始化单位身上的技能
 local function init_skills(unit)
@@ -191,7 +190,7 @@ function mt:is_type(type)
 	return jass.IsUnitType(self.handle, type)
 end
 
-function mt:is_tyoe_hero()
+function mt:is_type_hero()
 	self:is_type(jass.UNIT_TYPE_HERO)
 end
 

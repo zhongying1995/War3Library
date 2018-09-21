@@ -186,11 +186,8 @@ function Item.new(handle)
 		return nil
 	end
 	local war3_id = Base.id2string(jass.GetItemTypeId(handle))
-	local name = get_item_name_by_id(war3_id)
+	
 	local data = ac.item[war3_id] 
-	if type(data) == 'function' then
-		data = ac.item[name]
-	end
 	if type(data) == 'function' then
 		data = Item
 	end
@@ -201,6 +198,7 @@ function Item.new(handle)
 	it.handle = handle
 	it.id = war3_id
 	it.war3_id = war3_id
+	it.name = jass.GetItemName(handle)
 	it.player = p or Player[jass.GetItemPlayer(handle)]
 
 	--保存到全局物品表中

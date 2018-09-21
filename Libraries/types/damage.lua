@@ -37,6 +37,12 @@ mt.damage = 0
 --当前伤害
 mt.current_damage = 0
 
+--这是一种反弹伤害类型，会触发特殊的事件
+mt.is_rebounding = false
+
+--消逝的伤害类型，不会触发任何事件
+mt.is_missing = false
+
 --攻击类型
 local ATTACK_TYPE = {
 	['混乱'] = jass.ATTACK_TYPE_CHAOS,
@@ -202,6 +208,11 @@ local j_trg = War3.CreateTrigger(function()
 		init_damage_dummy(source)
 		source = damage.source
 	end
+
+	if damage.is_missing then
+		return
+	end
+
 	damage.damage = damage_val
 	if not damage.original_damage then
 		damage.original_damage = damage_val
@@ -219,17 +230,32 @@ local j_trg = War3.CreateTrigger(function()
 		damage.is_range = true
 	end
 
-	source:event_notify('单位-即将造成伤害', damage)
-	target:event_notify('单位-即将受到伤害', damage)
+	if damage.is_rebounding then
 
-	if damage.damage + 0.5 > target:get_life() then
-		source:event_notify('单位-即将造成致命伤害', damage)
-		target:event_notify('单位-即将受到致命伤害', damage)
-	end
+		source:event_notify('单位-即将造成伤害-反弹的', damage)
+		target:event_notify('单位-即将受到伤害-反弹的', damage)
 	
+		if damage.damage + 0.5 > target:get_life() then
+			source:event_notify('单位-即将造成致命伤害-反弹的', damage)
+			target:event_notify('单位-即将受到致命伤害-反弹的', damage)
+		end
+	
+	else
+
+		source:event_notify('单位-即将造成伤害', damage)
+		target:event_notify('单位-即将受到伤害', damage)
+	
+		if damage.damage + 0.5 > target:get_life() then
+			source:event_notify('单位-即将造成致命伤害', damage)
+			target:event_notify('单位-即将受到致命伤害', damage)
+		end
+			
+	end
+
 	if damage.damage ~= damage_val then
 		japi.EXSetEventDamage(damage.damage)
 	end
+
 end)
 
 ac.game:event '单位-创建'(function(trg, unit)

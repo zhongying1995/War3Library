@@ -8,7 +8,6 @@ local Rect = require 'libraries.ac.rect'
 local order2id = require 'Kernel.war3.order_id'
 local Point = require 'libraries.ac.point'
 local math = math
-local ignore_flag = false
 local table_insert = table.insert
 local table_remove = table.remove
 
@@ -16,7 +15,6 @@ local _last_summoned_unit
 
 local Unit = {}
 setmetatable(Unit, Unit)
-ac.unit = Unit
 
 
 --结构
@@ -65,6 +63,16 @@ mt.paused_clock = 0
 --上一次暂停开始的时间
 mt.last_pause_clock = 0
 
+--根据war3_id获取对应的lua物品名称
+_UNIT_NAMES_AND_IDS = {}
+Unit._UNIT_NAMES_AND_IDS = _UNIT_NAMES_AND_IDS
+local function get_unit_name_by_id(id)
+	return _UNIT_NAMES_AND_IDS[id] or id
+end
+local function get_unit_id_by_name(name)
+	return _UNIT_NAMES_AND_IDS[name] or name
+end
+
 
 --初始化单位身上的技能
 local function init_skills(unit)
@@ -88,16 +96,9 @@ local function init_unit(handle)
 		return nil
 	end
 	local id = Base.id2string(jass.GetUnitTypeId(handle))
-	local name = jass.GetUnitName(handle)
-
-	--查找已经注册的单位表，优先通过war3_id
+	
 	local data = ac.unit[id]
 	if type(data) == 'function' then
-		data = ac.unit[name]
-	end
-
-	--当前单位没有被注册，直接继承自Unit
-	if type(data) ~= 'table' or data.type ~= 'unit' then
 		data = Unit
 	end
 
@@ -109,7 +110,7 @@ local function init_unit(handle)
 	u.handle = handle
 	u.id = id
 	u.war3_id = id
-	u.name = name
+	u.name = jass.GetUnitName(handle)
 	u.owner = Player[jass.GetOwningPlayer(handle)]
 	u.born_point = u:get_point()
 	Unit.all_units[handle] = u
@@ -240,12 +241,16 @@ mt.id = ''
 
 --获取单位id,一般与get_type_id 一样
 function mt:get_id()
-	return id
+	return self.id
 end
 
 --获得单位id
 function mt:get_type_id()
 	return jass.GetUnitTypeId(self.handle)
+end
+
+function mt:get_type_name()
+	return jass.GetUnitName(self.handle)
 end
 
 function mt:is_type(type)
@@ -1017,8 +1022,8 @@ end
 --创建马甲
 --	位置
 --	朝向
-function mt:create_dummy(id, where, face, is_aloc)
-	local u = self:get_owner():create_dummy(id or self:get_type_id(), where, face, is_aloc)
+function mt:create_dummy(name, where, face, is_aloc)
+	local u = self:get_owner():create_dummy(name or self:get_type_id(), where, face, is_aloc)
 	return u
 end
 
@@ -1030,7 +1035,6 @@ local _illusion_ability = ILLUSION_ABILITY
 --	持续时间
 --	位置
 function mt:create_illusion(attack, damaged, time, point)
-	ignore_flag = true
 	
 	--设置幻象数据
 	local attack = attack / 100
@@ -1049,7 +1053,7 @@ function mt:create_illusion(attack, damaged, time, point)
 	jass.SetUnitOwner( ac.dummy.handle, player.handle, false)
 	jass.IssueTargetOrderById( ac.dummy.handle, 852274, self.handle) 
 	jass.SetUnitOwner( ac.dummy.handle, Player[16].handle, false)
-	ignore_flag = false
+	
 	if not _last_summoned_unit then
 		player:send_warm_msg('|cffff0000创建幻象失败！|r')
 		return
@@ -1106,17 +1110,23 @@ function Unit.init_illusion(handle)
 end
 
 --创建单位(以单位为参照)
---	单位id
+--	单位名字
 --	[位置(默认为参照单位)]
 --	朝向
-function mt:create_unit(id, where, face)
+function mt:create_unit(name, where, face)
 	if not where then
 		where = self:get_point()
 	end
-	return self:get_owner():create_unit(id, where, face or self:get_facing())
+	return self:get_owner():create_unit(name, where, face or self:get_facing())
 end
 
-function Unit.create(player, id, where, face)
+--[[
+	当查找已经不存在的name时，意味着这是一个id
+	如果这是一个错误的名字，那我也没办法了~
+--]]
+--	name:可以是lua注册过的单位名字/或者war3的id
+function Unit.create(player, name, where, face)
+	local id = get_unit_id_by_name(name)
 	local j_id = Base.string2id(id)
 	local x, y
 	if where.type == 'point' then
@@ -1125,35 +1135,33 @@ function Unit.create(player, id, where, face)
 		x, y = where:get_point():get()
 	end
 	
-	ignore_flag = true
 	local handle = jass.CreateUnit(player.handle, j_id, x, y, face or 0)
 	dbg.handle_ref(handle)
-	ignore_flag = false
 	local u = Unit.new(handle)
 	return u
 end
 
 --创建单位(以玩家为参照)
---	单位id
+--	单位name
 --	位置
 --	[朝向]
-function Player.__index:create_unit(id, where, face)
-	return Unit.create(self, id, where, face)
+function Player.__index:create_unit(name, where, face)
+	return Unit.create(self, name, where, face)
 end
 
 --is_aloc:是否添加蝗虫，默认true
-function Unit.create_dummy(player, id, where, face, is_aloc)
+function Unit.create_dummy(player, name, where, face, is_aloc)
 	local x, y
 	if where.type == 'point' then
 		x, y = where:get()
 	else
 		x, y = where:get_point():get()
 	end
-	ignore_flag = true
+	local id = get_unit_id_by_name(name)
 	local handle = jass.CreateUnit(player.handle, Base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
 	local u = Unit.new(handle, false)
-	ignore_flag = false
+	
 	u._is_dummy = true
 	if is_aloc == nil then
 		is_aloc = true
@@ -1165,8 +1173,8 @@ function Unit.create_dummy(player, id, where, face, is_aloc)
 	return u
 end
 
-function Player.__index:create_dummy(id, where, face, is_aloc)
-	return Unit.create_dummy(self, id, where, face, is_aloc)
+function Player.__index:create_dummy(name, where, face, is_aloc)
+	return Unit.create_dummy(self, name, where, face, is_aloc)
 end
 
 function mt:event(name)
@@ -1204,7 +1212,7 @@ local function register_jass_triggers()
 			return
 		end
 		local order = jass.GetIssuedOrderId()
-		u:event_notify('单位-发布指令', u, id2order[order], ac.point(jass.GetOrderPointX(), jass.GetOrderPointY()), order)
+		u:event_notify('单位-发布指令', u, id2order[order], Point(jass.GetOrderPointX(), jass.GetOrderPointY()), order)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, nil)
@@ -1292,14 +1300,26 @@ function create_ac_dummy()
 end
 
 local function register_unit(self, name, data)
-	self[name] = data
-	self[name].name = name
+	local war3_id = data.war3_id
+	if not war3_id or war3_id == '' then
+		Log.error(('注册%s单位时，不能没有war3_id'):format(name) )
+		return
+	end
+	_UNIT_NAMES_AND_IDS[war3_id] = name
+	_UNIT_NAMES_AND_IDS[name] = war3_id
+	
 	setmetatable(data, data)
 	data.__index = Unit
-	if data.war3_id then
-		self[data.war3_id] = self[name]
-	end
-	return self[name]
+
+	local unit = {}
+	setmetatable(unit, unit)
+	unit.__index = data
+	unit.__call = function(self, data) self.data = data; end
+	unit.name = name
+	unit.data = data
+	self[name] = unit
+	self[war3_id] = unit
+	return unit
 end
 
 --初始化
@@ -1307,17 +1327,17 @@ function init()
 	--全局单位索引
 	Unit.all_units = {}
 
-	--创建dummy
-	create_ac_dummy()
-
-	--注册事件
-	register_jass_triggers()
-
 	ac.unit = setmetatable({}, {__index = function(self, name)
 		return function(data)
 			return register_unit(self, name, data)
 		end
 	end})
+
+	--注册事件
+	register_jass_triggers()
+
+	--创建dummy
+	create_ac_dummy()
 end
 
 init()

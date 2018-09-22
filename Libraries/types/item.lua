@@ -790,7 +790,10 @@ local function register_item(self, name, data)
 	local item = {}
 	setmetatable(item, item)
 	item.__index = data
-	item.__call = function(self, data) self.data = data; end
+	item.__call = function(self, data) 
+		self.data = data
+		return self 
+	end
 	item.name = name
 	item.data = data
 	self[name] = item

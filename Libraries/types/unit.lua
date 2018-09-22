@@ -1314,7 +1314,10 @@ local function register_unit(self, name, data)
 	local unit = {}
 	setmetatable(unit, unit)
 	unit.__index = data
-	unit.__call = function(self, data) self.data = data; end
+	unit.__call = function(self, data)
+		self.data = data
+		return self
+	end
 	unit.name = name
 	unit.data = data
 	self[name] = unit

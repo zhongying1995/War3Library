@@ -7,6 +7,7 @@ local table_sort = table.sort
 local setmetatable = setmetatable
 local ipairs = ipairs
 local math_angle = ac.math_angle
+local Point = require 'libraries.ac.point'
 local math_abs = math.abs
 local math_random = math.random
 
@@ -38,7 +39,7 @@ api.filter_in = 0
 
 api.center = {}
 function api.center:get_point()
-	return ac.point(0, 0)
+	return Point(0, 0)
 end
 
 api.r = 99999
@@ -279,7 +280,7 @@ function api:select(select_unit)
 		local r = self.len / 2
 
 		local x, y = (x1 + x2) / 2, (y1 + y2) / 2
-		local p = ac.point(x, y)
+		local p = Point(x, y)
 		GroupEnumUnitsInRange(dummy_group, x, y, r + MAX_COLLISION, nil)
 		local u
 		while true do

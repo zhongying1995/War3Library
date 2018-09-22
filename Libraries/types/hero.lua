@@ -26,6 +26,7 @@ local ATTRIBUTE_ABIL_ID = 'Aamk'
 --当前经验值
 mt.xp = 0
 
+_HERO_NAMES_AND_IDS = Unit._UNIT_NAMES_AND_IDS
 
 --获得经验值
 function mt:addXp(xp, show)
@@ -106,9 +107,10 @@ function mt:set_add_str(str)
 	local int = self:get_add_int()
 	self:remove_ability(ATTRIBUTE_ABIL_ID)
 	self:add_ability(ATTRIBUTE_ABIL_ID)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 108, str)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 109, agi)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 110, int)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 110, str)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 108, agi)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 109, int)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 111, 1)
 	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
 end
 
@@ -132,9 +134,10 @@ function mt:set_add_agi(agi)
 	local int = self:get_add_int()
 	self:remove_ability(ATTRIBUTE_ABIL_ID)
 	self:add_ability(ATTRIBUTE_ABIL_ID)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 108, str)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 109, agi)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 110, int)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 110, str)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 108, agi)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 109, int)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 111, 1)
 	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
 end
 
@@ -158,9 +161,10 @@ function mt:set_add_int(int)
 	local agi = self:get_add_agi()
 	self:remove_ability(ATTRIBUTE_ABIL_ID)
 	self:add_ability(ATTRIBUTE_ABIL_ID)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 108, str)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 109, agi)
-	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, ATTRIBUTE_ABIL_ID), 2, 110, int)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 110, str)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 108, agi)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 109, int)
+	japi.EXSetAbilityDataReal(japi.EXGetUnitAbility(self.handle, Base.string2id(ATTRIBUTE_ABIL_ID)), 2, 111, 1)
 	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
 end
 
@@ -168,6 +172,9 @@ function mt:add_add_int(int)
 	self:set_add_int(self:get_add_int() + int)
 end
 
+function mt:is_hero()
+	return true
+end
 
 --复活英雄
 function mt:revive(where)
@@ -185,12 +192,17 @@ function mt:revive(where)
 		self.wait_to_transform_id = nil
 		self:transform(target)
 	end
-	self:event_notify('单位-复活', self)
+	self:event_notify('英雄-复活', self)
 end
 
 -- 变身
 local dummy
 function mt:transform(target_id)
+
+	if not self:is_type_hero() then
+		return
+	end
+
 	if not self:is_alive() then
 		--死亡状态无法变身
 		self.wait_to_transform_id = target_id
@@ -232,108 +244,29 @@ function mt:transform(target_id)
 end
 
 --创建单位
---	id:单位id(字符串)
---	where:创建位置(type:point;type:circle;type:rect;type:unit)
+--	id:单位名字
+--	where:创建位置
 --	face:面向角度
 function Player.__index:create_hero(name, where, face)
-	local hero_data = Hero.hero_list[name].data
-	local u = self:create_unit(hero_data.id, where, face)
-	setmetatable(u, hero_data)
-	--英雄物品栏
-	u:add_ability 'AInv'
-	u.hero_data = hero_data
-
+	local u = self:create_unit(name, where, face)
+	
+	--这是一个没有注册过的英雄
+	if not u.data then
+		u.__index = Hero
+	end
 	return u
 end
---[=[
-	ac.hero.create '丹特丽安'
-{
-	--物编中的id
-	id = 'H010',
-	production = '丹特丽安的书架',
-	model_source = '全明星战役(水银灯)',
-	hero_designer = 'actboy168',
-	hero_scripter = '最萌小汐',
-	show_animation = 'attack',
-	--技能数量
-	skill_count = 4,
-	skill_names = '妖精之书 雷神之书 冥界之书 明日之诗',
-	attribute = {
-		['生命上限'] = 800,
-		['魔法上限'] = 959,
-		['生命恢复'] = 4,
-		['魔法恢复'] = 2,
-		['攻击']    = 31,
-		['护甲']    = 10,
-		['移动速度'] = 340,
-		['攻击间隔'] = 1.2,
-		['攻击范围'] = 600,
-	},
-	upgrade = {
-		['生命上限'] = 110,
-		['魔法上限'] = 65,
-		['生命恢复'] = 0.26,
-		['魔法恢复'] = 0.3,
-		['攻击']    = 3.1,
-		['护甲']    = 1.1,
-	},
-	weapon = {
-		['弹道模型'] = [[Abilities\Weapons\ProcMissile\ProcMissile.mdl]],
-		['弹道速度'] = 2000,
-		['弹道弧度'] = 0.15,
-		['弹道出手'] = {15, 0, 66},
-	},
-	difficulty = 5,
-	--选取半径
-	selected_radius = 32,
-	--妹子
-	yuri = true,
-	--平胸
-	pad = true,
-	--萝莉
-	loli = true,
-}
-]=]--
-function Hero.create(name)
-	return function(data)
-		Hero.hero_datas[name] = data
-		--继承英雄属性
-		setmetatable(data, Hero)
-		data.__index = data
 
-        function data:__tostring()
-            local player = self:get_owner()
-            return ('[%s|%s|%s]'):format('hero', self:get_name(), player.base_name)
-        end
-		
-		--注册技能
-		data.skill_datas = {}
-		if type(data.skill_names) == 'string' then
-			for name in data.skill_names:gmatch '%S+' do
-				table.insert(data.skill_datas, ac.skill[name])
-			end
-		elseif type(data.skill_names) == 'table' then
-			for _, name in ipairs(data.skill_names) do
-				table.insert(data.skill_datas, ac.skill[name])
-			end
-		end
-		return data
-	end
-end
 
-function Hero.get_all_heros()
-	return Hero.all_heros
-end
-
-function Hero.register_jass_triggers()
+function register_jass_triggers()
 	--英雄升级事件
-	local j_trg = war3.CreateTrigger(function()
+	local j_trg = War3.CreateTrigger(function()
 		local hero = Unit(jass.GetTriggerUnit())
 		local new_lv = jass.GetHeroLevel(hero.handle)
 		local old_lv = hero.level
 		for i = hero.level + 1, new_lv do
 			hero.level = i
-			hero:event_notify('单位-英雄升级', hero)
+			hero:event_notify('英雄-升级', hero, i)
 		end
 
 	end)
@@ -342,24 +275,45 @@ function Hero.register_jass_triggers()
 	end
 end
 
-
-function Hero.init()
-	--注册英雄
-	Hero.hero_datas = {}
+local function register_hero(self, name, data)
+	local war3_id = data.war3_id
+	if not war3_id then
+		Log.error(('注册%s英雄时，不能没有war3_id'):format(name) )
+		return
+	end
+	_HERO_NAMES_AND_IDS[war3_id] = name
+	_HERO_NAMES_AND_IDS[name] = war3_id
 	
-	Hero.register_jass_triggers()
+	setmetatable(data, data)
+	data.__index = Hero
 
-	--记录英雄
-	local heros = {}
-	Hero.all_heros = heros
-	ac.game:event '玩家-注册英雄' (function(_, _, hero)
-		heros[hero] = true
-		hero:loop(100, function()
-			hero:update_active()
-		end)
-	end)
+	local hero = {}
+	setmetatable(hero, hero)
+	hero.__index = data
+	hero.__call = function(self, data) 
+		self.data = data
+		return self
+	end
+	hero.name = name
+	hero.data = data
+
+	ac.unit[name] = hero
+	ac.unit[war3_id] = hero
+
+	return hero
 end
 
-ac.hero = Hero
+function init()
+	
+	ac.hero = setmetatable({}, {__index = function(self, name)
+		return function(data)
+			register_hero(self, name, data)
+		end
+	end})
+	
+	register_jass_triggers()
+end
+
+init()
 
 return Hero

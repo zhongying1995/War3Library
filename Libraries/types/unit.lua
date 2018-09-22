@@ -899,6 +899,39 @@ function mt:is_pause_skill()
 	return self.pause_skill_count > 0
 end
 
+--暂停运动
+mt.pause_mover_count = 0
+
+function mt:pause_mover(flag)
+	if flag == nil then
+		flag = true
+	end
+	if flag then
+		self.pause_mover_count = self.pause_mover_count + 1
+		if self.pause_mover_count == 1 and self.movers then
+			for mover in pairs(self.movers) do
+				mover:pause(true)
+			end
+		end
+	else
+		if self.pause_mover_count == 0 then
+			log.error '计数错误'
+			return
+		end
+		self.pause_mover_count = self.pause_mover_count - 1
+		if self.pause_mover_count == 0 and self.movers then
+			for mover in pairs(self.movers) do
+				mover:pause(false)
+			end
+		end
+	end
+end
+
+--判断是否暂停
+function mt:is_pause_mover()
+	return self.pause_mover_count > 0
+end
+
 --颜色
 mt.red = 255
 mt.green = 255

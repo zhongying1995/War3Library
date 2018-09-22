@@ -39,7 +39,7 @@ api.filter_in = 0
 
 api.center = {}
 function api.center:get_point()
-	return Point(0, 0)
+	return Point:new(0, 0)
 end
 
 api.r = 99999
@@ -280,7 +280,7 @@ function api:select(select_unit)
 		local r = self.len / 2
 
 		local x, y = (x1 + x2) / 2, (y1 + y2) / 2
-		local p = Point(x, y)
+		local p = Point:new(x, y)
 		GroupEnumUnitsInRange(dummy_group, x, y, r + MAX_COLLISION, nil)
 		local u
 		while true do

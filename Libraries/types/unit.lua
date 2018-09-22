@@ -1298,7 +1298,7 @@ end
 local _ac_dummy_id = SYS_AC_UNIT_DUMMY_ID
 --创建单位马甲
 function create_ac_dummy()
-	ac.dummy = Unit.create(Player[16], _ac_dummy_id, Point(0, 0))
+	ac.dummy = Unit.create(Player[16], _ac_dummy_id, Point:new(0, 0))
 end
 
 local function register_unit(self, name, data)

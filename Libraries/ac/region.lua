@@ -97,7 +97,7 @@ function Region:__add(other)
 		local p0 = other:get_point()
 		for x = x - r, x + r + 32, 32 do
 			for y = y - r, y + r + 32, 32 do
-				local p = Point(x, y)
+				local p = Point:new(x, y)
 				if p * p0 <= r + 16 then
 					jass.RegionAddCell(self.handle, x, y)
 				end
@@ -124,7 +124,7 @@ function Region:__sub(other)
 		local p0 = other:get_point()
 		for x = x - r, x + r + 32, 32 do
 			for y = y - r, y + r + 32, 32 do
-				local p = Point(x, y)
+				local p = Point:new(x, y)
 				if p * p0 <= r + 16 then
 					jass.RegionClearCell(self.handle, x, y)
 				end

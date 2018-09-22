@@ -14,7 +14,7 @@ Mover.line.__index = {
 	check_hit = function(self)
 		local speed = self.speed * Mover.FRAME * self.time_scale
 		if self.distance < speed then
-			local p1 = self.Mover:get_point()
+			local p1 = self.mover:get_point()
 			local p2 = p1 - {self.angle, self.distance}
 			self.mover:set_position(p2, self.path, self.super)
 			if Mover.on_finish(self) then

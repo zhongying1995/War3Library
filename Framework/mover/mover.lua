@@ -13,14 +13,14 @@ local error_handle = runtime.error_handle
 
 ac.mover = {}
 
-local mover = {}
-setmetatable(mover, mover)
+local Mover = {}
+setmetatable(Mover, Mover)
 
 --常量
-mover.HIT_TYPE_NONE		= ''
-mover.HIT_TYPE_ENEMY	= '敌人'
-mover.HIT_TYPE_ALLY		= '友方'
-mover.HIT_TYPE_ALL		= '别人'
+Mover.HIT_TYPE_NONE		= ''
+Mover.HIT_TYPE_ENEMY	= '敌人'
+Mover.HIT_TYPE_ALLY		= '友方'
+Mover.HIT_TYPE_ALL		= '别人'
 
 ac.mover.HIT_TYPE_NONE		= ''
 ac.mover.HIT_TYPE_ENEMY		= '敌人'
@@ -28,10 +28,10 @@ ac.mover.HIT_TYPE_ALLY		= '友方'
 ac.mover.HIT_TYPE_ALL		= '别人'
 
 --帧数
-mover.FRAME = Game.FRAME
+Mover.FRAME = Game.FRAME
 
 --结构
-mover.__index = {
+Mover.__index = {
 	--类型
 	type = 'mover',
 
@@ -182,9 +182,9 @@ mover.__index = {
 			self:on_remove(self.mover)
 		end
 		
-		if mover.mover_group[self] then
-			mover.mover_group[self] = nil
-			mover.count = mover.count - 1
+		if Mover.mover_group[self] then
+			Mover.mover_group[self] = nil
+			Mover.count = Mover.count - 1
 		end
 
 		if self.missile and not skip_remove then
@@ -196,7 +196,7 @@ mover.__index = {
 			self.effect:remove()
 		end
 
-		mover.removed_mover[self] = self
+		Mover.removed_mover[self] = self
 	end,
 
 	--运动更新
@@ -216,14 +216,14 @@ mover.__index = {
 
 		local point = self.mover:get_point()
 
-		self.speed = self.speed + self.accel * mover.FRAME * self.time_scale
+		self.speed = self.speed + self.accel * Mover.FRAME * self.time_scale
 		if self.min_speed and self.speed < self.min_speed then
 			self.speed = self.min_speed
 		elseif self.max_speed and self.speed > self.max_speed then
 			self.speed = self.max_speed
 		end
 
-		local speed = self.speed * mover.FRAME * self.time_scale
+		local speed = self.speed * Mover.FRAME * self.time_scale
 		local height = 0
 		--位移
 		if not self.mover:set_position(self.next_point, not self.block, self.super) then
@@ -384,9 +384,6 @@ mover.__index = {
 	--发射
 	launch = function(self)
 		
-		if self.mover and self.mover.type == 'unit' and (self.mover:has_restriction '禁锢' or self.mover._follow_data) then
-			return
-		end
 
 		--初始化一下数据
 		self:init()
@@ -395,7 +392,7 @@ mover.__index = {
 			if self.id then
 				self.mover = ac.player[16]:create_dummy(self.id, self.start, self.face or self.angle or 0)
 			else
-				self.mover = ac.player[16]:create_dummy(mover.UNIT_ID, self.start, self.face or self.angle or 0)
+				self.mover = ac.player[16]:create_dummy(Mover.UNIT_ID, self.start, self.face or self.angle or 0)
 			end
 			self.missile = true
 			if self.super == nil then
@@ -420,7 +417,7 @@ mover.__index = {
 			self.mover:set_size(self.size)
 		end
 		
-		mover.add(self)
+		Mover.add(self)
 
 		if not self.mover.movers then
 			self.mover.movers = {}
@@ -460,17 +457,17 @@ mover.__index = {
 	end,
 }
 function ac.mover.line(data)
-	setmetatable(data, mover.line)
+	setmetatable(data, Mover.line)
 	return data:launch()
 end
 
 function ac.mover.target(data)
-	setmetatable(data, mover.target)
+	setmetatable(data, Mover.target)
 	return data:launch()
 end
 
 --运动完成
-function mover.on_finish(self)
+function Mover.on_finish(self)
 	local on_finish = self.on_finish
 	self.on_finish = nil
 	if on_finish and on_finish(self, self.mover) then
@@ -481,62 +478,62 @@ function mover.on_finish(self)
 	return true
 end
 
-mover.count = 0
+Mover.count = 0
 
 --添加进循环
-function mover.add(mover_data)
-	mover.mover_group[mover_data] = true
-	mover.count = mover.count + 1
-	--print('运动方程计数:', mover.count)
+function Mover.add(mover_data)
+	Mover.mover_group[mover_data] = true
+	Mover.count = Mover.count + 1
+	--print('运动方程计数:', Mover.count)
 end
  
-function mover.init(missile_id)
+function Mover.init(missile_id)
 	--投射物的单位id
 	if not missile_id then
 		Log.error('初始化 应用框架层的mover模块，没有传入通用投射物id')
 		missile_id = 'hfoo'
 	end
-	mover.UNIT_ID = missile_id
+	Mover.UNIT_ID = missile_id
 	
 	require 'Framework.mover.target'
 	require 'Framework.mover.line'
 	
 	--无限循环
-	mover.mover_group = {}
-	mover.removed_mover = setmetatable({}, { __mode = 'kv' })
+	Mover.mover_group = {}
+	Mover.removed_mover = setmetatable({}, { __mode = 'kv' })
 end
 
 local move_index
 local function mover_move()
 	if move_index then
-		mover.mover_group[move_index] = nil
-		mover.count = mover.count - 1
+		Mover.mover_group[move_index] = nil
+		Mover.count = Mover.count - 1
 	end
 	local tbl = {}
-	for mover_data in pairs(mover.mover_group) do
+	for mover_data in pairs(Mover.mover_group) do
 		tbl[#tbl + 1] = mover_data
 	end
 	for i = 1, #tbl do
 		move_index = tbl[i]
 		if tbl[i].paused <= 0 then
-			mover.next(tbl[i])
+			Mover.next(tbl[i])
 		end
 	end
 	move_index = nil
 end
 
-function mover.move()
+function Mover.move()
 	xpcall(mover_move, error_handle)
 end
 
 local hit_index
 local function mover_hit()
 	if hit_index then
-		mover.mover_group[hit_index] = nil
-		mover.count = mover.count - 1
+		Mover.mover_group[hit_index] = nil
+		Mover.count = Mover.count - 1
 	end
 	local tbl = {}
-	for mover_data in pairs(mover.mover_group) do
+	for mover_data in pairs(Mover.mover_group) do
 		tbl[#tbl + 1] = mover_data
 	end
 	for i = 1, #tbl do
@@ -548,8 +545,8 @@ local function mover_hit()
 	hit_index = nil
 end
 
-function mover.hit()
+function Mover.hit()
 	xpcall(mover_hit, error_handle)
 end
 
-return mover
+return Mover

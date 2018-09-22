@@ -2,6 +2,7 @@
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
 local math = math
+local Player = require 'libraries.ac.player'
 
 local Lightning = {}
 setmetatable(Lightning, Lightning)
@@ -23,9 +24,6 @@ function Lightning:new(name, start, target, oz1, oz2)
 	return ln
 end
 
-function ac.lightning(name, start, target, oz1, oz2)
-	return Lightning:new(name, start, target, oz1, oz2)
-end
 
 local mt = {}
 Lightning.__index = mt
@@ -129,7 +127,7 @@ end
 
 --检查可见度
 function mt:check_visible()
-	local visible = self.keep_visible or ac.player.self:is_visible(self.start), ac.player.self:is_visible(self.target)
+	local visible = self.keep_visible or Player.self:is_visible(self.start), Player.self:is_visible(self.target)
 	if self.is_visible then
 		if not visible then
 			self.is_visible = false

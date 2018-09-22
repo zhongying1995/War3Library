@@ -63,6 +63,8 @@ mt.paused_clock = 0
 --上一次暂停开始的时间
 mt.last_pause_clock = 0
 
+_UNIT_FLYING_ABIL_ID = SYS_UNIT_FLYING_ABIL_ID or 'Arav'
+
 --根据war3_id获取对应的lua物品名称
 _UNIT_NAMES_AND_IDS = {}
 Unit._UNIT_NAMES_AND_IDS = _UNIT_NAMES_AND_IDS
@@ -116,8 +118,8 @@ local function init_unit(handle)
 	Unit.all_units[handle] = u
 	
 	--令物体可以飞行
-	u:add_ability 'Arav'
-	u:remove_ability 'Arav'
+	u:add_ability(_UNIT_FLYING_ABIL_ID)
+	u:remove_ability(_UNIT_FLYING_ABIL_ID)
 
 	jass.SetUnitCreepGuard(u.handle, true)
 	
@@ -551,8 +553,8 @@ function mt:set_high(high, b, change_time)
 	else
 		self.high = high
 	end
-	jass.UnitAddAbility(self.handle, Base.string2id('Arav'))
-	jass.UnitRemoveAbility(self.handle, Base.string2id('Arav'))
+	jass.UnitAddAbility(self.handle, Base.string2id(_UNIT_FLYING_ABIL_ID))
+	jass.UnitRemoveAbility(self.handle, Base.string2id(_UNIT_FLYING_ABIL_ID))
 	jass.SetUnitFlyHeight(self.handle, self.high, change_time or 0)
 end
 

@@ -43,6 +43,9 @@ mt.is_rebounding = false
 --消逝的伤害类型，不会触发任何事件
 mt.is_missing = false
 
+--马甲伤害类型
+_DAMAGE_DUMMY_UNIT_ID = SYS_DAMAGE_DUMMY_UNIT_ID or 'ndog'
+
 --攻击类型
 local ATTACK_TYPE = {
 	['混乱'] = jass.ATTACK_TYPE_CHAOS,
@@ -81,7 +84,7 @@ local function init_damage_dummy(self, u)
 end
 
 local function add_damage_dummy()
-	local dummy = Unit.create_dummy(Player[16], 'ndog', Point:new(0,0))
+	local dummy = Unit.create_dummy(Player[16], _DAMAGE_DUMMY_UNIT_ID, Point:new(0,0))
 	dummy._is_damage_dummy = true
 	dummy:pause(true)
 	dummy:show(false)

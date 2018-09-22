@@ -54,6 +54,8 @@ mt.owner = nil
 --原始拥有者
 mt.player = nil
 
+_ITEM_PLACEHOLDER_ID = SYS_ITEM_PLACEHOLDER_ID or 'ches'
+
 
 --应该被忽略的物品组,该状态时，不应该执行获得、失去、移动物品的逻辑
 local _ignore_flag_items = {}
@@ -62,7 +64,7 @@ local _ignore_flag_items = {}
 --占位物品表
 local _placeholder_items = {}
 
-local dummy_id = Base.string2id 'ches'
+local dummy_id = Base.string2id(_ITEM_PLACEHOLDER_ID)
 
 --初始化占位物品的状态
 local function init_placeholder_item(j_item)

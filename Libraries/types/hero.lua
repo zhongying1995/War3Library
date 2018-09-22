@@ -20,8 +20,11 @@ setmetatable(mt, Unit)
 --单位类型
 mt.unit_type = 'hero'
 
+_HERO_ATTRIBUTE_ABIL_ID = SYS_HERO_ATTRIBUTE_ABIL_ID or 'Aamk'
+_HERO_TRANSFORM_ABIL_ID = SYS_HERO_TRANSFORM_ABIL_ID or 'AEme'
+
 --英雄属性的技能马甲
-local ATTRIBUTE_ABIL_ID = 'Aamk'
+local ATTRIBUTE_ABIL_ID = _HERO_ATTRIBUTE_ABIL_ID
 
 --当前经验值
 mt.xp = 0
@@ -211,20 +214,20 @@ function mt:transform(target_id)
 
 	if not dummy then
 		dummy = ac.dummy
-		dummy:add_ability 'AEme'
+		dummy:add_ability(SYS_HERO_TRANSFORM_ABIL_ID)
 	end
 	--变身
-	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, Base.string2id 'AEme'), 1, 117, Base.string2id(self:get_type_id()))
-	self:add_ability 'AEme'
-	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, Base.string2id 'AEme'), Base.string2id(target_id))
-	self:remove_ability 'AEme'
+	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, Base.string2id(SYS_HERO_TRANSFORM_ABIL_ID)), 1, 117, Base.string2id(self:get_type_id()))
+	self:add_ability(SYS_HERO_TRANSFORM_ABIL_ID)
+	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, Base.string2id(SYS_HERO_TRANSFORM_ABIL_ID)), Base.string2id(target_id))
+	self:remove_ability(SYS_HERO_TRANSFORM_ABIL_ID)
 
 	--修改ID
 	self.id = target_id
 
 	--可以飞行
-	self:add_ability 'Arav'
-	self:remove_ability 'Arav'
+	self:add_ability(_UNIT_FLYING_ABIL_ID)
+	self:remove_ability(_UNIT_FLYING_ABIL_ID)
 	self:set_high(self:get_high())
 
 	--动画混合时间

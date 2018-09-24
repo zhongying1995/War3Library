@@ -96,6 +96,18 @@ function mt:set_time( time )
     return self
 end
 
+function mt:get_time()
+    return self.current_time
+end
+
+function mt:get_finish_time()
+    return self.finish_time
+end
+
+function mt:get_remaining_time()
+    return math.abs(self:get_finish_time() - self:get_time())
+end
+
 --最后调用的方法
 --  结束时间,默认为0，执行倒序
 function mt:run( finish_time )

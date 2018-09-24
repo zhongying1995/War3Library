@@ -66,6 +66,9 @@ function mt:show(player, is_show)
     if is_show == nil then
         is_show = true
     end
+    if player == nil then
+        player = Player.self
+    end
     jass.DialogDisplay(player.handle, self.handle, is_show and true)
 end
 

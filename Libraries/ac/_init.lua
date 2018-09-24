@@ -9,6 +9,7 @@ require 'libraries.ac.trigger'
 require 'libraries.ac.event'
 Rount.player = require 'libraries.ac.player'
 require 'libraries.ac.timer'
+Rount.dialog = require 'libraries.ac.dialog'
 Rount.game = require 'libraries.ac.game'
 Rount.lightning = require 'libraries.ac.lightning'
 

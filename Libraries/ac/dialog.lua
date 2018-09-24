@@ -35,6 +35,8 @@ function mt:add_button(button)
     local key = button.key or 0
     if type(key) == 'string' then
         key = key:upper()
+        title = title .. '[' .. key .. ']'
+        key = key:byte()
     end
     local button_handle = jass.DialogAddButton(self.handle, title, key)
     if on_click then

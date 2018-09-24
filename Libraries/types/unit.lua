@@ -1361,7 +1361,7 @@ local function register_unit(self, name, data)
 end
 
 --初始化
-function init()
+local function init()
 	--全局单位索引
 	Unit.all_units = {}
 

@@ -306,7 +306,7 @@ local function register_hero(self, name, data)
 	return hero
 end
 
-function init()
+local function init()
 	
 	ac.hero = setmetatable({}, {__index = function(self, name)
 		return function(data)

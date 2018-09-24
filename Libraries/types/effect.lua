@@ -136,7 +136,7 @@ function mt:set_speed(speed)
 end
 
 --设置高度
-function mt:set_height(height)
+function mt:set_high(height)
 	if self.dummy then
 		self.dummy:set_high(height)
 	else

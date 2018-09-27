@@ -2,6 +2,7 @@
 Rount.multiboard = require 'libraries.types.multiboard'
 Rount.texttag = require 'libraries.types.texttag'
 Rount.timerdialog = require 'libraries.types.timerdialog'
+Rount.unit_button = require 'libraries.types.unit_button'
 Rount.unit = require 'libraries.types.unit'
 Rount.heal = require 'libraries.types.heal'
 require 'libraries.types.attribute'

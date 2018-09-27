@@ -7,6 +7,7 @@ local Player = require 'libraries.ac.player'
 local Rect = require 'libraries.ac.rect'
 local order2id = require 'Kernel.war3.order_id'
 local Point = require 'libraries.ac.point'
+local Unit_button = require 'libraries.types.unit_button'
 local math = math
 local table_insert = table.insert
 local table_remove = table.remove
@@ -1323,6 +1324,26 @@ local function register_jass_triggers()
 	end)
 	for i = 0, 15 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, jass.Player(i), jass.EVENT_PLAYER_UNIT_SUMMON, nil)
+	end
+
+	--单位出售单位事件
+	local j_trg = War3.CreateTrigger(function()
+		local handle = jass.GetSoldUnit()
+		local unit = Unit(jass.GetBuyingUnit())
+		local shop = Unit(jass.GetTriggerUnit())
+
+		if Unit_button.is_unit_button_by_handle(handle) then
+			local name = jass.GetUnitName(handle)
+			unit:event_notify('单位-点击单位按钮', unit, name, shop)
+			jass.RemoveUnit(handle)
+			return
+		end
+		local sold_unit = Unit(handle)
+		unit:event_notify('单位-购买单位', unit, sold_unit, shop)
+		shop:event_notify('单位-出售单位', shop, sold_unit, unit)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELL, nil)
 	end
 	
 end

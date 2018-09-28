@@ -61,7 +61,7 @@ function mt:set_style_title(style)
 end
 
 function mt:get_default_style_title()
-    return ('%s  [%.f]'):format(self.title, self.life or 0)
+    return ('%s  [剩%.f秒]'):format(self.title, self.life or 0)
 end
 
 function mt:run()

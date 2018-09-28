@@ -1,6 +1,7 @@
 
 require 'Kernel.util.std'
 require 'Kernel.util.math'
+require 'Kernel.util.table'
 require 'Kernel.util.log'
 
 print('内核util库加载完毕')

@@ -43,17 +43,17 @@ function mt:addXp(xp, show)
 end
 
 
-function mt:set_level(lv)
+function mt:set_level(lv, is_show)
 	local old_lv = self:get_level()
 	if lv > old_lv then
-		jass.SetHeroLevel(self.handle, lv)
+		jass.SetHeroLevel(self.handle, lv, is_show and true)
 	else
 		jass.UnitStripHeroLevel(self.handle, old_lv - lv)
 	end
 end
 
-function mt:add_level(lv)
-	self:set_level(self:get_level() + lv)
+function mt:add_level(lv, is_show)
+	self:set_level(self:get_level() + lv, is_show)
 end
 
 

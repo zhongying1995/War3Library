@@ -31,16 +31,17 @@ mt.xp = 0
 
 _HERO_NAMES_AND_IDS = Unit._UNIT_NAMES_AND_IDS
 
+--是否是英雄
+function mt:is_hero()
+	return true
+end
+
 --获得经验值
 function mt:addXp(xp, show)
 	jass.SetHeroXP(self.handle, jass.GetHeroXP(self.handle) + xp, show and true)
 	self.xp = jass.GetHeroXP(self.handle)
 end
 
-
-function mt:get_level()
-	return jass.GetHeroLevel(self.handle)
-end
 
 function mt:set_level(lv)
 	local old_lv = self:get_level()
@@ -173,10 +174,6 @@ end
 
 function mt:add_add_int(int)
 	self:set_add_int(self:get_add_int() + int)
-end
-
-function mt:is_hero()
-	return true
 end
 
 --复活英雄

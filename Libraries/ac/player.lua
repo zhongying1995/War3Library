@@ -584,6 +584,16 @@ function mt:remove_select(u)
 	end
 end
 
+--获得玩家当前选择的单位
+function mt:get_selecting_unit()
+	return self.selecting_unit
+end
+
+--获得玩家上一个选择的单位
+function mt:get_last_selected_unit()
+	return self.last_selected_unit
+end
+
 --创建玩家(一般不允许外部创建)
 function Player:new(id, jPlayer)
 	local p = {}

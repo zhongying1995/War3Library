@@ -1367,6 +1367,7 @@ local function register_jass_triggers()
 			player:event_notify('玩家-选择单位', player, unit)
 			unit:event_notify('单位-被选择', unit, player)
 		end
+		player.selecting_unit = unit
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELECTED, nil)
@@ -1378,6 +1379,8 @@ local function register_jass_triggers()
 		local player = Player[jass.GetTriggerPlayer()]
 		player:event_notify('玩家-取消选择单位', player, unit)
 		unit:event_notify('单位-被取消选择', unit, player)
+		player.selecting_unit = nil
+		player.last_selected_unit = unit
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DESELECTED, nil)

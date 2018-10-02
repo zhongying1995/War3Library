@@ -129,8 +129,12 @@ function mt:run( finish_time )
         end
         return
     end
+    if self.timer then
+        self.life_timer:resume()
+        return
+    end
     
-    ac.loop(self.frame / self.time_rate, function(t)
+    self.life_timer = ac.loop(self.frame / self.time_rate, function(t)
         if self.on_pulse then
             self:on_pulse()
         end
@@ -145,10 +149,19 @@ function mt:run( finish_time )
             if self.on_expire then
                 self:on_expire()
             end
-            t:remove()
+            t:pause()
         end
     end)
+    self.life_timer:on_timer()
     return self
+end
+
+function mt:pause()
+    if self.life_timer then
+        self.life_timer:pause()
+        return true
+    end
+    return false
 end
 
 --需要重写的方法

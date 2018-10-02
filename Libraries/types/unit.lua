@@ -972,6 +972,11 @@ function mt:get_alpha()
 	return self.alpha
 end
 
+--增加单位透明度
+function mt:add_alpha(alpha)
+	self:set_alpha(self:get_alpha() + alpha)
+end
+
 --动画
 --设置单位动画
 --	动画名或动画序号

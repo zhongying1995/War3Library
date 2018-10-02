@@ -1345,6 +1345,38 @@ local function register_jass_triggers()
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELL, nil)
 	end
+
+	--玩家选择单位
+	local j_trg = War3.CreateTrigger(function()
+		local unit = Unit(jass.GetTriggerUnit())
+		local player = Player[jass.GetTriggerPlayer()]
+		if player._last_select_unit == unit then
+			player:event_notify('玩家-双击单位', player, unit)
+			unit:event_notify('单位-被玩家双击', unit, player)
+			player._last_select_unit = nil
+		else
+			player._last_select_unit = unit
+			ac.wait(500, function()
+				player._last_select_unit = nil
+			end)
+			player:event_notify('玩家-选择单位', player, unit)
+			unit:event_notify('单位-被玩家选择', unit, player)
+		end
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SELECTED, nil)
+	end
+
+	--玩家取消选择单位
+	local j_trg = War3.CreateTrigger(function()
+		local unit = Unit(jass.GetTriggerUnit())
+		local player = Player[jass.GetTriggerPlayer()]
+		player:event_notify('玩家-取消选择单位', player, unit)
+		unit:event_notify('单位-被玩家取消选择', unit, player)
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DESELECTED, nil)
+	end
 	
 end
 

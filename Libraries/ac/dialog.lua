@@ -72,7 +72,7 @@ function mt:run()
         self.life_timer:resume()
         return
     end
-    self.life_timer = ac.loop(self.pulse * 1000, function()
+    self.life_timer = ac.loop(self.pulse * 1000, function(t)
         self.life = self.life - self.pulse
         if self.life <= 0 then
             local on_click = self:get_default_button().on_click
@@ -80,12 +80,20 @@ function mt:run()
             for _, player in pairs(show_players) do
                 on_click(self, player)
             end
-            self.life_timer:pause()
+            t:pause()
         end
         self:set_title( self:get_style_title() )
     end)
     self.life_timer:on_timer()
     return self
+end
+
+function mt:pause()
+    if self.life_timer then
+        self.life_timer:pause()
+        return true
+    end
+    return false
 end
 
 function mt:set_default_button(button)

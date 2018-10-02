@@ -1,0 +1,1 @@
+require 'libraries.test.command'

@@ -422,7 +422,7 @@ function mt:remove()
 
 	--移除单位身上的物品
 	for i = 1, 6 do
-		local it = self:get_slot_item()
+		local it = self:get_slot_item(i)
 		if it then
 			it:remove()
 		end

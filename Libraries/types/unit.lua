@@ -947,11 +947,20 @@ function mt:set_color(red, green, blue)
 	self.red, self.green, self.blue = red, green, blue
 	jass.SetUnitVertexColor(
 		self.handle,
-		self.red,
-		self.green,
-		self.blue,
-		self.alpha
+		math.min(255, math.max(0, self.red)),
+		math.min(255, math.max(0, self.green)),
+		math.min(255, math.max(0, self.blue)),
+		math.min(255, math.max(0, self.alpha))
 	)
+end
+
+function mt:get_color()
+	return self.red, self.green, self.blue
+end
+
+function mt:add_color(red, green, blue)
+	local old_red, old_green, old_blue = self:get_color()
+	self:set_color( old_red + red, old_green + green, old_blue + blue)
 end
 
 --设置单位透明度
@@ -960,10 +969,10 @@ function mt:set_alpha(alpha)
 	self.alpha = alpha
 	jass.SetUnitVertexColor(
 		self.handle,
-		self.red,
-		self.green,
-		self.blue,
-		self.alpha
+		math.min(255, math.max(0, self.red)),
+		math.min(255, math.max(0, self.green)),
+		math.min(255, math.max(0, self.blue)),
+		math.min(255, math.max(0, self.alpha))
 	)
 end
 
@@ -1263,14 +1272,11 @@ local function register_jass_triggers()
 	local j_trg = War3.CreateTrigger(function()
 		local j_handle = jass.GetTriggerUnit()
 		local order = jass.GetIssuedOrderId()
-		ac.wait(0, function ( )
-			local u = Unit(j_handle)
-			if not u then
-				return
-			end
-			u:event_notify('单位-发布指令', u, id2order[order], nil, order)
-		end)
-		
+		local u = Unit(j_handle)
+		if not u then
+			return
+		end
+		u:event_notify('单位-发布指令', u, id2order[order], nil, order)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_ORDER, nil)

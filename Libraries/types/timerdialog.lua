@@ -124,8 +124,8 @@ function mt:run( finish_time )
         if self.on_pulse then
             self:on_pulse()
         end
-        if self.on_click then
-            self:on_click()
+        if self.on_expire then
+            self:on_expire()
         end
         return
     end
@@ -142,8 +142,8 @@ function mt:run( finish_time )
         jass.TimerStart(self.timer_handle, self.current_time, false, null)
         jass.PauseTimer(self.timer_handle)
         if self.current_time == self.finish_time then
-            if self.on_click then
-                self:on_click()
+            if self.on_expire then
+                self:on_expire()
             end
             t:remove()
         end
@@ -152,10 +152,10 @@ function mt:run( finish_time )
 end
 
 --需要重写的方法
-mt.on_click = nil
+mt.on_expire = nil
 
-function mt:set_on_click_listener( f )
-    self.on_click = f
+function mt:set_on_expire_listener( f )
+    self.on_expire = f
     return self
 end
 

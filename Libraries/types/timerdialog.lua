@@ -148,6 +148,7 @@ function mt:run( finish_time )
             t:remove()
         end
     end)
+    return self
 end
 
 --需要重写的方法

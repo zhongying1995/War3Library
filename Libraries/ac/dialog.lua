@@ -85,6 +85,7 @@ function mt:run()
         self:set_title( self:get_style_title() )
     end)
     self.life_timer:on_timer()
+    return self
 end
 
 function mt:set_default_button(button)

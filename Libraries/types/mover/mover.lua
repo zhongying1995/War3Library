@@ -495,8 +495,8 @@ function Mover.init(missile_id)
 	end
 	Mover.UNIT_ID = missile_id
 	
-	require 'Framework.mover.target'
-	require 'Framework.mover.line'
+	require 'libraries.types.mover.target'
+	require 'libraries.types.mover.line'
 	
 	--无限循环
 	Mover.mover_group = {}

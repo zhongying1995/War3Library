@@ -1,5 +1,5 @@
 
-local Mover = require 'framework.mover.mover'
+local Mover = require 'libraries.types.mover.mover'
 
 --直线运动
 Mover.line = {}

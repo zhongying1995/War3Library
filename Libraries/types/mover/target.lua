@@ -1,5 +1,5 @@
 
-local Mover = require 'framework.mover.mover'
+local Mover = require 'libraries.types.mover.mover'
 local math = math
 
 --目标运动

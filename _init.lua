@@ -27,7 +27,7 @@ local function indispensable_config()
     --地图名字，用于日志生成路径
 	SYS_MAP_NAME = 'JustForLiving'
 	
-	--一个无模型的单位id，使用于Framework层的mover、path_block模块
+	--一个无模型的单位id，使用于types层的mover、path_block模块
     SYS_NO_MODEL_UNIT_ID = 'eZ00'
 
     --尸体骨头衰退时间，由物编的平衡常数确定，用于单位的移除
@@ -66,7 +66,6 @@ local function init()
 
     require 'kernel._init'
     require 'libraries._init'
-    require 'framework._init'
     print('++++++++++++++++++')
     print('底层库代码加载完毕')
     print('------------------')

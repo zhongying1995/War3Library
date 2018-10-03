@@ -1,5 +1,5 @@
 
-local mover = require 'framework.mover.mover'
+local mover = require 'libraries.types.mover.mover'
 Rount.mover = mover
 mover.init(SYS_NO_MODEL_UNIT_ID)
 local game = Rount.game

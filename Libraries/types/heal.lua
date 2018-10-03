@@ -1,6 +1,6 @@
 
 local Unit = require 'libraries.types.unit'
-local Texttag = require 'libraries.types.texttag'
+local Texttag = require 'libraries.types.texttag.texttag'
 
 local Heal = {}
 setmetatable(Heal, Heal)

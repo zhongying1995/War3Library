@@ -1,11 +1,13 @@
 local Player = Rount.player
+local Texttag = Rount.texttag
+local Point = Rount.point
 
 local mt = Player.__index
 
 --获得金钱
 --	金钱数量
 --	[漂浮文字显示位置]
---	[是否不增加玩家金钱]
+--	[是否不增加玩家金钱],默认增加
 function mt:add_gold_text(gold, where, flag)
 	
 	if not where or gold <= 0 then
@@ -25,9 +27,8 @@ function mt:add_gold_text(gold, where, flag)
 	end
 	local x, y = where:get_point():get()
 	local z = where:get_point():getZ()
-	local position = ac.point(x - 30, y, z + 30)
-	ac.texttag
-	{
+	local position = Point:new(x - 30, y, z + 30)
+	Texttag:new{
 		string = '+' .. math.floor(gold),
 		size = 12,
 		position = position,
@@ -36,7 +37,7 @@ function mt:add_gold_text(gold, where, flag)
 		green = 100,
 		blue = 20,
 		player = self,
-		show = ac.texttag.SHOW_SELF
+		show = Texttag.SHOW_SELF
 	}
 	if where.type == 'unit' then
 		local model

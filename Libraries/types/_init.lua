@@ -1,6 +1,6 @@
 
 Rount.multiboard = require 'libraries.types.multiboard'
-Rount.texttag = require 'libraries.types.texttag'
+require 'libraries.types.texttag._init'
 Rount.timerdialog = require 'libraries.types.timerdialog'
 Rount.unit_button = require 'libraries.types.unit_button'
 Rount.unit = require 'libraries.types.unit'
@@ -13,7 +13,7 @@ Rount.skill = require 'libraries.types.skill'
 Rount.item = require 'libraries.types.item'
 Rount.hero = require 'libraries.types.hero'
 Rount.damage = require 'libraries.types.damage'
+require 'libraries.types.mover._init'
+require 'libraries.types.path_block._init'
 
-local game = Rount.game
-game.register_observer('texttag', Rount.texttag.update)
 

@@ -11,6 +11,7 @@ require 'libraries.types._init'
 
 print('types层库代码加载完毕')
 
+require 'libraries.interact._init'
 require 'libraries.test._init'
 
 print('Libraries层库代码加载完毕<<<<<<<<')

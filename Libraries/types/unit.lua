@@ -244,7 +244,7 @@ mt.id = ''
 
 --获取单位id,一般与get_type_id 一样
 function mt:get_id()
-	return self.id
+	return self.id or self:get_type_id()
 end
 
 --获得单位id

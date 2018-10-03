@@ -104,15 +104,15 @@ end
 
 
 function mt:is_attack()
-	return self.is_attack and true
+	return self.is_attacking and true or japi.EXGetEventDamageData(2) ~= 0
 end
 
 function mt:is_range()
-	return self.is_range and true
+	return self.is_ranging and true or japi.EXGetEventDamageData(3) ~= 0
 end
 
 function mt:is_physical()
-	return self.is_physical and true
+	return self.is_physicality and true or japi.EXGetEventDamageData(1) ~= 0
 end
 
 function mt:get_original_damage()
@@ -144,8 +144,8 @@ function Damage:__call(data)
 	damage.original_damage = damage.damage
 	dummy.damage = damage
 
-	local is_attack = damage.is_attack or false
-	local is_range = damage.is_range or false
+	local is_attacking = damage.is_attacking or false
+	local is_ranging = damage.is_ranging or false
 	local attack_type = ATTACK_TYPE[damage.attack_type]
 	if not attack_type then
 		if damage.skill then
@@ -171,7 +171,7 @@ function Damage:__call(data)
 	local weapon_type = WEAPON_TYPE['普通']
 	damage.weapon_type = '普通'
 
-	jass.UnitDamageTarget(dummy.handle, target.handle, damage.damage, is_attack, is_range, attack_type, damage_type, weapon_type)
+	jass.UnitDamageTarget(dummy.handle, target.handle, damage.damage, is_attacking, is_ranging, attack_type, damage_type, weapon_type)
 end
 
 function Unit.__index:damage(data)
@@ -221,17 +221,6 @@ local j_trg = War3.CreateTrigger(function()
 		damage.original_damage = damage_val
 	end
 
-	if not damage.is_physical and japi.EXGetEventDamageData(1) ~= 0 then
-		damage.is_physical = true
-	end
-
-	if not damage.is_attack and japi.EXGetEventDamageData(2) ~= 0 then
-		damage.is_attack = true
-	end
-
-	if not damage.is_range and japi.EXGetEventDamageData(3) ~= 0 then
-		damage.is_range = true
-	end
 
 	if damage.is_rebounding then
 

@@ -190,12 +190,8 @@ function mt:show(show)
 	jass.ShowUnit(self.handle, show and true)
 end
 
-function mt:is_type(type)
-	return jass.IsUnitType(self.handle, type)
-end
-
 function mt:is_type_hero()
-	return self:is_type(jass.UNIT_TYPE_HERO)
+	return jass.IsUnitType(self.handle, jass.UNIT_TYPE_HERO)
 end
 
 function mt:is_hero()

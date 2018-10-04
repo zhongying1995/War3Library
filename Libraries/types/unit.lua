@@ -195,7 +195,7 @@ function mt:is_type(type)
 end
 
 function mt:is_type_hero()
-	self:is_type(jass.UNIT_TYPE_HERO)
+	return self:is_type(jass.UNIT_TYPE_HERO)
 end
 
 function mt:is_hero()

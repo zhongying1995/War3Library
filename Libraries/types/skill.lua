@@ -330,6 +330,13 @@ function mt:_on_cast_effect()
 	self.owner:event_notify('单位-发动技能效果', self)
 end
 
+--发动技能结束
+function mt:_on_cast_end()
+	if self.on_end then
+		self:on_end()
+	end
+end
+
 -- 使用技能
 function mt:cast(target, data)
 	--把data封装并返回
@@ -337,7 +344,26 @@ function mt:cast(target, data)
 	local self = self:create_cast(data)
 	-- print('cast：', s_1, self)
 	self.target = target
+	local unit = self.owner
+	if not unit._casting_list then
+		unit._casting_list = {}
+	end
+	table_insert(unit._casting_list, self)
 	self:_on_cast_effect()
+	return self
+end
+
+function mt:cast_end()
+	local unit = self.owner
+	local index = nil
+	for i, skill in ipairs(unit._casting_list) do
+		if skill.name == self.name then
+			self = skill
+			index = i
+		end
+	end
+	self:_on_cast_end()
+	table_remove(unit._casting_list, index)
 	return self
 end
 
@@ -397,13 +423,31 @@ local function init()
 			-- print('没有在单位身上找到技能，给单位添加技能')
 			skl = unit:add_skill(name){war3_id = id}
 		end
-		-- print('发动技能效果：', skl)
-		ac.wait(0, function()
-			skl:cast(target)
-		end)
+		print('发动技能效果：', skl)
+		skl:cast(target)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_EFFECT, nil)
+	end
+
+	--单位发动技能结束
+	local j_trg = War3.CreateTrigger(function()
+		local unit = Unit(jass.GetTriggerUnit())
+		local id = Base.id2string(jass.GetSpellAbilityId())
+
+		--通过id查找,id作为拦截器
+		local skill = ac.skill[id] 
+		-- print('查找技能：', id, skill)
+		if type(skill) == 'function' then
+			return
+		end
+
+		local skl = unit:find_skill(id)
+		-- print('发动技能结束：', skl)
+		skl:cast_end()
+	end)
+	for i = 1, 16 do
+		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_SPELL_ENDCAST, nil)
 	end
 	
 	--不允许同名技能

@@ -421,7 +421,7 @@ local function init()
 		local skl = unit:find_skill(id)
 		if not skl then
 			-- print('没有在单位身上找到技能，给单位添加技能')
-			skl = unit:add_skill(name){war3_id = id}
+			skl = unit:add_skill(id){war3_id = id}
 		end
 		print('发动技能效果：', skl)
 		skl:cast(target)

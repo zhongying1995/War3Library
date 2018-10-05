@@ -29,7 +29,8 @@ local ATTRIBUTE_ABIL_ID = _HERO_ATTRIBUTE_ABIL_ID
 --当前经验值
 mt.xp = 0
 
-_HERO_NAMES_AND_IDS = Unit._UNIT_NAMES_AND_IDS
+_HERO_NAME_TO_IDS = Unit._UNIT_NAME_TO_IDS
+_HERO_ID_TO_NAMES = Unit._UNIT_ID_TO_NAMES
 
 --是否是英雄
 function mt:is_hero()
@@ -281,8 +282,8 @@ local function register_hero(self, name, data)
 		Log.error(('注册%s英雄时，不能没有war3_id'):format(name) )
 		return
 	end
-	_HERO_NAMES_AND_IDS[war3_id] = name
-	_HERO_NAMES_AND_IDS[name] = war3_id
+	_HERO_ID_TO_NAMES[war3_id] = name
+	_HERO_NAME_TO_IDS[name] = war3_id
 	
 	setmetatable(data, data)
 	data.__index = Hero

@@ -67,13 +67,15 @@ mt.last_pause_clock = 0
 _UNIT_FLYING_ABIL_ID = SYS_UNIT_FLYING_ABIL_ID or 'Arav'
 
 --根据war3_id获取对应的lua物品名称
-_UNIT_NAMES_AND_IDS = {}
-Unit._UNIT_NAMES_AND_IDS = _UNIT_NAMES_AND_IDS
+_UNIT_NAME_TO_IDS = {}
+_UNIT_ID_TO_NAMES = {}
+Unit._UNIT_NAME_TO_IDS = _UNIT_NAME_TO_IDS
+Unit._UNIT_ID_TO_NAMES = _UNIT_ID_TO_NAMES
 local function get_unit_name_by_id(id)
-	return _UNIT_NAMES_AND_IDS[id] or id
+	return _UNIT_ID_TO_NAMES[id] or id
 end
 local function get_unit_id_by_name(name)
-	return _UNIT_NAMES_AND_IDS[name] or name
+	return _UNIT_NAME_TO_IDS[name] or name
 end
 
 
@@ -1403,8 +1405,8 @@ local function register_unit(self, name, data)
 		Log.error(('注册%s单位时，不能没有war3_id'):format(name) )
 		return
 	end
-	_UNIT_NAMES_AND_IDS[war3_id] = name
-	_UNIT_NAMES_AND_IDS[name] = war3_id
+	_UNIT_ID_TO_NAMES[war3_id] = name
+	_UNIT_NAME_TO_IDS[name] = war3_id
 	
 	setmetatable(data, data)
 	data.__index = Unit

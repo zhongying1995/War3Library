@@ -5,7 +5,7 @@ function Registry:name_to_id(name)
 end
 
 function Registry:id_to_name(id)
-    return self._ID_TO_NAMES[id] or name
+    return self._ID_TO_NAMES[id] or id
 end
 
 function Registry:register(name, id)
@@ -14,7 +14,6 @@ function Registry:register(name, id)
 end
 
 local function init()
-    print('registry init')
     Registry._NAME_TO_IDS = {}
     Registry._ID_TO_NAMES = {}
 end

@@ -170,6 +170,29 @@ function mt:pause_skill()
 
 end
 
+function mt:get_level()
+	return self.level
+end
+
+--设置技能等级
+function mt:set_level(level)
+	self.level = level
+	if self.war3_id then
+		local unit = self.owner
+		unit:set_ability_level(self.war3_id, level)
+	end
+	if self.on_upgrade then
+		self:on_upgrade()
+	end
+	self:fresh()
+end
+
+--增加技能等级
+function mt:add_level(level)
+	local level = level or 1
+	self:set_level(self:get_level() + level)
+end
+
 --刷新物编技能
 function mt:fresh()
 	self:update_data()
@@ -289,6 +312,10 @@ function Unit.__index:find_skill(name)
 	end
 	if not self._skills[name] then
 		local data = ac.skill[name]
+		-- print('find_skill:', data)
+		if type(data) == 'function' then
+			return nil
+		end
 	end
 	return self._skills[name]
 end

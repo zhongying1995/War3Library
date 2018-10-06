@@ -1327,11 +1327,11 @@ local function register_jass_triggers()
 	--单位出售单位事件
 	local j_trg = War3.CreateTrigger(function()
 		local handle = jass.GetSoldUnit()
-		local unit = Unit(jass.GetBuyingUnit())
 		local shop = Unit(jass.GetTriggerUnit())
-
+		local unit = Unit(jass.GetBuyingUnit())
+		
 		if Unit_button.is_unit_button_by_handle(handle) then
-			local name = jass.GetUnitName(handle)
+			local name = Registry:id_to_name(Base.id2string(jass.GetUnitTypeId(handle)))
 			unit:event_notify('单位-点击单位按钮', unit, name, shop)
 			jass.RemoveUnit(handle)
 			return

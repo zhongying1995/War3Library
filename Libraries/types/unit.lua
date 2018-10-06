@@ -11,6 +11,7 @@ local Unit_button = require 'libraries.types.unit_button'
 local math = math
 local table_insert = table.insert
 local table_remove = table.remove
+local Registry = require 'kernel.util.registry'
 
 local _last_summoned_unit
 
@@ -65,18 +66,6 @@ mt.paused_clock = 0
 mt.last_pause_clock = 0
 
 _UNIT_FLYING_ABIL_ID = SYS_UNIT_FLYING_ABIL_ID or 'Arav'
-
---根据war3_id获取对应的lua物品名称
-_UNIT_NAME_TO_IDS = {}
-_UNIT_ID_TO_NAMES = {}
-Unit._UNIT_NAME_TO_IDS = _UNIT_NAME_TO_IDS
-Unit._UNIT_ID_TO_NAMES = _UNIT_ID_TO_NAMES
-local function get_unit_name_by_id(id)
-	return _UNIT_ID_TO_NAMES[id] or id
-end
-local function get_unit_id_by_name(name)
-	return _UNIT_NAME_TO_IDS[name] or name
-end
 
 
 --初始化单位身上的技能
@@ -1174,7 +1163,8 @@ end
 --]]
 --	name:可以是lua注册过的单位名字/或者war3的id
 function Unit.create(player, name, where, face)
-	local id = get_unit_id_by_name(name)
+	
+	local id = Registry:name_to_id(name)
 	local j_id = Base.string2id(id)
 	local x, y
 	if where.type == 'point' then
@@ -1205,7 +1195,7 @@ function Unit.create_dummy(player, name, where, face, is_aloc)
 	else
 		x, y = where:get_point():get()
 	end
-	local id = get_unit_id_by_name(name)
+	local id = Registry:name_to_id(name)
 	local handle = jass.CreateUnit(player.handle, Base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
 	local u = Unit.new(handle, false)
@@ -1405,8 +1395,8 @@ local function register_unit(self, name, data)
 		Log.error(('注册%s单位时，不能没有war3_id'):format(name) )
 		return
 	end
-	_UNIT_ID_TO_NAMES[war3_id] = name
-	_UNIT_NAME_TO_IDS[name] = war3_id
+	
+	Registry:register(name, war3_id)
 	
 	setmetatable(data, data)
 	data.__index = Unit

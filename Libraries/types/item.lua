@@ -13,6 +13,7 @@ local setmetatable = setmetatable
 local xpcall = xpcall
 local select = select
 local error_handle = runtime.error_handle
+local Registry = require 'Kernel.util.registry'
 
 local Item = {}
 setmetatable(Item, Item)
@@ -113,14 +114,6 @@ local function reclaim_placeholder_item(j_item)
 end
 
 
---根据war3_id获取对应的lua物品的名称
-_ITEM_NAMES_AND_IDS = {}
-local function get_item_name_by_id(id)
-	return _ITEM_NAMES_AND_IDS[id] or id
-end
-local function get_item_id_by_name(name)
-	return _ITEM_NAMES_AND_IDS[name] or name
-end
 
 --格子，1-6
 function Unit.__index:get_slot_item(slotid)
@@ -130,13 +123,13 @@ end
 
 --创建物品
 function Unit.__index:add_item(name, data)
-	local id = get_item_id_by_name(name)
+	local id = Registry:name_to_id(name)
 	local item = Item.create_item(id, self, data)
 	return item
 end
 
 function Point.__index:add_item(name)
-	local id = get_item_id_by_name(name)
+	local id = Registry:name_to_id(name)
 	local item = Item.create_item(id, self)
 	return item
 end
@@ -782,9 +775,8 @@ local function register_item(self, name, data)
 		Log.error(('注册%s物品时，不能没有war3_id'):format(name) )
 		return
 	end
-	_ITEM_NAMES_AND_IDS[war3_id] = name
-	_ITEM_NAMES_AND_IDS[name] = war3_id
-	
+	Registry:register(name, war3_id)
+
 	setmetatable(data, data)
 	data.__index = Item
 

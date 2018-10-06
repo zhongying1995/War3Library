@@ -60,7 +60,7 @@ function mt:event(name)
 		self.event_enter = War3.CreateTrigger()
 		jass.TriggerRegisterEnterRegion(self.event_enter, self.handle, nil)
 		jass.TriggerAddCondition(self.event_enter, jass.Condition(function()
-			local unit = Rount.unit(jass.GetTriggerUnit())
+			local unit = Router.unit(jass.GetTriggerUnit())
 			if unit then
 				ac.event_notify(self, name, unit, self)
 				ac.game:event_notify(name, unit, self)
@@ -70,7 +70,7 @@ function mt:event(name)
 	
 	if name == '区域-离开' and not self.event_leave then
 		self.event_leave = War3.CreateTrigger(function()
-			local unit = Rount.unit(jass.GetTriggerUnit())
+			local unit = Router.unit(jass.GetTriggerUnit())
 			if unit then
 				ac.event_notify(self, name, unit, self)
 				ac.game:event_notify(name, unit, self)

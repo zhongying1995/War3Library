@@ -1,4 +1,4 @@
-Rount.texttag = require 'libraries.types.texttag.texttag'
+Router.texttag = require 'libraries.types.texttag.texttag'
 
-local game = Rount.game
-game.register_observer('texttag', Rount.texttag.update)
+local game = Router.game
+game.register_observer('texttag', Router.texttag.update)

@@ -1,16 +1,16 @@
 
 require 'libraries.ac.utility'
-Rount.point = require 'libraries.ac.point'
-Rount.rect = require 'libraries.ac.rect'
-Rount.region = require 'libraries.ac.region'
-Rount.fogmodifier = require 'libraries.ac.fogmodifier'
-Rount.circle = require 'libraries.ac.circle'
+Router.point = require 'libraries.ac.point'
+Router.rect = require 'libraries.ac.rect'
+Router.region = require 'libraries.ac.region'
+Router.fogmodifier = require 'libraries.ac.fogmodifier'
+Router.circle = require 'libraries.ac.circle'
 require 'libraries.ac.trigger'
 require 'libraries.ac.event'
-Rount.player = require 'libraries.ac.player'
+Router.player = require 'libraries.ac.player'
 require 'libraries.ac.timer'
-Rount.dialog = require 'libraries.ac.dialog'
-Rount.game = require 'libraries.ac.game'
-Rount.lightning = require 'libraries.ac.lightning'
+Router.dialog = require 'libraries.ac.dialog'
+Router.game = require 'libraries.ac.game'
+Router.lightning = require 'libraries.ac.lightning'
 
-Rount.game.register_observer('lightning', Rount.lightning.update)
+Router.game.register_observer('lightning', Router.lightning.update)

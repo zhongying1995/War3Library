@@ -1,7 +1,7 @@
 
 local mover = require 'libraries.types.mover.mover'
-Rount.mover = mover
+Router.mover = mover
 mover.init(SYS_NO_MODEL_UNIT_ID)
-local game = Rount.game
+local game = Router.game
 game.register_observer('mover move', mover.move)
 game.register_observer('mover hit', mover.hit)

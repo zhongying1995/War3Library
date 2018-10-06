@@ -1,6 +1,6 @@
-local Player = Rount.player
-local Texttag = Rount.texttag
-local Point = Rount.point
+local Player = Router.player
+local Texttag = Router.texttag
+local Point = Router.point
 
 local mt = Player.__index
 

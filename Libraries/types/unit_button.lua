@@ -1,5 +1,4 @@
 local jass = require 'jass.common'
-local Registry = require 'Kernel.util.registry'
 
 local Unit_button = {}
 setmetatable(Unit_button, Unit_button)

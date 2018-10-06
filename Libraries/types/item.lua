@@ -13,7 +13,6 @@ local setmetatable = setmetatable
 local xpcall = xpcall
 local select = select
 local error_handle = runtime.error_handle
-local Registry = require 'Kernel.util.registry'
 
 local Item = {}
 setmetatable(Item, Item)

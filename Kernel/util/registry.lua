@@ -1,4 +1,4 @@
-local Registry = {}
+Registry = {}
 
 function Registry:name_to_id(name)
     return self._NAME_TO_IDS[name] or name
@@ -19,5 +19,3 @@ local function init()
     Registry._ID_TO_NAMES = {}
 end
 init()
-
-return Registry

@@ -11,7 +11,6 @@ local Unit_button = require 'libraries.types.unit_button'
 local math = math
 local table_insert = table.insert
 local table_remove = table.remove
-local Registry = require 'kernel.util.registry'
 
 local _last_summoned_unit
 

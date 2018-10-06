@@ -6,7 +6,6 @@ local Unit = require 'libraries.types.unit'
 local Player = require 'libraries.ac.player'
 local slk = require 'jass.slk'
 local math = math
-local Registry = require 'kernel.util.registry'
 
 local Hero = {}
 setmetatable(Hero, Hero)

@@ -90,6 +90,17 @@ mt['fog'] = {
     end
 }
 
+mt['gold'] = {
+    action = function(player, gold)
+        player:add_gold(gold)
+    end
+}
+
+mt['lumber'] = {
+    action = function(player, lumber)
+        player:add_lumber(lumber)
+    end
+}
 
 local function init()
     if base.release then

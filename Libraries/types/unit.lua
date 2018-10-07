@@ -71,7 +71,7 @@ _UNIT_FLYING_ABIL_ID = SYS_UNIT_FLYING_ABIL_ID or 'Arav'
 local function init_skills(unit)
 	if unit.skill_names then
 		for name in unit.skill_names:gmatch('%S+') do
-			unit:add_skill(name)
+			unit:add_skill(name){}
 		end
 	end
 end

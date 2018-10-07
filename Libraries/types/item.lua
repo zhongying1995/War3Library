@@ -500,7 +500,7 @@ function mt:on_add_attribute()
 			for name in self.skills:gmatch('%S+') do
 				local skl = ac.skill[name]
 				if skl then
-					unit:add_skill(skl, '物品')
+					unit:add_skill(skl, '物品'){}
 				else
 					Log.error(('物品%s的skills字段存在没初始化的技能%s(被添加的)，请检查！！'):format(self:get_title(), name))
 				end

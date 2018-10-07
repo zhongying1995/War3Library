@@ -311,11 +311,7 @@ function Unit.__index:find_skill(name)
 		return nil
 	end
 	if not self._skills[name] then
-		local data = ac.skill[name]
-		-- print('find_skill:', data)
-		if type(data) == 'function' then
-			return nil
-		end
+		return nil
 	end
 	return self._skills[name]
 end

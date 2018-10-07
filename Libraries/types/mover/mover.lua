@@ -188,7 +188,7 @@ Mover.__index = {
 		end
 
 		if self.missile and not skip_remove then
-			self.mover:kill()
+			self.mover:killed()
 			self.mover:remove_all_effects()
 		end
 
@@ -409,7 +409,7 @@ Mover.__index = {
 		end
 
 		if self.model then
-			self.effect = self.mover:add_effect('origin', self.model)
+			self.effect = self.mover:add_effect(self.model, 'chest')
 		end
 
 		--设置缩放

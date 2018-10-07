@@ -46,7 +46,7 @@ function mt:add_gold_text(gold, where, flag)
 		else
 			model = ''
 		end
-		where:add_effect('overhead', model):remove()
+		where:add_effect(model, 'overhead'):remove()
 	end
 end
 

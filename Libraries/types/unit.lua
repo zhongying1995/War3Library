@@ -11,6 +11,7 @@ local Unit_button = require 'libraries.types.unit_button'
 local math = math
 local table_insert = table.insert
 local table_remove = table.remove
+local Follow = require 'libraries.types.follow.follow'
 
 local _last_summoned_unit
 
@@ -917,6 +918,11 @@ end
 --判断是否暂停
 function mt:is_pause_mover()
 	return self.pause_mover_count > 0
+end
+
+function mt:follow(data)
+	data.target = self
+	return Follow(data)
 end
 
 --颜色

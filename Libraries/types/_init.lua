@@ -15,5 +15,6 @@ Router.hero = require 'libraries.types.hero'
 Router.damage = require 'libraries.types.damage'
 require 'libraries.types.mover._init'
 require 'libraries.types.path_block._init'
+require 'libraries.types.follow._init'
 
 

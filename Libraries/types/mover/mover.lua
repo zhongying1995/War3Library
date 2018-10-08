@@ -8,6 +8,7 @@ local runtime = require 'jass.runtime'
 local xpcall = xpcall
 local select = select
 local setmetatable = setmetatable
+local Player = require 'libraries.ac.player'
 
 local error_handle = runtime.error_handle
 
@@ -390,9 +391,9 @@ Mover.__index = {
 
 		if not self.mover then
 			if self.id then
-				self.mover = ac.player[16]:create_dummy(self.id, self.start, self.face or self.angle or 0)
+				self.mover = Player[16]:create_dummy(self.id, self.start, self.face or self.angle or 0)
 			else
-				self.mover = ac.player[16]:create_dummy(Mover.UNIT_ID, self.start, self.face or self.angle or 0)
+				self.mover = Player[16]:create_dummy(Mover.UNIT_ID, self.start, self.face or self.angle or 0)
 			end
 			self.missile = true
 			if self.super == nil then

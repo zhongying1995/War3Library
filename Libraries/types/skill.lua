@@ -220,7 +220,9 @@ function mt:remove()
 	local name = self.name
 
 	unit._skills[name] = nil
-	unit._skills[self.war3_id] = nil
+	if self.war3_id then
+		unit._skills[self.war3_id] = nil
+	end
 
 	self:remove_ability()
 	

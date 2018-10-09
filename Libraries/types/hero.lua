@@ -252,6 +252,7 @@ function Player.__index:create_hero(name, where, face)
 	if not u.data then
 		u.__index = Hero
 	else
+		local data = u.data
 		if data.attribute then
 			local str = data.attribute.str
 			if str then

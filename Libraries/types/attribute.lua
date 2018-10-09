@@ -36,6 +36,34 @@ function mt:add_max_life(life)
     return self:set_max_life(self:get_max_life()+life)
 end
 
+--生命恢复
+mt._life_recovery = 0
+function mt:get_life_recovery()
+    return self._life_recovery
+end
+
+function mt:set_life_recovery(rec)
+    self._life_recovery = rec
+end
+
+function mt:add_life_recovery(rec)
+    self:set_life_recovery(self:get_life_recovery() + rec)
+end
+
+--脱战生命恢复
+mt._inactive_life_recovery = 0
+function mt:get_inactive_life_recovery()
+    return self._inactive_life_recovery
+end
+
+function mt:set_inactive_life_recovery(rec)
+    self._inactive_life_recovery = rec
+end
+
+function mt:add_inactive_life_recovery(rec)
+    self:set_inactive_life_recovery(self:get_inactive_life_recovery() + rec)
+end
+
 --魔法
 function mt:get_mana()
     return jass.GetUnitState(self.handle, jass.UNIT_STATE_MANA)
@@ -63,6 +91,34 @@ end
 
 function mt:add_max_mana(mana)
     return self:set_max_mana(self:get_max_mana()+mana)
+end
+
+--魔法恢复
+mt._mana_recovery = 0
+function mt:get_mana_recovery()
+    return self._mana_recovery
+end
+
+function mt:set_mana_recovery(rec)
+    self._mana_recovery = rec
+end
+
+function mt:add_mana_recovery(rec)
+    self:set_mana_recovery(self:get_mana_recovery() + rec)
+end
+
+--脱战魔法恢复
+mt._inactive_mana_recovery = 0
+function mt:get_inactive_mana_recovery()
+    return self._inactive_mana_recovery
+end
+
+function mt:set_inactive_mana_recovery(rec)
+    self._inactive_mana_recovery = rec
+end
+
+function mt:add_inactive_mana_recovery(rec)
+    self:set_inactive_mana_recovery(self:get_inactive_mana_recovery() + rec)
 end
 
 --攻击

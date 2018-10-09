@@ -623,6 +623,22 @@ function mt:fresh_cool()
 	end
 end
 
+--更新数据
+function mt:update()
+	local life_recover, life_recover_inact = self:get_life_recovery(), self:get_inactive_life_recovery()
+	local mana_recover, mana_recover_inact = self:get_mana_recovery(), self:get_inactive_mana_recovery()
+	if not self.active then
+		life_recover = life_recover + life_recover_inact
+		mana_recover = mana_recover + mana_recover_inact
+	end
+	if life_recover ~= 0 then
+		self:add_life(life_recover / Unit.frame)
+	end
+	if mana_recover ~= 0 then
+		self:add_mana(mana_recover / Unit.frame)
+	end
+end
+
 
 --等级
 mt.level = 1
@@ -1440,6 +1456,14 @@ local function init()
 
 	--注册事件
 	register_jass_triggers()
+
+	--更新单位数据
+	Unit.frame = 8
+	ac.loop(1000 / Unit.frame, function()
+		for _, u in pairs(Unit.all_units) do
+			u:update()
+		end
+	end)
 
 	--创建dummy
 	create_ac_dummy()

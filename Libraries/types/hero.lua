@@ -251,6 +251,21 @@ function Player.__index:create_hero(name, where, face)
 	--这是一个没有注册过的英雄
 	if not u.data then
 		u.__index = Hero
+	else
+		if data.attribute then
+			local str = data.attribute.str
+			if str then
+				u:set_str(str)
+			end
+			local agi = data.attribute.agi
+			if data.attribute.agi then
+				u:set_agi(agi)
+			end
+			local int = data.attribute.int
+			if data.attribute.int then
+				u:set_int(int)
+			end
+		end
 	end
 	return u
 end

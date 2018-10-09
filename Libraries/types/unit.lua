@@ -444,13 +444,20 @@ end
 --是否是友方
 --	对象
 function mt:is_ally(dest)
-	return self:get_team() == dest:get_team()
+	if dest.type ~= 'player' then
+		dest = dest:get_owner()
+	end
+	return jass.IsUnitAlly(self.handle, dest.handle)
 end
 
+--调用jass效率可能比较低，可以考虑用self:get_team() ~= dest:get_team()优化
 --是否是敌人
 --	对象
 function mt:is_enemy(dest)
-	return self:get_team() ~= dest:get_team()
+	if dest.type ~= 'player' then
+		dest = dest:get_owner()
+	end
+	return jass.IsUnitEnemy(self.handle, dest.handle)
 end
 
 --位置

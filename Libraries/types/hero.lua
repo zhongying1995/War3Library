@@ -21,7 +21,6 @@ setmetatable(mt, Unit)
 mt.unit_type = 'hero'
 
 _HERO_ATTRIBUTE_ABIL_ID = SYS_HERO_ATTRIBUTE_ABIL_ID or 'Aamk'
-_HERO_TRANSFORM_ABIL_ID = SYS_HERO_TRANSFORM_ABIL_ID or 'AEme'
 
 --英雄属性的技能马甲
 local ATTRIBUTE_ABIL_ID = _HERO_ATTRIBUTE_ABIL_ID
@@ -191,54 +190,6 @@ function mt:revive(where)
 		self:transform(target)
 	end
 	self:event_notify('英雄-复活', self)
-end
-
--- 变身
-local dummy
-function mt:transform(target_id)
-
-	if not self:is_type_hero() then
-		return
-	end
-
-	if not self:is_alive() then
-		--死亡状态无法变身
-		self.wait_to_transform_id = target_id
-		return
-	end
-
-	if not dummy then
-		dummy = ac.dummy
-		dummy:add_ability(SYS_HERO_TRANSFORM_ABIL_ID)
-	end
-	--变身
-	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, Base.string2id(SYS_HERO_TRANSFORM_ABIL_ID)), 1, 117, Base.string2id(self:get_type_id()))
-	self:add_ability(SYS_HERO_TRANSFORM_ABIL_ID)
-	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, Base.string2id(SYS_HERO_TRANSFORM_ABIL_ID)), Base.string2id(target_id))
-	self:remove_ability(SYS_HERO_TRANSFORM_ABIL_ID)
-
-	--修改ID
-	self.id = target_id
-
-	--可以飞行
-	self:add_ability(_UNIT_FLYING_ABIL_ID)
-	self:remove_ability(_UNIT_FLYING_ABIL_ID)
-	self:set_high(self:get_high())
-
-	--动画混合时间
-	jass.SetUnitBlendTime(self.handle, self:get_slk('blend', 0))
-
-    -- 恢复特效
-    if self._effect_list then
-        for _, eff in ipairs(self._effect_list) do
-            if eff.handle then
-                jass.DestroyEffect(eff.handle)
-                dbg.handle_unref(eff.handle)
-                eff.handle = jass.AddSpecialEffectTarget(eff.model, self.handle, eff.socket or 'origin')
-                dbg.handle_ref(eff.handle)
-            end
-        end
-    end
 end
 
 --创建单位

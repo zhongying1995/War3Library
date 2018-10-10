@@ -66,7 +66,7 @@ mt.paused_clock = 0
 mt.last_pause_clock = 0
 
 _UNIT_FLYING_ABIL_ID = SYS_UNIT_FLYING_ABIL_ID or 'Arav'
-
+_UNIT_TRANSFORM_ABIL_ID = SYS_UNIT_TRANSFORM_ABIL_ID or 'AEme'
 
 --初始化单位身上的技能
 local function init_skills(unit)
@@ -288,7 +288,7 @@ end
 --	数据项名称
 --	[如果未找到,返回的默认值]
 function mt:get_slk(name, default)
-	return Unit.get_slk_by_id(self:get_type_id(), name, default)
+	return Unit.get_slk_by_id(self:get_id(), name, default)
 end
 
 
@@ -637,6 +637,54 @@ function mt:update()
 	if mana_recover ~= 0 then
 		self:add_mana(mana_recover / Unit.frame)
 	end
+end
+
+-- 变身
+local dummy
+function mt:transform(target_id)
+
+	if not self:is_type_hero() then
+		return
+	end
+
+	if not self:is_alive() then
+		--死亡状态无法变身
+		self.wait_to_transform_id = target_id
+		return
+	end
+
+	if not dummy then
+		dummy = ac.dummy
+		dummy:add_ability(_UNIT_TRANSFORM_ABIL_ID)
+	end
+	--变身
+	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, Base.string2id(_UNIT_TRANSFORM_ABIL_ID)), 1, 117, Base.string2id(self:get_id()))
+	self:add_ability(_UNIT_TRANSFORM_ABIL_ID)
+	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, Base.string2id(_UNIT_TRANSFORM_ABIL_ID)), Base.string2id(target_id))
+	self:remove_ability(_UNIT_TRANSFORM_ABIL_ID)
+
+	--修改ID
+	self.id = target_id
+
+	--可以飞行
+	self:add_ability(_UNIT_FLYING_ABIL_ID)
+	self:remove_ability(_UNIT_FLYING_ABIL_ID)
+
+	--动画混合时间
+	jass.SetUnitBlendTime(self.handle, self:get_slk('blend', 0))
+
+    -- 恢复特效
+    if self._effect_list then
+        for _, eff in ipairs(self._effect_list) do
+            if eff.handle then
+                jass.DestroyEffect(eff.handle)
+                dbg.handle_unref(eff.handle)
+                eff.handle = jass.AddSpecialEffectTarget(eff.model, self.handle, eff.socket or 'origin')
+                dbg.handle_ref(eff.handle)
+            end
+        end
+	end
+	return self
 end
 
 

@@ -206,6 +206,8 @@ local j_trg = War3.CreateTrigger(function()
 	end
 
 	local damage = Damage:new()
+	damage.source = source
+	damage.target = target
 	if source._is_damage_dummy then
 		damage = source.damage
 		init_damage_dummy(source)

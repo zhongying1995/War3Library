@@ -186,7 +186,17 @@ function mt:is_type_hero()
 end
 
 function mt:is_hero()
-	return self.is_hero or self:is_type_hero()
+	return false
+end
+
+--是否是建筑
+function mt:is_structure()
+	return self._is_structure
+end
+
+--是否是魔兽的建筑
+function mt:is_type_structure()
+	return jass.IsUnitType(self.handle, jass.UNIT_TYPE_STRUCTURE)
 end
 
 --注册单位事件
@@ -247,10 +257,6 @@ function mt:is_type(type)
 	return self.unit_type == type
 end
 
---是否是英雄
-function mt:is_hero()
-	return false
-end
 
 --是否是幻象
 function mt:is_illusion()

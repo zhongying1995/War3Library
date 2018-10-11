@@ -5,9 +5,6 @@ local function optional_config()
     --伤害系统的马甲[ndog]
     SYS_DAMAGE_DUMMY_UNIT_ID = nil
 
-    --特效系统的马甲[nalb]
-    SYS_EFFECT_DUMMY_UNIT_ID = nil
-
     --英雄模块的额外属性技能[Aamk]
     SYS_HERO_ATTRIBUTE_ABIL_ID = nil
     
@@ -48,6 +45,10 @@ local function indispensable_config()
     --单位允许的极值移动速度，往往由物编确定，用于单位属性模块
     SYS_UNIT_MIN_MOVE_SPEED = 150
     SYS_UNIT_MAX_MOVE_SPEED = 522
+
+    --特效系统的马甲
+    SYS_EFFECT_DUMMY_UNIT_ID = 'eZ02'
+
 end
 
 --底层需要的一些数据

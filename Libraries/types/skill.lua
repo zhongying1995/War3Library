@@ -121,6 +121,9 @@ local function read_value(parent_skill, skill)
 		if type(v) == 'function' then
 			skill[k] = v(skill)
 		end
+		if type(v) == 'table' and not v.type then
+			skill[k] = v[skill.level] or v[#v]
+		end
 	end
 end
 

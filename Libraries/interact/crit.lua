@@ -18,7 +18,10 @@ local function init()
             local rate = math.max(100, atker:get_crit_rate()) / 100
             damage.before_crit_damage = damage.damage
             damage.damage = damage.damage * rate
-            local atk = atker:get_attack()
+            local max_atk = atker:get_max_attack()
+            local min_atk = atker:get_min_attack()
+            --这个显示有问题，如果最大攻击力和最小攻击力相差很大时
+            local atk = math.random(min_atk, max_atk)
             local show_damage = atk*rate
             ac.texttag:new{
                 text = ('%.f !'):format(show_damage),
@@ -55,7 +58,7 @@ function Unit.__index:get_crit_probability()
 end
 
 function Unit.__index:set_crit_probability(probability)
-    self.self._crit_probability = probability
+    self._crit_probability = probability
 end
 
 function Unit.__index:add_crit_probability(probability)
@@ -69,7 +72,7 @@ function Unit.__index:get_crit_rate()
 end
 
 function Unit.__index:set_crit_rate(rate)
-    self.self._crit_rate = rate
+    self._crit_rate = rate
 end
 
 function Unit.__index:add_crit_rate(rate)

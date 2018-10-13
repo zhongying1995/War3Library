@@ -15,7 +15,7 @@ local function init()
         local atker = damage.source
         if atker:is_crit() and damage:is_attack() then
             atker:set_crit(false)
-            local rate = math.max(100, atker:get_crit_rate())
+            local rate = math.max(100, atker:get_crit_rate()) / 100
             damage.before_crit_damage = damage.damage
             damage.damage = damage.damage * rate
             local atk = atker:get_attack()

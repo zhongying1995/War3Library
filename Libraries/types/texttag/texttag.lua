@@ -7,6 +7,7 @@ local Point = require 'libraries.ac.point'
 local Texttag = {}
 setmetatable(Texttag, Texttag)
 
+ac.texttag = Texttag
 
 --创建漂浮文字
 function Texttag:new( texttag )

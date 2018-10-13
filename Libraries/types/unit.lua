@@ -481,9 +481,16 @@ end
 
 --设置位置
 function mt:set_point(point)
+	if self:has_restriction '禁锢' then
+		return false
+	end
 	local x, y = point:get()
 	jass.SetUnitX(self.handle, x)
 	jass.SetUnitY(self.handle, y)
+	if self._dummy_point then
+		self._dummy_point[1] = x
+		self._dummy_point[2] = y
+	end
 	return true
 end
 
@@ -492,6 +499,9 @@ end
 --	[无视地形阻挡]
 --	[无视地图边界]
 function mt:set_position(where, path, super)
+	if self:has_restriction '禁锢' then
+		return false
+	end
 	if where:get_point():is_block(path, super) then
 		return false
 	end

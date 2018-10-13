@@ -385,6 +385,9 @@ Mover.__index = {
 	--发射
 	launch = function(self)
 		
+		if self.mover and self.mover.type == 'unit' and (self.mover:has_restriction '禁锢' or self.mover._follow_data) then
+			return
+		end
 
 		--初始化一下数据
 		self:init()

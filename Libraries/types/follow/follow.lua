@@ -42,7 +42,9 @@ mt.height_l = 0
 
 
 function Follow:__call(self)
-	
+	if self.mover and self.mover.type == 'unit' and self.mover:has_restriction '禁锢' then
+		return
+	end
 	setmetatable(self, Follow)
 	if not self.source then
 		self.source = self.mover

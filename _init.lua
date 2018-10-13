@@ -17,6 +17,9 @@ local function optional_config()
     --单位模块的飞行技能[Arav]
     SYS_UNIT_FLYING_ABIL_ID = nil
 
+    --行为限制,攻击[Agho]
+    SYS_RESTRICTION_ATTACK_ABIL_ID = nil
+
 end
 
 --这些数据必须配置好
@@ -48,6 +51,12 @@ local function indispensable_config()
 
     --特效系统的马甲
     SYS_EFFECT_DUMMY_UNIT_ID = 'eZ02'
+
+    --单位行为限制，隐身，Agho
+    SYS_RESTRICTION_STEALTH_ABIL_ID = 'AZ03'
+
+    --单位行为限制，魔法免疫，Amim
+    SYS_RESTRICTION_SPELLED_ABIL_ID = 'AZ04'
 
 end
 

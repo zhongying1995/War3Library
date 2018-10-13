@@ -102,6 +102,33 @@ mt['lumber'] = {
     end
 }
 
+mt['puppet'] = {
+    action = function(player, x, y)
+        local x = x or 0
+        local y = y or 0
+        local u = ac.player[15]:create_unit('hfoo', ac.point(x, y))
+        u:add_max_life(1000000)
+        u:remove_ability('Amov')
+        u:add_size(2)
+        u._puppet_trg = u:event '单位-即将受到伤害'(function(trg, damage)
+            ac.texttag:new{
+                text = ('%.f'):format(damage.damage),
+                player = damage.source:get_owner(),
+                angle = 90,
+                speed = 40,
+                size = 16,
+                red = 255,
+                blue = 0,
+                greed = 0,
+                life = 3,
+                show = ac.texttag.SHOW_SELF,
+                point = u:get_point(),
+            }
+            u:set_life(1000000)
+        end)
+    end
+}
+
 local function init()
     if base.release then
         _IS_NOT_DEBUGING = true

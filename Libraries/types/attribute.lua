@@ -121,6 +121,16 @@ function mt:add_inactive_mana_recovery(rec)
     self:set_inactive_mana_recovery(self:get_inactive_mana_recovery() + rec)
 end
 
+--最大攻击
+function mt:get_max_attack()
+    return japi.GetUnitState(self.handle, 0x15)
+end
+
+--最小攻击
+function mt:get_min_attack()
+    return japi.GetUnitState(self.handle, 0x14)
+end
+
 --攻击
 function mt:get_attack()
     return japi.GetUnitState(self.handle, 0x12)

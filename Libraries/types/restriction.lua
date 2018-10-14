@@ -8,6 +8,7 @@ _RESTRICTION_ATTACK_ABIL_ID = SYS_RESTRICTION_ATTACK_ABIL_ID or 'Abun'
 local function restriction_attack(unit, flag)
 	if flag then
 		unit:add_ability(_RESTRICTION_ATTACK_ABIL_ID)
+		unit:make_permanent(_RESTRICTION_ATTACK_ABIL_ID)
 	else
 		unit:remove_ability(_RESTRICTION_ATTACK_ABIL_ID)
 	end
@@ -26,12 +27,12 @@ end
 _RESTRICTION_SPELLED_ABIL_ID = SYS_RESTRICTION_SPELLED_ABIL_ID
 local function restriction_spelled(unit, flag)
     if flag then
-        unit:add_ability(_RESTRICTION_SPELLED_ABIL_ID)
+		unit:add_ability(_RESTRICTION_SPELLED_ABIL_ID)
+		unit:make_permanent(_RESTRICTION_SPELLED_ABIL_ID)
     else
         unit:remove_ability(_RESTRICTION_SPELLED_ABIL_ID)
     end
 end
-
 --禁止显示魔法免疫技能
 for i = 1, 16 do
     Player[i]:disable_ability(_RESTRICTION_SPELLED_ABIL_ID)
@@ -46,6 +47,7 @@ _RESTRICTION_STEALTH_ABIL_ID = SYS_RESTRICTION_STEALTH_ABIL_ID
 local function restriction_stealth(unit, flag)
 	if flag then
 		unit:add_ability(_RESTRICTION_STEALTH_ABIL_ID)
+		unit:make_permanent(_RESTRICTION_STEALTH_ABIL_ID)
 	else
 		unit:remove_ability(_RESTRICTION_STEALTH_ABIL_ID)
 	end
@@ -105,21 +107,9 @@ end
 --硬直
 local function restriction_hard(self, flag)
 	if flag then
-		if not self._ignore_order_list then
-			self._ignore_order_list = {}
-		end
-		local order = self._current_issue_order
-		if order and self._order_skills and self._order_skills[order] then
-			table.insert(self._ignore_order_list, order)
-		end
 		japi.EXPauseUnit(self.handle, true)
 	else
 		japi.EXPauseUnit(self.handle, false)
-		if self._recover_skill then
-			local skill = self._recover_skill
-			self._recover_skill = nil
-			skill[1]:cast_by_client(skill[2])
-		end
 	end
 end
 
@@ -154,6 +144,7 @@ local restriction_type = {
 	['禁锢']	= restriction_constraint,
 }
 
+local mt = Unit.__index
 function mt:add_restriction(name)
 	if not restriction_type[name] then
 		log.error('错误的限制类型', name)

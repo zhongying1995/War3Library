@@ -92,6 +92,7 @@ end
 mt.disable_count = 0
 
 --禁用技能
+--	一般用于被动技能
 function mt:disable()
 	self:set('disable_count', self.disable_count + 1)
 	if self.disable_count == 1 then
@@ -102,6 +103,7 @@ function mt:disable()
 end
 
 --允许技能
+--	一般用于被动技能
 function mt:enable()
 	self:set('disable_count', self.disable_count - 1)
 	--print(self.disable_count)

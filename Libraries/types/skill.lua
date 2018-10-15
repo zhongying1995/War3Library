@@ -91,23 +91,24 @@ end
 --禁用技能
 mt.disable_count = 0
 
---禁用技能
+--禁用技能，不能先于enable运行
 --	一般用于被动技能
 function mt:disable()
-	self:set('disable_count', self.disable_count + 1)
-	if self.disable_count == 1 then
+	self:set('enable_count', self.enable_count - 1)
+	if self.enable_count == 0 then
 		--print('禁用技能', self.name)
 		self:fresh()
 		self:_call_event('on_disable', true)
 	end
 end
 
+mt.enable_count = 0
 --允许技能
 --	一般用于被动技能
 function mt:enable()
-	self:set('disable_count', self.disable_count - 1)
+	self:set('enable_count', self.enable_count + 1)
 	--print(self.disable_count)
-	if self.disable_count == 0 then
+	if self.enable_count == 1 then
 		--print('允许技能', self.name)
 		self:fresh()
 		self:_call_event('on_enable', true)
@@ -116,7 +117,7 @@ end
 
 --技能是否有效
 function mt:is_enable()
-	return self.disable_count <= 0
+	return self.passive == nil or (self.passive and self.enable_count > 0)
 end
 
 --允许技能(War3)
@@ -271,6 +272,10 @@ function mt:remove()
 	if not unit._skills then
 		return false
 	end
+
+	if self.passive then
+		self:disable()
+	end
 	
 	self:_call_event('on_remove', true)
 	self.removed = true
@@ -326,6 +331,9 @@ function Unit.__index:add_skill(name, skill_type)
 		skill:fresh()
 		skill:_call_event('on_add')
 		
+		if skill.passive then
+			skill:enable()
+		end
 		
 		local war3_id = skill.war3_id
 		-- print('单位添加技能：', name, war3_id, data)

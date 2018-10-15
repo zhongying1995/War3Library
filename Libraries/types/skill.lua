@@ -88,6 +88,35 @@ function mt:get_slk(name, default)
 	return Skill.get_slk_by_id(self.war3_id, name, default)
 end
 
+--禁用技能
+mt.disable_count = 0
+
+--禁用技能
+function mt:disable()
+	self:set('disable_count', self.disable_count + 1)
+	if self.disable_count == 1 then
+		--print('禁用技能', self.name)
+		self:fresh()
+		self:_call_event('on_disable', true)
+	end
+end
+
+--允许技能
+function mt:enable()
+	self:set('disable_count', self.disable_count - 1)
+	--print(self.disable_count)
+	if self.disable_count == 0 then
+		--print('允许技能', self.name)
+		self:fresh()
+		self:_call_event('on_enable', true)
+	end
+end
+
+--技能是否有效
+function mt:is_enable()
+	return self.disable_count <= 0
+end
+
 --允许技能(War3)
 mt.is_enable_ability = true
 
@@ -108,6 +137,32 @@ end
 --技能是否允许(War3)
 function mt:is_ability_enable()
 	return self.is_enable_ability
+end
+
+local event_name = {
+	['on_add']          = '技能-获得',
+	['on_remove']       = '技能-失去',
+}
+
+--触发技能事件
+--	事件名
+--	无视禁用状态
+function mt:_call_event(name, force)
+	if not force then
+		if self.removed then
+			return false
+		end
+		if not self:is_enable() then
+			return false
+		end
+	end
+	if event_name[name] then
+		self.owner:event_notify(event_name[name], self.owner, self)
+	end
+	if not self[name] then
+		return false
+	end
+	return select(2, xpcall(self[name], error_handle, self))
 end
 
 --预处理技能data表中的数据数据
@@ -214,10 +269,8 @@ function mt:remove()
 	if not unit._skills then
 		return false
 	end
-	self:fresh()
-	if self.on_remove then
-		self:on_remove()
-	end
+	
+	self:_call_event('on_remove', true)
 	self.removed = true
 
 	local name = self.name
@@ -269,9 +322,7 @@ function Unit.__index:add_skill(name, skill_type)
 		skill.skill_type = skill_type or '单位'
 		
 		skill:fresh()
-		if skill.on_add then
-			skill:on_add()
-		end
+		skill:_call_event('on_add')
 		
 		
 		local war3_id = skill.war3_id

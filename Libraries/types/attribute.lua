@@ -183,10 +183,15 @@ function mt:get_attack_speed()
 end
 
 function mt:set_attack_speed(spd)
-    return japi.SetUnitState(self.handle, 0x51, spd)
+    japi.SetUnitState(self.handle, 0x51, spd)
 end
 
+--  百分比
 function mt:add_attack_speed(spd)
+    local spd = (spd or 0) / 100
+    if spd == 0 then
+        return
+    end
     return self:set_attack_speed(self:get_attack_speed()+spd)
 end
 
@@ -202,8 +207,9 @@ end
 mt._complementary_attack_rate = 0
 --单位的攻击间隔最小为0.1，使用补差来调控过多降低单位的攻击间隔
 function mt:add_attack_rate(rate)
-    if not rate or rate == 0 then
-    	return
+    local rate = (rate or 0) / 100
+    if rate == 0 then
+        return
     end
     if self._complementary_attack_rate > 0 then
     	if rate > 0 then
@@ -246,7 +252,7 @@ end
 
 --移动速度
 --  @单位的默认移动速度
-function mt:get_base_move_speed()
+function mt:get_default_move_speed()
     return jass.GetUnitDefaultMoveSpeed(self.handle)
 end
 
@@ -273,8 +279,8 @@ end
 
 --  @不计算单位光环的加成，即基础速度+额外速度
 --注：该数值可能大于522，但单位速度不会大于522
-function mt:get_pure_move_speed()
-    return self:get_base_move_speed() + self:get_add_move_speed()
+function mt:get_base_move_speed()
+    return self:get_default_move_speed() + self:get_add_move_speed()
 end
 
 function mt:set_move_speed(speed)
@@ -291,9 +297,15 @@ mt._overflow_move_speed = 0
 mt._complementary_move_speed = 0
 
 --增加单位的移动速度
+--  固定值
+--  百分比
 --注：当需要增加单位移动速度时，应该使用该接口
-function mt:add_move_speed(speed)
-    if not speed or speed == 0 then
+function mt:add_move_speed(speed, speed_rate)
+    local speed = speed or 0
+    if speed_rate then
+        speed = speed + self:get_base_move_speed() * speed_rate / 100
+    end
+    if speed == 0 then
         return
     end
     local overflow = self._overflow_move_speed
@@ -331,16 +343,16 @@ function mt:add_move_speed(speed)
 		end
 	end
 
-	local current_move = self:get_pure_move_speed()
+	local current_move = self:get_base_move_speed()
 	local temp = current_move + speed
 	if temp > 522 then
 		self._overflow_move_speed = current_move + speed - 522
-		speed = 522 - self:get_pure_move_speed()
+		speed = 522 - self:get_base_move_speed()
 	elseif temp < _MIN_MOVE_SPEED then
 		local difference = current_move - _MIN_MOVE_SPEED
 		self._complementary_move_speed = math.abs(speed + difference)
 		speed = -difference
 	end
     add_add_move_speed(self, speed)
-    self:set_move_speed(self:get_pure_move_speed())
+    self:set_move_speed(self:get_base_move_speed())
 end

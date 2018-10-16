@@ -174,15 +174,15 @@ function mt:add_add_int(int)
 end
 
 --复活英雄
-function mt:revive(where)
+function mt:revive(where, is_show)
 	if self:is_alive() then
 		return
 	end
 	if not where then
 		where = self:get_born_point()
 	end
-	local origin = self:get_point()
-	jass.ReviveHero(self.handle, where:get_point():get())
+	local x, y = where:get_point():get()
+	jass.ReviveHero(self.handle, x, y, is_show and true)
 	self._is_alive = true
 	if self.wait_to_transform_id then
 		local target = self.wait_to_transform_id

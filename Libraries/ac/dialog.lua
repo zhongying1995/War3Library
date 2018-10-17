@@ -157,7 +157,7 @@ function mt:set_buttons(buttons)
     return self
 end
 
-
+--对某玩家显示/隐藏对话框
 function mt:show(player, is_show)
     if is_show == nil then
         is_show = true
@@ -184,6 +184,13 @@ function mt:show(player, is_show)
     end
     jass.DialogDisplay(player.handle, self.handle, is_show and true)
     return self
+end
+
+--刷新多面板的显示，一般是因为增加了button
+function mt:refresh()
+    for p, _ in pairs(self:get_show_players_table()) do
+        self:show(p, true)
+    end
 end
 
 function mt:remove()

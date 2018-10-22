@@ -1,1 +1,1 @@
-require 'libraries.test.command'
+require 'war3library.libraries.test.command'

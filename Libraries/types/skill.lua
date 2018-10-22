@@ -1,10 +1,10 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
-local Unit = require 'libraries.types.unit'
-local Player = require 'libraries.ac.player'
+local Unit = require 'war3library.libraries.types.unit'
+local Player = require 'war3library.libraries.ac.player'
 local slk = require 'jass.slk'
 local runtime = require 'jass.runtime'
-local Point = require 'libraries.ac.point'
+local Point = require 'war3library.libraries.ac.point'
 
 local setmetatable = setmetatable
 local rawset = rawset

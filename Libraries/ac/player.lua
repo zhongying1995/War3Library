@@ -1,10 +1,10 @@
 
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
-local rect = require 'libraries.ac.rect'
-local circle = require 'libraries.ac.circle'
-local Point = require 'libraries.ac.point'
-local fogmodifier = require 'libraries.ac.fogmodifier'
+local rect = require 'war3library.libraries.ac.rect'
+local circle = require 'war3library.libraries.ac.circle'
+local Point = require 'war3library.libraries.ac.point'
+local fogmodifier = require 'war3library.libraries.ac.fogmodifier'
 local texttag
 local mouse
 

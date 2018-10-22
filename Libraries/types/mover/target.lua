@@ -1,5 +1,5 @@
 
-local Mover = require 'libraries.types.mover.mover'
+local Mover = require 'war3library.libraries.types.mover.mover'
 local math = math
 
 --目标运动

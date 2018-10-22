@@ -1,8 +1,8 @@
 
 local jass = require 'jass.common'
-local Player = require 'libraries.ac.player'
+local Player = require 'war3library.libraries.ac.player'
 local dbg = require 'jass.debug'
-local Point = require 'libraries.ac.point'
+local Point = require 'war3library.libraries.ac.point'
 
 local Texttag = {}
 setmetatable(Texttag, Texttag)

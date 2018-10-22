@@ -1,5 +1,5 @@
 local jass = require 'jass.common'
-local Player = require 'libraries.ac.player'
+local Player = require 'war3library.libraries.ac.player'
 
 local Timerdialog = {}
 setmetatable(Timerdialog, Timerdialog)

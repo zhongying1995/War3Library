@@ -1,5 +1,5 @@
 
-local mover = require 'libraries.types.mover.mover'
+local mover = require 'war3library.libraries.types.mover.mover'
 Router.mover = mover
 mover.init(SYS_NO_MODEL_UNIT_ID)
 local game = Router.game

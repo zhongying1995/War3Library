@@ -1,8 +1,8 @@
 local jass = require 'jass.common'
 local japi = require 'jass.japi'
-local Unit = require 'libraries.types.unit'
-local Player = require 'libraries.ac.player'
-local Point = require 'libraries.ac.point'
+local Unit = require 'war3library.libraries.types.unit'
+local Player = require 'war3library.libraries.ac.player'
+local Point = require 'war3library.libraries.ac.point'
 local setmetatable = setmetatable
 local table_insert = table.insert
 local table_remove = table.remove

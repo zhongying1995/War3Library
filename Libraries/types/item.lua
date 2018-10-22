@@ -2,13 +2,13 @@
 local slk = require 'jass.slk'
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
-local skill = require 'libraries.types.skill'
+local skill = require 'war3library.libraries.types.skill'
 local table = table
 local japi = require 'jass.japi'
 local runtime = require 'jass.runtime'
-local Player = require 'libraries.ac.player'
-local Unit = require 'libraries.types.unit'
-local Point = require 'libraries.ac.point'
+local Player = require 'war3library.libraries.ac.player'
+local Unit = require 'war3library.libraries.types.unit'
+local Point = require 'war3library.libraries.ac.point'
 local setmetatable = setmetatable
 local xpcall = xpcall
 local select = select

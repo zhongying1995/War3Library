@@ -1,4 +1,4 @@
-local Unit = require 'libraries.types.unit'
+local Unit = require 'war3library.libraries.types.unit'
 
 local Crit = {}
 

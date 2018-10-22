@@ -1,5 +1,5 @@
 local table_insert = table.insert
-local Player = require 'libraries.ac.player'
+local Player = require 'war3library.libraries.ac.player'
 local jass = require 'jass.common'
 local table = table
 

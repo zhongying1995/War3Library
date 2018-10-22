@@ -1,5 +1,5 @@
 
-local path_block = require 'libraries.types.path_block.path_block'
+local path_block = require 'war3library.libraries.types.path_block.path_block'
 Router.path_block = path_block
 path_block.init(SYS_NO_MODEL_UNIT_ID)
 local game = Router.game

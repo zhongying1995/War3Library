@@ -2,7 +2,7 @@
 local jass = require 'jass.common'
 local dbg = require 'jass.debug'
 local math = math
-local Player = require 'libraries.ac.player'
+local Player = require 'war3library.libraries.ac.player'
 
 local Lightning = {}
 setmetatable(Lightning, Lightning)

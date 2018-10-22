@@ -74,8 +74,8 @@ local function init()
 
     config()
 
-    require 'kernel._init'
-    require 'libraries._init'
+    require 'war3library.kernel._init'
+    require 'war3library.libraries._init'
     print('++++++++++++++++++')
     print('底层库代码加载完毕')
     print('------------------')

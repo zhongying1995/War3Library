@@ -1,2 +1,2 @@
-require 'libraries.interact.player'
-require 'libraries.interact.crit'
+require 'war3library.libraries.interact.player'
+require 'war3library.libraries.interact.crit'

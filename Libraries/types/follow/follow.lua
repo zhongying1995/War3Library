@@ -3,7 +3,7 @@ local jass = require 'jass.common'
 local xpcall = xpcall
 local setmetatable = setmetatable
 local error_handle = runtime.error_handle
-local Player = require 'libraries.ac.player'
+local Player = require 'war3library.libraries.ac.player'
 
 local FRAME = 0.03
 

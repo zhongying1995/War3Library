@@ -8,7 +8,7 @@ local runtime = require 'jass.runtime'
 local xpcall = xpcall
 local select = select
 local setmetatable = setmetatable
-local Player = require 'libraries.ac.player'
+local Player = require 'war3library.libraries.ac.player'
 
 local error_handle = runtime.error_handle
 
@@ -499,8 +499,8 @@ function Mover.init(missile_id)
 	end
 	Mover.UNIT_ID = missile_id
 	
-	require 'libraries.types.mover.target'
-	require 'libraries.types.mover.line'
+	require 'war3library.libraries.types.mover.target'
+	require 'war3library.libraries.types.mover.line'
 	
 	--无限循环
 	Mover.mover_group = {}

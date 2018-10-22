@@ -3,15 +3,15 @@ local jass = require 'jass.common'
 local japi = require 'jass.japi'
 local slk = require 'jass.slk'
 local dbg = require 'jass.debug'
-local Player = require 'libraries.ac.player'
-local Rect = require 'libraries.ac.rect'
-local order2id = require 'Kernel.war3.order_id'
-local Point = require 'libraries.ac.point'
-local Unit_button = require 'libraries.types.unit_button'
+local Player = require 'war3library.libraries.ac.player'
+local Rect = require 'war3library.libraries.ac.rect'
+local order2id = require 'war3library.kernel.war3.order_id'
+local Point = require 'war3library.libraries.ac.point'
+local Unit_button = require 'war3library.libraries.types.unit_button'
 local math = math
 local table_insert = table.insert
 local table_remove = table.remove
-local Follow = require 'libraries.types.follow.follow'
+local Follow = require 'war3library.libraries.types.follow.follow'
 
 local _last_summoned_unit
 
@@ -1257,6 +1257,7 @@ end
 function Unit.create(player, name, where, face)
 	
 	local id = Registry:name_to_id(name)
+	print('unit create:', name, id)
 	local j_id = Base.string2id(id)
 	local x, y
 	if where.type == 'point' then

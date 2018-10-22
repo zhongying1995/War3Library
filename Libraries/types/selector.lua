@@ -7,7 +7,7 @@ local table_sort = table.sort
 local setmetatable = setmetatable
 local ipairs = ipairs
 local math_angle = ac.math_angle
-local Point = require 'libraries.ac.point'
+local Point = require 'war3library.libraries.ac.point'
 local math_abs = math.abs
 local math_random = math.random
 
@@ -16,7 +16,7 @@ local dummy_group = jass.CreateGroup()
 local GroupEnumUnitsInRange = jass.GroupEnumUnitsInRange
 local FirstOfGroup = jass.FirstOfGroup
 local GroupRemoveUnit = jass.GroupRemoveUnit
-local Unit = require 'libraries.types.unit'
+local Unit = require 'war3library.libraries.types.unit'
 
 local Selector = {}
 setmetatable(Selector, Selector)

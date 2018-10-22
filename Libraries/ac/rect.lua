@@ -1,6 +1,6 @@
 
 local jass = require 'jass.common'
-local Point = require 'libraries.ac.point'
+local Point = require 'war3library.libraries.ac.point'
 
 local Rect = {}
 setmetatable(Rect, Rect)

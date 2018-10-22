@@ -1,5 +1,5 @@
-local Unit = require 'libraries.types.unit'
-local Player = require 'libraries.ac.player'
+local Unit = require 'war3library.libraries.types.unit'
+local Player = require 'war3library.libraries.ac.player'
 
 -- 行为限制
 

@@ -155,9 +155,9 @@ function mt:set_add_attack(atk)
     self._extra_attack = atk
     self:remove_ability(_add_attack_ability)
     self:add_ability(_add_attack_ability)
-    local abil = japi.EXGetUnitAbility(self.handle, Base.string2id(_add_attack_ability))
+    local abil = japi.EXGetUnitAbility(self.handle, base.string2id(_add_attack_ability))
     japi.EXSetAbilityDataReal(abil, 2, 108, atk)
-    jass.SetUnitAbilityLevel( self.handle, Base.string2id(_add_attack_ability), 2)
+    jass.SetUnitAbilityLevel( self.handle, base.string2id(_add_attack_ability), 2)
 end
 
 function mt:add_add_attack(atk)

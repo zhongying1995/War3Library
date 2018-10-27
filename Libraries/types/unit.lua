@@ -89,7 +89,7 @@ local function init_unit(handle)
 	if handle == 0 then
 		return nil
 	end
-	local id = Base.id2string(jass.GetUnitTypeId(handle))
+	local id = base.id2string(jass.GetUnitTypeId(handle))
 	
 	local data = ac.unit[id]
 	if type(data) == 'function' then
@@ -568,8 +568,8 @@ function mt:set_high(high, b, change_time)
 	else
 		self.high = high
 	end
-	jass.UnitAddAbility(self.handle, Base.string2id(_UNIT_FLYING_ABIL_ID))
-	jass.UnitRemoveAbility(self.handle, Base.string2id(_UNIT_FLYING_ABIL_ID))
+	jass.UnitAddAbility(self.handle, base.string2id(_UNIT_FLYING_ABIL_ID))
+	jass.UnitRemoveAbility(self.handle, base.string2id(_UNIT_FLYING_ABIL_ID))
 	jass.SetUnitFlyHeight(self.handle, self.high, change_time or 0)
 end
 
@@ -678,9 +678,9 @@ function mt:transform(target_id)
 		dummy:add_ability(_UNIT_TRANSFORM_ABIL_ID)
 	end
 	--变身
-	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, Base.string2id(_UNIT_TRANSFORM_ABIL_ID)), 1, 117, Base.string2id(self:get_id()))
+	japi.EXSetAbilityDataInteger(japi.EXGetUnitAbility(dummy.handle, base.string2id(_UNIT_TRANSFORM_ABIL_ID)), 1, 117, base.string2id(self:get_id()))
 	self:add_ability(_UNIT_TRANSFORM_ABIL_ID)
-	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, Base.string2id(_UNIT_TRANSFORM_ABIL_ID)), Base.string2id(target_id))
+	japi.EXSetAbilityAEmeDataA(japi.EXGetUnitAbility(self.handle, base.string2id(_UNIT_TRANSFORM_ABIL_ID)), base.string2id(target_id))
 	self:remove_ability(_UNIT_TRANSFORM_ABIL_ID)
 
 	--修改ID
@@ -725,7 +725,7 @@ function mt:add_ability(sid, lv)
 	if not sid then
 		return false
 	end
-	local id = Base.string2id(sid)
+	local id = base.string2id(sid)
 	if not jass.UnitAddAbility(self.handle, id) then
 		return false
 	end
@@ -742,7 +742,7 @@ function mt:remove_ability(war3_id)
 	if not war3_id then
 		return false
 	end
-	local war3_id = Base.string2id(war3_id)
+	local war3_id = base.string2id(war3_id)
 	return jass.UnitRemoveAbility(self.handle, war3_id)
 end
 
@@ -761,7 +761,7 @@ end
 --获取技能等级
 --	技能id
 function mt:get_ability_level(war3_id)
-	local war3_id = Base.string2id(war3_id)
+	local war3_id = base.string2id(war3_id)
 	return jass.GetUnitAbilityLevel(self.handle, war3_id)
 end
 
@@ -769,7 +769,7 @@ end
 --	技能id
 --	[技能等级]
 function mt:set_ability_level(war3_id, lv)
-	local war3_id = Base.string2id(war3_id)
+	local war3_id = base.string2id(war3_id)
 	jass.SetUnitAbilityLevel(self.handle, war3_id, lv or 1)
 end
 
@@ -793,7 +793,7 @@ function mt:make_permanent(war3_id)
 	if not war3_id then
 		return
 	end
-	local war3_id = Base.string2id(war3_id)
+	local war3_id = base.string2id(war3_id)
 	jass.UnitMakeAbilityPermanent(self.handle, true, war3_id)
 end
 
@@ -1135,7 +1135,7 @@ local _sight_ability = SYS_SIGHT_ABILITY
 --添加单位视野(依然不能超过1800)
 function mt:add_sight(r)
 	self:add_ability(_sight_ability)
-	local handle = japi.EXGetUnitAbility(self.handle, Base.string2id(_sight_ability))
+	local handle = japi.EXGetUnitAbility(self.handle, base.string2id(_sight_ability))
 	japi.EXSetAbilityDataReal(handle, 2, 108, - r)
 	self:set_ability_level(_sight_ability, 2)
 	self:remove_ability(_sight_ability)
@@ -1174,7 +1174,7 @@ function mt:create_illusion(attack, damaged, time, point)
 	local damaged = damaged / 100
 	ac.dummy:remove_ability(_illusion_ability)
 	ac.dummy:add_ability(_illusion_ability)
-	local handle = japi.EXGetUnitAbility(ac.dummy.handle, Base.string2id(_illusion_ability))
+	local handle = japi.EXGetUnitAbility(ac.dummy.handle, base.string2id(_illusion_ability))
 	japi.EXSetAbilityDataReal(handle, 2, 102, time or 1)
 	japi.EXSetAbilityDataReal(handle, 2, 103, time or 1)
 	japi.EXSetAbilityDataReal(handle, 2, 108, attack)
@@ -1262,7 +1262,7 @@ function Unit.create(player, name, where, face)
 	
 	local id = Registry:name_to_id(name)
 	print('unit create:', name, id)
-	local j_id = Base.string2id(id)
+	local j_id = base.string2id(id)
 	local x, y
 	if where.type == 'point' then
 		x, y = where:get()
@@ -1293,7 +1293,7 @@ function Unit.create_dummy(player, name, where, face, is_aloc)
 		x, y = where:get_point():get()
 	end
 	local id = Registry:name_to_id(name)
-	local handle = jass.CreateUnit(player.handle, Base.string2id(id), x, y, face or 0)
+	local handle = jass.CreateUnit(player.handle, base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
 	local u = Unit.new(handle, false)
 	
@@ -1302,7 +1302,7 @@ function Unit.create_dummy(player, name, where, face, is_aloc)
 		is_aloc = true
 	end
 	if is_aloc then
-		jass.UnitAddAbility(handle, Base.string2id('Aloc'))
+		jass.UnitAddAbility(handle, base.string2id('Aloc'))
 	end
 	
 	return u
@@ -1429,7 +1429,7 @@ local function register_jass_triggers()
 		local unit = Unit(jass.GetBuyingUnit())
 		
 		if Unit_button.is_unit_button_by_handle(handle) then
-			local name = Registry:id_to_name(Base.id2string(jass.GetUnitTypeId(handle)))
+			local name = Registry:id_to_name(base.id2string(jass.GetUnitTypeId(handle)))
 			unit:event_notify('单位-点击单位按钮', unit, name, shop)
 			jass.RemoveUnit(handle)
 			return

@@ -55,7 +55,7 @@ function mt:get_handle()
 	if self.owner.removed then
 		return 0
 	end
-	return japi.EXGetUnitAbility(self.owner.handle, Base.string2id(self.war3_id))
+	return japi.EXGetUnitAbility(self.owner.handle, base.string2id(self.war3_id))
 end
 
 
@@ -497,7 +497,7 @@ local function init()
 	--单位发动技能事件，及其回调
 	local j_trg = War3.CreateTrigger(function()
 		local unit = Unit(jass.GetTriggerUnit())
-		local id = Base.id2string(jass.GetSpellAbilityId())
+		local id = base.id2string(jass.GetSpellAbilityId())
 		local target = Unit(jass.GetSpellTargetUnit()) or Point:new(jass.GetSpellTargetX(), jass.GetSpellTargetY())
 
 		--通过id查找,id作为拦截器
@@ -522,7 +522,7 @@ local function init()
 	--单位发动技能结束
 	local j_trg = War3.CreateTrigger(function()
 		local unit = Unit(jass.GetTriggerUnit())
-		local id = Base.id2string(jass.GetSpellAbilityId())
+		local id = base.id2string(jass.GetSpellAbilityId())
 
 		--通过id查找,id作为拦截器
 		local skill = ac.skill[id] 

@@ -64,7 +64,7 @@ local _ignore_flag_items = {}
 --占位物品表
 local _placeholder_items = {}
 
-local dummy_id = Base.string2id(_ITEM_PLACEHOLDER_ID)
+local dummy_id = base.string2id(_ITEM_PLACEHOLDER_ID)
 
 --初始化占位物品的状态
 local function init_placeholder_item(j_item)
@@ -135,7 +135,7 @@ end
 
 --根据id创建物品
 function Item.create_item(id, who, data)
-	local j_id = Base.string2id(id)
+	local j_id = base.string2id(id)
 	if who.type == 'point' then
 		local x, y = who:get()
 		local handle = jass.CreateItem(j_id, x, y)
@@ -179,7 +179,7 @@ function Item.new(handle)
 	if handle == 0 or not handle then
 		return nil
 	end
-	local war3_id = Base.id2string(jass.GetItemTypeId(handle))
+	local war3_id = base.id2string(jass.GetItemTypeId(handle))
 	
 	local data = ac.item[war3_id] 
 	if type(data) == 'function' then
@@ -392,20 +392,20 @@ end
 function mt:set_tip(tip, player)
 	if player then
 		if Player.self == player then
-			japi.EXSetItemDataString(Base.string2id(self.id), 3, tip)
+			japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
 		end
 	else
-		japi.EXSetItemDataString(Base.string2id(self.id), 3, tip)
+		japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
 	end
 end
 
 function mt:set_title(title)
 	if player then
 		if Player.self == player then
-			japi.EXSetItemDataString(Base.string2id(self.id), 4, tip)
+			japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
 		end
 	else
-		japi.EXSetItemDataString(Base.string2id(self.id), 4, tip)
+		japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
 	end
 end
 
@@ -413,10 +413,10 @@ end
 function mt:set_art(art)
 	if player then
 		if Player.self == player then
-			japi.EXSetItemDataString(Base.string2id(self.id), 1, art)
+			japi.EXSetItemDataString(base.string2id(self.id), 1, art)
 		end
 	else
-		japi.EXSetItemDataString(Base.string2id(self.id), 1, art)
+		japi.EXSetItemDataString(base.string2id(self.id), 1, art)
 	end
 	self:fresh()
 end

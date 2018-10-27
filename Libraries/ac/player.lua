@@ -251,13 +251,13 @@ end
 --禁用技能
 function mt:enable_ability(ability_id)
 	if ability_id then
-		jass.SetPlayerAbilityAvailable(self.handle, Base.string2id(ability_id), true)
+		jass.SetPlayerAbilityAvailable(self.handle, base.string2id(ability_id), true)
 	end
 end
 
 function mt:disable_ability(ability_id)
 	if ability_id then
-		jass.SetPlayerAbilityAvailable(self.handle, Base.string2id(ability_id), false)
+		jass.SetPlayerAbilityAvailable(self.handle, base.string2id(ability_id), false)
 	end
 end
 
@@ -500,7 +500,7 @@ end
 
 --设置科技最大等级
 function mt:set_research_max_level(id, lv)
-	jass.SetPlayerTechMaxAllowed(self.handle, Base.string2id(id), lv)
+	jass.SetPlayerTechMaxAllowed(self.handle, base.string2id(id), lv)
 end
 
 --增加科技等级
@@ -509,7 +509,7 @@ function mt:add_research_level(id, lv)
 	if id and (type(lv) ~= 'number' or id <= 0) then
 		return
 	end
-	jass.AddPlayerTechResearched(self.handle, Base.string2id(id), lv)
+	jass.AddPlayerTechResearched(self.handle, base.string2id(id), lv)
 end
 
 --设置科技等级
@@ -517,7 +517,7 @@ function mt:set_research_level(id, lv)
 	if not id or (type(lv) ~= 'number') then
 		return
 	end
-	jass.SetPlayerTechResearched(self.handle, Base.string2id(id), lv)
+	jass.SetPlayerTechResearched(self.handle, base.string2id(id), lv)
 end
 
 --获取玩家

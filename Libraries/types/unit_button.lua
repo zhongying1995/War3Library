@@ -11,7 +11,7 @@ Unit_button.__index = mt
 _UNIT_BUTTON_LIST = {}
 
 function Unit_button.is_unit_button_by_handle(handle)
-    local id = Base.id2string(jass.GetUnitTypeId(handle))
+    local id = base.id2string(jass.GetUnitTypeId(handle))
     return _UNIT_BUTTON_LIST[id] and true
 end
 

@@ -47,7 +47,7 @@ function Point.__index:add_effect(model, data)
 	local eff = setmetatable({}, Effect)
 	if data and type(data) == 'table' then
 		ang = data.angle
-		japi.EXSetUnitString(Base.string2id(Effect.DUMMY_ID), 13, model)
+		japi.EXSetUnitString(base.string2id(Effect.DUMMY_ID), 13, model)
 		local dummy = Unit.create_dummy(Player(16), Effect.DUMMY_ID, self, ang)
 		eff.dummy = dummy
 	else

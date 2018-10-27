@@ -250,6 +250,26 @@ function mt:add_defence(def)
     return self:set_defence(self:get_defence()+def)
 end
 
+local _add_defence_ability = SYS_UNIT_ATTRIBUTE_ADD_DEFENCE_ABILITY_ID
+--额外护甲（护甲攻击）
+mt._extra_defence = 0
+function mt:get_add_defence()
+    return self._extra_defence
+end
+
+function mt:set_add_defence(def)
+    self._extra_defence = def
+    self:remove_ability(_add_defence_ability)
+    self:add_ability(_add_defence_ability)
+    local abil = japi.EXGetUnitAbility(self.handle, base.string2id(_add_defence_ability))
+    japi.EXSetAbilityDataReal(abil, 2, 108, def)
+    jass.SetUnitAbilityLevel( self.handle, base.string2id(_add_defence_ability), 2)
+end
+
+function mt:add_add_defence(def)
+    return self:set_add_defence(self:get_add_defence() + def)
+end
+
 --移动速度
 --  @单位的默认移动速度
 function mt:get_default_move_speed()

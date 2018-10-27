@@ -45,6 +45,9 @@ local function indispensable_config()
     --攻击之爪[AItx],单位绿色攻击的技能，用于单位属性模块
     SYS_UNIT_ATTRIBUTE_ADD_ATTACK_ABILITY_ID = 'AZ02'
 
+    --指环[AId2],单位绿色护甲的技能，用于单位属性模块
+    SYS_UNIT_ATTRIBUTE_ADD_DEFENCE_ABILITY_ID = 'AZ05'
+
     --单位允许的极值移动速度，往往由物编确定，用于单位属性模块
     SYS_UNIT_MIN_MOVE_SPEED = 150
     SYS_UNIT_MAX_MOVE_SPEED = 522

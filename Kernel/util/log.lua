@@ -1,6 +1,8 @@
 
 Log = require 'jass.log'
-local log = Log
+
+--强行适配actboy了
+log = Log
 
 local function split(str, p)
 	local rt = {}

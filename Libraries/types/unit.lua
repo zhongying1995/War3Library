@@ -143,6 +143,10 @@ function Unit.new(handle, is_init_datas)
 		init_unit_datas(u)
 	end
 
+	if u.create_callback then
+		u:create_callback()
+	end
+
 	if u:get_ability_level 'Aloc' == 0 then
 		u:event_notify('单位-创建', u)
 	end

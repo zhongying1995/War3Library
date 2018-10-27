@@ -498,6 +498,27 @@ function mt:set_day(model)
 	end
 end
 
+--设置科技最大等级
+function mt:set_research_max_level(id, lv)
+	jass.SetPlayerTechMaxAllowed(self.handle, Base.string2id(id), lv)
+end
+
+--增加科技等级
+function mt:add_research_level(id, lv)
+	local lv = lv or 1
+	if id and (type(lv) ~= 'number' or id <= 0) then
+		return
+	end
+	jass.AddPlayerTechResearched(self.handle, Base.string2id(id), lv)
+end
+
+--设置科技等级
+function mt:set_research_level(id, lv)
+	if not id or (type(lv) ~= 'number') then
+		return
+	end
+	jass.SetPlayerTechResearched(self.handle, Base.string2id(id), lv)
+end
 
 --获取玩家
 --	玩家索引

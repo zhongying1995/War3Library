@@ -195,6 +195,9 @@ end
 
 --是否是建筑
 function mt:is_structure()
+	if self._is_structure == nil then
+		self._is_structure = self:is_type_structure()
+	end
 	return self._is_structure
 end
 

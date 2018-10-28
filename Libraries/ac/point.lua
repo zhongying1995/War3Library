@@ -40,7 +40,7 @@ end
 --求距离(point * point)
 function Point:__mul(dest)
 	local x1, y1 = self:get()
-	local x2, y2 = dest:get()
+	local x2, y2 = dest:get_point():get()
 	local x0, y0 = x1 - x2, y1 - y2
 	return math.sqrt(x0 * x0 + y0 * y0)
 end
@@ -48,7 +48,7 @@ end
 --求方向(point / point)
 function Point:__div(dest)
 	local x1, y1 = self:get()
-	local x2, y2 = dest:get()
+	local x2, y2 = dest:get_point():get()
 	return math.atan(y2 - y1, x2 - x1)
 end
 

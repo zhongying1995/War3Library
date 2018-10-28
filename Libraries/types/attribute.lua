@@ -375,4 +375,5 @@ function mt:add_move_speed(speed, speed_rate)
 	end
     add_add_move_speed(self, speed)
     self:set_move_speed(self:get_base_move_speed())
+    return speed
 end

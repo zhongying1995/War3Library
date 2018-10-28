@@ -122,28 +122,28 @@ end
 --必须是英雄
 function api:of_hero()
 	return self:add_filter(function(dest)
-		return dest:is_type('英雄')
+		return dest:is_hero()
 	end)
 end
 
 --必须不是英雄
 function api:of_not_hero()
 	return self:add_filter(function(dest)
-		return not dest:is_type('英雄')
+		return not dest:is_hero()
 	end)
 end
 
 --必须是建筑
 function api:of_building()
 	return self:add_filter(function(dest)
-		return dest:is_type('建筑')
+		return dest:is_structure()
 	end)
 end
 
 --必须不是建筑
 function api:of_not_building()
 	return self:add_filter(function(dest)
-		return not dest:is_type('建筑')
+		return not dest:is_structure()
 	end)
 end
 

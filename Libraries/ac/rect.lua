@@ -46,6 +46,18 @@ function Rect:__add(dest)
 	return Rect:new(minx0 + minx1, miny0 + miny1, maxx0 + maxx1, maxy0 + maxy1)
 end
 
+--点是否在矩形内
+--	@result = Rect < point
+function Rect:__lt(dest)
+	local minx, miny, maxx, maxy = self:get()
+	local x, y = dest:get_point():get()
+	if minx <= x and x <= maxx and miny <= y and y <= maxy then
+		return true
+	end
+	return false
+end
+
+
 --转化jass中的矩形区域
 Rect.j_rects = {}
 

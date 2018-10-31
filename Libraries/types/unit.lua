@@ -435,6 +435,13 @@ function mt:remove()
 		end
 	end
 
+	--移除单位身上的Unit_button表
+	if self._unit_buttons then
+		for _, button in pairs(self._unit_buttons) do
+			button:remove()
+		end
+	end
+
 	jass.RemoveUnit(self.handle)
 	
 	--从表中删除单位
@@ -1430,10 +1437,12 @@ local function register_jass_triggers()
 		local handle = jass.GetSoldUnit()
 		local shop = Unit(jass.GetTriggerUnit())
 		local unit = Unit(jass.GetBuyingUnit())
-		
-		if Unit_button.is_unit_button_by_handle(handle) then
-			local name = Registry:id_to_name(base.id2string(jass.GetUnitTypeId(handle)))
-			unit:event_notify('单位-点击单位按钮', unit, name, shop)
+		local id = base.id2string(jass.GetUnitTypeId(handle))
+		local name = Registry:id_to_name(id)
+
+		local button = Unit_button:new(name, unit, shop)
+		if button then
+			button:click()
 			jass.RemoveUnit(handle)
 			return
 		end

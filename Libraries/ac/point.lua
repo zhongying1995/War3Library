@@ -9,14 +9,19 @@ local ipairs = ipairs
 local Point = {}
 setmetatable(Point, Point)
 
+--创建点
+--	xyz坐标
 function Point:new(x, y, z)
 	return setmetatable({x, y, z}, self)
 end
 
+--创建点
+--	xyz坐标
 function ac.point(x, y, z)
 	return Point:new(x, y, z)
 end
 
+--tostring
 function Point:tostring()
     return ('{%.4f, %.4f, %.4f}'):format(self:get(true))
 end

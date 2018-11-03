@@ -103,7 +103,13 @@ function mt:set_alliance(dest, al, flag)
 	return jass.SetPlayerAlliance(self.handle, dest.handle, al, flag)
 end
 
+--简单结盟
+--	目标玩家
+--	[状态：友/敌]
 function mt:set_alliance_simple(dest, flag)
+	if flag == nil then
+		flag = true
+	end
 	jass.SetPlayerAlliance(self.handle, dest.handle, 0, flag)		--ALLIANCE_PASSIVE结盟不侵犯
 	jass.SetPlayerAlliance(self.handle, dest.handle, 1, false)	--ALLIANCE_HELP_REQUEST救援请求
 	jass.SetPlayerAlliance(self.handle, dest.handle, 2, false)	--ALLIANCE_HELP_RESPONSE救援回应
@@ -200,61 +206,80 @@ end
 
 
 --设置、获取、增加、玩家木材，金钱、可用人口、已使用人口
+--设置玩家木材
+--	木材数量
 function mt:set_lumber( lumber )
 	jass.SetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_LUMBER, lumber)
 end
 
+--获得玩家木材
 function mt:get_lumber()
 	return jass.GetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_LUMBER)
 end
 
+--增加玩家木材
+--	木材
 function mt:add_lumber(lumber)
 	self:set_lumber(self:get_lumber() + lumber)
 end
 
+--设置玩家金钱
+--	金钱数量
 function mt:set_gold( gold )
 	jass.SetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_GOLD, gold)
 end
 
+--获得玩家金钱
 function mt:get_gold()
 	return jass.GetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_GOLD)
 end
 
+--增加玩家金钱
+--	金钱
 function mt:add_gold( gold )
 	self:set_gold(self:get_gold() + gold)
 end
 
+--设置玩家可用人口
+--	人口
 function mt:set_food( food )
 	jass.SetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_FOOD_CAP, food)
 end
 
+--获得玩家可用人口
 function mt:get_food()
 	return jass.GetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_FOOD_CAP)
 end
 
+--增加玩家可用人口
+--	人口
 function mt:add_food(food)
 	self:set_used_food(self:get_used_food() + food)
 end
 
+--设置玩家已使用人口
 function mt:set_used_food( food )
 	jass.SetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_FOOD_USED, food)
 end
 
+--获得玩家已使用人口
 function mt:get_used_food()
 	return jass.GetPlayerState(self.handle, jass.PLAYER_STATE_RESOURCE_FOOD_USED)
 end
 
+--增加玩家已使用人口
 function mt:add_used_food(food)
 	self:set_used_food(self:get_used_food() + food)
 end
 
---禁用技能
+--允许技能可用性
 function mt:enable_ability(ability_id)
 	if ability_id then
 		jass.SetPlayerAbilityAvailable(self.handle, base.string2id(ability_id), true)
 	end
 end
 
+--禁用技能可用性
 function mt:disable_ability(ability_id)
 	if ability_id then
 		jass.SetPlayerAbilityAvailable(self.handle, base.string2id(ability_id), false)

@@ -7,6 +7,7 @@ local Player = require 'war3library.libraries.ac.player'
 local Lightning = {}
 setmetatable(Lightning, Lightning)
 
+--新建闪电链
 function Lightning:new(name, start, target, oz1, oz2)
 	local ln = setmetatable({}, self)
 
@@ -83,6 +84,8 @@ function mt:set_color(red, green, blue)
 	end
 end
 
+--设置透明度
+--	0为不可见，
 function mt:set_alpha(alpha)
 	if self.handle == 0 then
 		return

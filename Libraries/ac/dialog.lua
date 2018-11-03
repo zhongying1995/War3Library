@@ -12,6 +12,8 @@ Dialog.__index = mt
 
 mt.type = 'dialog'
 
+--新建对话框
+--  数据表
 function Dialog:new( data )
     setmetatable(data, data)
     data.__index = self
@@ -31,6 +33,8 @@ function Dialog:new( data )
     return data
 end
 
+--设置对话框标题
+--  标题
 function mt:set_title(title)
     title = title or self.title or ''
     jass.DialogSetMessage(self.handle, title)
@@ -47,6 +51,7 @@ function mt:set_life(life, pulse)
     return self
 end
 
+--获得对话框标题样式
 function mt:get_style_title()
     if self.title_style then
         return self:title_style()
@@ -55,15 +60,19 @@ function mt:get_style_title()
     end
 end
 
+--设置对话框标题样式
+--  样式
 function mt:set_style_title(style)
     self.title_style = style
     return self
 end
 
+--获得默认的对话框标题样式
 function mt:get_default_style_title()
     return ('%s  [剩%.f秒]'):format(self.title, self.life or 0)
 end
 
+--运行有生命周期的对话框
 function mt:run()
     if not self.life or not self.pulse then
         return
@@ -88,6 +97,8 @@ function mt:run()
     return self
 end
 
+--暂停对话框的生命周期
+--  @是否有生命周期
 function mt:pause()
     if self.life_timer then
         self.life_timer:pause()
@@ -96,6 +107,8 @@ function mt:pause()
     return false
 end
 
+--设置默认的点击按钮
+--  按钮表
 function mt:set_default_button(button)
     if button then
         self.default_button = button
@@ -103,10 +116,12 @@ function mt:set_default_button(button)
     return self
 end
 
+--获得默认的点击按钮
 function mt:get_default_button()
     return self.default_button
 end
 
+--获得看见对话框的玩家
 function mt:get_show_players_table()
     if not self._show_players then
         self._show_players = {}
@@ -114,6 +129,7 @@ function mt:get_show_players_table()
     return self._show_players
 end
 
+--对话框增加按钮
 function mt:add_button(button)
     local title = button.title or ''
     local old_on_click = button.on_click
@@ -147,6 +163,7 @@ function mt:add_button(button)
     return self
 end
 
+--对话框增加button列表
 function mt:set_buttons(buttons)
     if buttons then
         for _, button in pairs(buttons) do
@@ -158,6 +175,8 @@ function mt:set_buttons(buttons)
 end
 
 --对某玩家显示/隐藏对话框
+--  玩家
+--  显示/隐藏
 function mt:show(player, is_show)
     if is_show == nil then
         is_show = true
@@ -193,6 +212,7 @@ function mt:refresh()
     end
 end
 
+--移除对话框
 function mt:remove()
     if self.is_removed then
         return

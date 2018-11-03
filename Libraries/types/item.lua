@@ -390,6 +390,11 @@ function mt:get_owner()
 	return self.owner
 end
 
+--获取上一个持有者
+function mt:get_last_owner()
+	return self.last_owner
+end
+
 --获取物品玩家
 function mt:get_player()
 	if not self.player then

@@ -278,6 +278,9 @@ function mt:remove()
 	if not self.removed then
 		return
 	end
+	if self.on_remove then
+		self:on_remove()
+	end
 	self.removed = true
 	self._in_slot = false
 	jass.RemoveItem(self.handle)

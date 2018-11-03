@@ -39,7 +39,7 @@ function mt:addXp(xp, show)
 	self.xp = jass.GetHeroXP(self.handle)
 end
 
-
+--设置等级
 function mt:set_level(lv, is_show)
 	local old_lv = self:get_level()
 	if lv > old_lv then
@@ -49,59 +49,71 @@ function mt:set_level(lv, is_show)
 	end
 end
 
+--增加等级
 function mt:add_level(lv, is_show)
 	self:set_level(self:get_level() + lv, is_show)
 end
 
-
+--获取力量
+--	是否包含额外力量
 function mt:get_str(is_all)
 	return jass.GetHeroStr(self.handle, is_all and true)
 end
 
+--设置力量
 function mt:set_str(n)
 	jass.SetHeroStr(self.handle, n, true)
 end
 
+--增加力量
 function mt:add_str(n)
 	self:set_str(self:get_str()+n)
 end
 
-
+--获取敏捷
+--	是否包含额外敏捷
 function mt:get_agi(is_all)
 	return jass.GetHeroAgi(self.handle, is_all and true)
 end
 
+--设置敏捷
 function mt:set_agi(n)
 	jass.SetHeroAgi(self.handle, n, true)
 end
 
+--增加敏捷
 function mt:add_agi(n)
 	self:set_agi(self:get_agi()+n)
 end
 
-
+--获取智力
+--	是否包含额外智力
 function mt:get_int(is_all)
 	return jass.GetHeroInt(self.handle, is_all and true)
 end
 
+--设置智力
 function mt:set_int(n)
 	jass.SetHeroInt(self.handle, n, true)
 end
 
-
+--增加智力
 function mt:add_int(n)
 	self:set_int(self:get_int()+n)
 end
 
+--获取额外力量
 function mt:get_extra_str()
 	return self:get_str(true) - self:get_str()
 end
 
+--获取由lua增加的额外力量
 mt._add_str = 0
 function mt:get_add_str()
     return self._add_str
 end
 
+--设置由lua增加的额外力量
 function mt:set_add_str(str)
 	self._add_str = str
 	local agi = self:get_add_agi()
@@ -115,20 +127,23 @@ function mt:set_add_str(str)
 	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
 end
 
+--增加由lua的额外力量
 function mt:add_add_str(str)
 	self:set_add_str(self:get_add_str() + str)
 end
 
-
+--获取额外敏捷
 function mt:get_extra_agi()
 	return self:get_agi(true) - self:get_agi()
 end
 
+--获取由lua增加的额外敏捷
 mt._add_agi = 0
 function mt:get_add_agi()
     return self._add_agi
 end
 
+--设置由lua增加的额外敏捷
 function mt:set_add_agi(agi)
 	self._add_agi = agi
 	local str = self:get_add_str()
@@ -142,20 +157,23 @@ function mt:set_add_agi(agi)
 	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
 end
 
+--增加由lua增加的额外敏捷
 function mt:add_add_agi(agi)
 	self:set_add_agi(self:get_add_agi() + agi)
 end
 
-
+--获取额外智力
 function mt:get_extra_int()
 	return self:get_int(true) - self:get_int()
 end
 
+--获取由lua增加的额外智力
 mt._add_int = 0
 function mt:get_add_int()
     return self._add_int
 end
 
+--设置由lua增加的额外智力
 function mt:set_add_int(int)
 	self._add_int = int
 	local str = self:get_add_str()
@@ -169,11 +187,14 @@ function mt:set_add_int(int)
 	self:set_ability_level(ATTRIBUTE_ABIL_ID, 2)
 end
 
+--增加由lua增加的额外智力
 function mt:add_add_int(int)
 	self:set_add_int(self:get_add_int() + int)
 end
 
 --复活英雄
+--	[复活点]
+--	[是否显示复活特效]
 function mt:revive(where, is_show)
 	if self:is_alive() then
 		return
@@ -222,7 +243,7 @@ function Player.__index:create_hero(name, where, face)
 	return u
 end
 
-
+--注册常用的jass事件
 function register_jass_triggers()
 	--英雄升级事件
 	local j_trg = War3.CreateTrigger(function()
@@ -269,6 +290,7 @@ end
 
 local function init()
 	
+	--注册英雄
 	ac.hero = setmetatable({}, {__index = function(self, name)
 		return function(data)
 			register_hero(self, name, data)

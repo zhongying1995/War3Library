@@ -60,6 +60,9 @@ function Point.__index:add_effect(model, data)
 	return eff
 end
 
+--单位添加特效
+--	模型路径
+--	附着点
 function Unit.__index:add_effect(model, socket)
 	local socket = socket or 'origin'
 	local j_eff = jass.AddSpecialEffectTarget(model, self.handle, socket)
@@ -95,30 +98,36 @@ function mt:set_size(size)
 	end
 end
 
+--x轴旋转
 function mt:rotate_x(val)
 	if self.handle then
 		japi.EXEffectMatRotateX(self.handle, val)
 	end
 end
 
+--y轴旋转
 function mt:rotate_y(val)
 	if self.handle then
 		japi.EXEffectMatRotateY(self.handle, val)
 	end
 end
 
+--z轴旋转
 function mt:rotate_z(val)
 	if self.handle then
 		japi.EXEffectMatRotateZ(self.handle, val)
 	end
 end
 
+--重置特效
 function mt:reset()
 	if self.handle then
 		japi.EXEffectMatReset(self.handle)
 	end
 end
 
+--移动特效
+--	点目标
 function mt:move(point)
 	if self.handle then
 		local x, y = point:get()
@@ -180,6 +189,7 @@ function mt:remove()
 	end
 end
 
+--杀死特效（移除特效）
 function mt:kill()
 	return self:remove()
 end

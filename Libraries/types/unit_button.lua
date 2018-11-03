@@ -99,6 +99,7 @@ end
 
 local function init()
     
+    --注册单位按钮
     ac.unit_button = setmetatable({}, {__index = function(self, name)
         return function(data)
             return register_unit_button(self, name, data)

@@ -102,31 +102,37 @@ local function get_leisure_dummy( )
 	return add_damage_dummy()
 end
 
-
+--伤害是否为攻击伤害
 function mt:is_attack()
 	return self.is_attacking and true or japi.EXGetEventDamageData(2) ~= 0
 end
 
+--伤害是否为远程
 function mt:is_range()
 	return self.is_ranging and true or japi.EXGetEventDamageData(3) ~= 0
 end
 
+--伤害是否为物理
 function mt:is_physical()
 	return self.is_physicality and true or japi.EXGetEventDamageData(1) ~= 0
 end
 
+--获得原始伤害
 function mt:get_original_damage()
 	return self.original_damage
 end
 
+--获得当前伤害
 function mt:get_damage()
 	return self.damage
 end
 
+--设置伤害
 function mt:set_damage(damage)
 	self.damage = damage
 end
 
+--增加伤害
 function mt:add_damage(damage)
 	self:set_damage(self:get_damage()+damage)
 end
@@ -174,6 +180,8 @@ function Damage:__call(data)
 	jass.UnitDamageTarget(dummy.handle, target.handle, damage.damage, is_attacking, is_ranging, attack_type, damage_type, weapon_type)
 end
 
+--单位对目标造成伤害
+--	伤害表
 function Unit.__index:damage(data)
 	if not data then
 		Log.error(('%s欲造成伤害，但无伤害数据表！'):format(self:tostring()))

@@ -64,7 +64,10 @@ function mt:get_name()
 	return self.name
 end
 
-
+--获取物编数据
+--	war3 id
+--	数据项名称
+--	[如果未找到,返回的默认值]
 function Skill.get_slk_by_id(id, name, default)
 	local ability_data = slk.ability[id]
 	if not ability_data then
@@ -123,6 +126,7 @@ end
 --允许技能(War3)
 mt.is_enable_ability = true
 
+--允许技能
 function mt:enable_ability()
 	self:set('is_enable_ability', true)
 	self.owner:get_owner():enable_ability(self.war3_id)
@@ -292,12 +296,14 @@ function mt:remove()
 	return true
 end
 
+--添加war3 技能
 function mt:add_ability()
 	if self.war3_id then
 		self.owner:add_ability(self.war3_id)
 	end
 end
 
+--移除war3技能
 function mt:remove_ability()
 	if self.war3_id then
 		self.owner:remove_ability(self.war3_id)
@@ -426,7 +432,7 @@ function mt:_on_cast_end()
 	end
 end
 
--- 使用技能
+--使用技能
 function mt:cast(target, data)
 	--把data封装并返回
 	local s_1 = self
@@ -442,6 +448,7 @@ function mt:cast(target, data)
 	return self
 end
 
+--发动技能结束
 function mt:cast_end()
 	local unit = self.owner
 	local index = nil

@@ -134,10 +134,12 @@ function mt:get_remaining()
 	return math.max(0, self.life_time + self.add_time - ac.clock() / 1000)
 end
 
+--设置buff时间
 function mt:set_time(time)
 	self.time = time
 end
 
+--获得buff时间
 function mt:get_time()
 	return self.time
 end
@@ -294,6 +296,7 @@ function Unit.__index:add_buff(name, delay)
 	end
 end
 
+--添加
 function mt:add()
 	if self.removed or self.added then
 		return
@@ -439,10 +442,12 @@ function mt:add()
 	return self
 end
 
+--是否可用
 function mt:is_enable()
 	return self.disable_count == 0
 end
 
+--允许buff
 function mt:enable()
 	if not self.target:is_alive() and not self.keep then
 		return
@@ -456,6 +461,7 @@ function mt:enable()
 	end
 end
 
+--禁用buff
 function mt:disable()
 	self.disable_count = self.disable_count + 1
 	if not self.removed and self.added and self.disable_count == 1 and self.has_on_add then
@@ -466,6 +472,8 @@ function mt:disable()
 	end
 end
 
+--遍历单位的buff
+--	buff name
 function Unit.__index:each_buff( name)
 	if not self._buffs then
 		return function () end
@@ -533,6 +541,7 @@ end
 
 local function init()
 
+	--注册buff
 	ac.buff = setmetatable({}, {__index = function (self, name)
 		return function(data)
 			return register_buff(self, name, data)

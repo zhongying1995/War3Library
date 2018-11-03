@@ -144,6 +144,7 @@ local restriction_type = {
 	['禁锢']	= restriction_constraint,
 }
 
+--单位添加行为限制
 local mt = Unit.__index
 function mt:add_restriction(name)
 	if not restriction_type[name] then
@@ -162,6 +163,7 @@ function mt:add_restriction(name)
 	return res[name]
 end
 
+--单位移除行为限制
 function mt:remove_restriction(name)
 	if not restriction_type[name] then
 		log.error('错误的限制类型', name)
@@ -182,6 +184,7 @@ function mt:remove_restriction(name)
 	return res[name]
 end
 
+--单位是否拥有行为限制
 function mt:has_restriction(name)
 	if not restriction_type[name] then
 		log.error('错误的限制类型', name)

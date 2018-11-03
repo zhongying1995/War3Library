@@ -7,24 +7,27 @@ local string_gsub = string.gsub
 
 local mt = Unit.__index
 
---当前生命
+--获得当前生命
 function mt:get_life()
     return jass.GetUnitState(self.handle, jass.UNIT_STATE_LIFE)
 end
 
+--设置当前生命
 function mt:set_life(life)
     jass.SetUnitState(self.handle, jass.UNIT_STATE_LIFE, life)
 end
 
+--增加当前生命
 function mt:add_life(life)
     self:set_life(self:get_life() + life)
 end
 
---最大生命
+--获得最大生命
 function mt:get_max_life()
     return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE)
 end
 
+--设置最大生命
 function mt:set_max_life(life)
     local current_life = self:get_life()
     local max_life = self:get_max_life()
@@ -32,56 +35,64 @@ function mt:set_max_life(life)
     self:set_life( life * current_life / max_life )
 end
 
+--增加最大生命
 function mt:add_max_life(life)
     return self:set_max_life(self:get_max_life()+life)
 end
 
---生命恢复
+--获得生命恢复
 mt._life_recovery = 0
 function mt:get_life_recovery()
     return self._life_recovery
 end
 
+--设置生命恢复
 function mt:set_life_recovery(rec)
     self._life_recovery = rec
 end
 
+--增加生命回复
 function mt:add_life_recovery(rec)
     self:set_life_recovery(self:get_life_recovery() + rec)
 end
 
---脱战生命恢复
+--获得脱战生命恢复
 mt._inactive_life_recovery = 0
 function mt:get_inactive_life_recovery()
     return self._inactive_life_recovery
 end
 
+--设置脱战生命恢复
 function mt:set_inactive_life_recovery(rec)
     self._inactive_life_recovery = rec
 end
 
+--增加脱战生命恢复
 function mt:add_inactive_life_recovery(rec)
     self:set_inactive_life_recovery(self:get_inactive_life_recovery() + rec)
 end
 
---魔法
+--获得当前魔法值
 function mt:get_mana()
     return jass.GetUnitState(self.handle, jass.UNIT_STATE_MANA)
 end
 
+--设置当前魔法
 function mt:set_mana(mana)
     return jass.SetUnitState(self.handle, jass.UNIT_STATE_MANA, mana)
 end
 
+--增加当前魔法
 function mt:add_mana(mana)
     self:set_mana(self:get_mana()+mana)
 end
 
---最大魔法
+--获得最大魔法
 function mt:get_max_mana()
     return jass.GetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA)
 end
 
+--设置最大魔法
 function mt:set_max_mana(mana)
     local current_mana = self:get_mana()
     local max_mana = self:get_max_mana()
@@ -89,68 +100,76 @@ function mt:set_max_mana(mana)
     self:set_mana( mana * current_mana / max_mana )
 end
 
+--增加最大魔法
 function mt:add_max_mana(mana)
     return self:set_max_mana(self:get_max_mana()+mana)
 end
 
---魔法恢复
+--获得魔法恢复
 mt._mana_recovery = 0
 function mt:get_mana_recovery()
     return self._mana_recovery
 end
 
+--设置魔法恢复
 function mt:set_mana_recovery(rec)
     self._mana_recovery = rec
 end
 
+--增加魔法恢复
 function mt:add_mana_recovery(rec)
     self:set_mana_recovery(self:get_mana_recovery() + rec)
 end
 
---脱战魔法恢复
+--获得脱战魔法恢复
 mt._inactive_mana_recovery = 0
 function mt:get_inactive_mana_recovery()
     return self._inactive_mana_recovery
 end
 
+--设置脱战魔法恢复
 function mt:set_inactive_mana_recovery(rec)
     self._inactive_mana_recovery = rec
 end
 
+--增加脱战魔法恢复
 function mt:add_inactive_mana_recovery(rec)
     self:set_inactive_mana_recovery(self:get_inactive_mana_recovery() + rec)
 end
 
---最大攻击
+--获得最大攻击
 function mt:get_max_attack()
     return japi.GetUnitState(self.handle, 0x15)
 end
 
---最小攻击
+--获得最小攻击
 function mt:get_min_attack()
     return japi.GetUnitState(self.handle, 0x14)
 end
 
---攻击
+--获得基础攻击
 function mt:get_attack()
     return japi.GetUnitState(self.handle, 0x12)
 end
 
+--设置基础攻击
 function mt:set_attack(atk)
     return japi.SetUnitState(self.handle, 0x12, atk)
 end
 
+--增加基础攻击
 function mt:add_attack(atk)
     return self:set_attack(self:get_attack()+atk)
 end
 
 local _add_attack_ability = SYS_UNIT_ATTRIBUTE_ADD_ATTACK_ABILITY_ID
---额外攻击（绿色攻击）
+--获得额外攻击（绿色攻击）
 mt._extra_attack = 0
 function mt:get_add_attack()
     return self._extra_attack
 end
 
+--设置额外攻击
 function mt:set_add_attack(atk)
     self._extra_attack = atk
     self:remove_ability(_add_attack_ability)
@@ -160,33 +179,38 @@ function mt:set_add_attack(atk)
     jass.SetUnitAbilityLevel( self.handle, base.string2id(_add_attack_ability), 2)
 end
 
+--增加基础攻击
 function mt:add_add_attack(atk)
     return self:set_add_attack(self:get_add_attack() + atk)
 end
 
---攻击范围
+--获得攻击范围
 function mt:get_attack_range()
     return japi.GetUnitState(self.handle, jass.ConvertUnitState(0x16))
 end
 
+--设置攻击范围
 function mt:set_attack_range(range)
     return japi.SetUnitState(self.handle, jass.ConvertUnitState(0x16), range)
 end
 
+--增加攻击范围
 function mt:add_attack_range(range)
     return self:set_attack_range(self:get_attack_range()+range)
 end
 
---攻击速度
+--获得攻击速度
 function mt:get_attack_speed()
     return japi.GetUnitState(self.handle, 0x51)
 end
 
+--设置攻击速度
 function mt:set_attack_speed(spd)
     japi.SetUnitState(self.handle, 0x51, spd)
 end
 
---  百分比
+--增加攻击速度
+--  攻速，百分比
 function mt:add_attack_speed(spd)
     local spd = (spd or 0) / 100
     if spd == 0 then
@@ -195,15 +219,17 @@ function mt:add_attack_speed(spd)
     return self:set_attack_speed(self:get_attack_speed()+spd)
 end
 
---攻击间隔
+--获得攻击间隔
 function mt:get_attack_rate()
     return japi.GetUnitState(self.handle, 0x25)
 end
 
+--设置攻击间隔
 function mt:set_attack_rate(rate)
     return japi.SetUnitState(self.handle, 0x25, rate)
 end
 
+--增加攻击间隔
 mt._complementary_attack_rate = 0
 --单位的攻击间隔最小为0.1，使用补差来调控过多降低单位的攻击间隔
 function mt:add_attack_rate(rate)
@@ -237,26 +263,29 @@ function mt:add_attack_rate(rate)
 end
 
 
---防御
+--获得防御
 function mt:get_defence()
     return japi.GetUnitState(self.handle, 0x20)
 end
 
+--设置防御
 function mt:set_defence(def)
     return japi.SetUnitState(self.handle, 0x20, def)
 end
 
+--增加防御
 function mt:add_defence(def)
     return self:set_defence(self:get_defence()+def)
 end
 
 local _add_defence_ability = SYS_UNIT_ATTRIBUTE_ADD_DEFENCE_ABILITY_ID
---额外护甲（护甲攻击）
+--获得额外护甲（绿色护甲）
 mt._extra_defence = 0
 function mt:get_add_defence()
     return self._extra_defence
 end
 
+--设置额外护甲
 function mt:set_add_defence(def)
     self._extra_defence = def
     self:remove_ability(_add_defence_ability)
@@ -266,6 +295,7 @@ function mt:set_add_defence(def)
     jass.SetUnitAbilityLevel( self.handle, base.string2id(_add_defence_ability), 2)
 end
 
+--增加额外护甲
 function mt:add_add_defence(def)
     return self:set_add_defence(self:get_add_defence() + def)
 end

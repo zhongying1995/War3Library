@@ -82,6 +82,7 @@ local function init_attribute(unit)
 
 end
 
+--根据handle初始化单位
 local function init_unit(handle)
 	if Unit.all_units[handle] then
 		return Unit.all_units[handle]
@@ -166,11 +167,13 @@ function Unit:__call(handle)
 	return u
 end
 
-
+--获取玩家
 function mt:get_player()
 	return Player(jass.GetOwningPlayer(self.handle))
 end
 
+--暂停单位
+--	[暂停/不暂停]
 function mt:pause(pause)
 	if not pause then
 		pause = true
@@ -178,6 +181,8 @@ function mt:pause(pause)
 	jass.PauseUnit(self.handle, pause and true)
 end
 
+--显示单位
+--	[显示/隐藏]
 function mt:show(show)
 	if show == nil then
 		show = true
@@ -185,10 +190,13 @@ function mt:show(show)
 	jass.ShowUnit(self.handle, show and true)
 end
 
+--是否是魔兽的英雄类型
 function mt:is_type_hero()
 	return jass.IsUnitType(self.handle, jass.UNIT_TYPE_HERO)
 end
 
+--是否是英雄
+--	@默认返回 否
 function mt:is_hero()
 	return false
 end
@@ -256,10 +264,13 @@ function mt:get_type_id()
 	return jass.GetUnitTypeId(self.handle)
 end
 
+--获取单位的魔兽名字
 function mt:get_type_name()
 	return jass.GetUnitName(self.handle)
 end
 
+--是否是目标类型
+--	类型
 function mt:is_type(type)
 	return self.unit_type == type
 end
@@ -388,6 +399,7 @@ function mt:remove_all_effects()
 	end
 end
 
+--是否单位已移除
 function mt:is_removed()
 	return self.removed and true
 end
@@ -914,6 +926,7 @@ function mt:pause_timer(flag)
 	end
 end
 
+--是否暂停单位计时器
 function mt:is_pause_timer()
 	return self.pause_timer_count > 0
 end
@@ -921,6 +934,8 @@ end
 --暂停buff
 mt.pause_buff_count = 0
 
+--暂停buff
+--	[暂停/释放]
 function mt:pause_buff(flag)
 	if flag == nil then
 		flag = true
@@ -950,7 +965,7 @@ function mt:pause_buff(flag)
 	end
 end
 
---判断是否暂停
+--判断是否暂停buff
 function mt:is_pause_buff()
 	return self.pause_buff_count > 0
 end
@@ -958,6 +973,8 @@ end
 --暂停技能
 mt.pause_skill_count = 0
 
+--暂停技能
+--	[暂停/释放]
 function mt:pause_skill(flag)
 	if flag == nil then
 		flag = true
@@ -983,7 +1000,7 @@ function mt:pause_skill(flag)
 	end
 end
 
---判断是否暂停
+--判断是否暂停技能
 function mt:is_pause_skill()
 	return self.pause_skill_count > 0
 end
@@ -991,6 +1008,8 @@ end
 --暂停运动
 mt.pause_mover_count = 0
 
+--暂停运动
+--	[暂停/释放]
 function mt:pause_mover(flag)
 	if flag == nil then
 		flag = true
@@ -1016,11 +1035,12 @@ function mt:pause_mover(flag)
 	end
 end
 
---判断是否暂停
+--判断是否暂停运动
 function mt:is_pause_mover()
 	return self.pause_mover_count > 0
 end
 
+--跟随单位
 function mt:follow(data)
 	data.target = self
 	return Follow(data)
@@ -1047,10 +1067,12 @@ function mt:set_color(red, green, blue)
 	)
 end
 
+--获取rgb颜色
 function mt:get_color()
 	return self.red, self.green, self.blue
 end
 
+--增加rgb颜色
 function mt:add_color(red, green, blue)
 	local old_red, old_green, old_blue = self:get_color()
 	self:set_color( old_red + red, old_green + green, old_blue + blue)
@@ -1226,6 +1248,7 @@ function mt:set_active(dest)
 	end
 end
   
+--更新战斗状态
 function mt:update_active()
 	if self.active then 
 		if not self:is_active() then
@@ -1245,7 +1268,7 @@ function mt:share_visible(p, flag)
 	jass.UnitShareVision(self.handle, p.handle, flag ~= false and true or false)
 end
 
-
+--初始化幻象
 function Unit.init_illusion(handle)
 	local u = Unit.new(handle, false)
 	u._is_illusion = true
@@ -1318,6 +1341,7 @@ function Unit.create_dummy(player, name, where, face, is_aloc)
 	return u
 end
 
+--创建马甲
 function Player.__index:create_dummy(name, where, face, is_aloc)
 	return Unit.create_dummy(self, name, where, face, is_aloc)
 end

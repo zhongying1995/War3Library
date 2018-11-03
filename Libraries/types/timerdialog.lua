@@ -28,6 +28,7 @@ mt.current_time = 0
 --结束的时间，默认采用倒序的最小 0
 mt.finish_time = 0
 
+--新建计时器窗口
 function mt:new( time, title )
     local j_timer = jass.CreateTimer()
     local j_dialog = jass.CreateTimerDialog(j_timer)
@@ -46,6 +47,7 @@ function mt:new( time, title )
     return o
 end
 
+--设置标题
 function mt:set_title( title )
     self.title = title
     jass.TimerDialogSetTitle(self.handle, title)
@@ -74,6 +76,9 @@ function mt:set_bg_color( r, g, b, a )
     return self
 end
 
+--显示计时器创建
+--  [显示/隐藏]
+--  [目标玩家/全玩家]
 function mt:show( is_show, player )
     if is_show == nil then
         is_show = true
@@ -96,19 +101,22 @@ function mt:set_time( time )
     return self
 end
 
+--获取当前的运行时间
 function mt:get_time()
     return self.current_time
 end
 
+--获取结束时间
 function mt:get_finish_time()
     return self.finish_time
 end
 
+--获取剩余的时间
 function mt:get_remaining_time()
     return math.abs(self:get_finish_time() - self:get_time())
 end
 
---最后调用的方法
+--计时器窗口开始运行
 --  结束时间,默认为0，执行倒序
 function mt:run( finish_time )
     self.finish_time = math.ceil(math.max(0, finish_time or 0))
@@ -156,6 +164,7 @@ function mt:run( finish_time )
     return self
 end
 
+--暂停计时器
 function mt:pause()
     if self.life_timer then
         self.life_timer:pause()
@@ -167,6 +176,7 @@ end
 --需要重写的方法
 mt.on_expire = nil
 
+--设置到期后的回调
 function mt:set_on_expire_listener( f )
     self.on_expire = f
     return self
@@ -175,11 +185,13 @@ end
 --需要重写的方法
 mt.on_pulse = nil
 
+--设置每一帧的回调
 function mt:set_on_pulse_listener( f )
     self.on_pulse = f
     return self
 end
 
+--移除
 function mt:remove(  )
     if self.is_removed then
         return

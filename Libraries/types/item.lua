@@ -120,13 +120,16 @@ function Unit.__index:get_slot_item(slotid)
 	return Item(handle)
 end
 
---创建物品
+--为单位创建物品
+--	物品名字或id
 function Unit.__index:add_item(name, data)
 	local id = Registry:name_to_id(name)
 	local item = Item.create_item(id, self, data)
 	return item
 end
 
+--点创建物品
+--	物品名字或id
 function Point.__index:add_item(name)
 	local id = Registry:name_to_id(name)
 	local item = Item.create_item(id, self)
@@ -134,6 +137,9 @@ function Point.__index:add_item(name)
 end
 
 --根据id创建物品
+--	war3 id
+--	点/单位
+--	额外数据表
 function Item.create_item(id, who, data)
 	local j_id = base.string2id(id)
 	if who.type == 'point' then
@@ -174,6 +180,8 @@ function Item.create_item(id, who, data)
 	
 end
 
+--根据handle新建物品
+--	handle
 function Item.new(handle)
 	
 	if handle == 0 or not handle then
@@ -214,6 +222,10 @@ function Item:__call(handle)
 	return it
 end
 
+--获取物编数据
+--	war3 id
+--	项目名
+--	[默认数据]
 function Item.get_slk_by_id(id, name, default)
 	local item_data = slk.item[id]
 	if not item_data then
@@ -230,14 +242,20 @@ function Item.get_slk_by_id(id, name, default)
 	return data
 end
 
+--获取物编数据
+--	项目名
+--	[默认数据]
 function mt:get_slk(name, default)
 	return Item.get_slk_by_id(self.id, name, default)
 end
 
+--获取类别的名称
 function mt:get_type_name()
 	return jass.GetItemName(self.handle)
 end
 
+--获取名称
+--	@lua注册时用的名称
 function mt:get_name()
 	return self.name
 end
@@ -250,6 +268,7 @@ function mt:get_id()
 	return self.id
 end
 
+--是否已移除
 function mt:is_removed()
 	return self.removed
 end
@@ -267,10 +286,12 @@ function mt:remove()
 	self.handle = nil
 end
 
+--获取购买金钱
 function mt:get_gold()
 	return self:get_slk('goldcost')
 end
 
+--获取购买木材
 function mt:get_lumber()
 	return self:get_slk('lumbercost')
 end
@@ -290,10 +311,12 @@ function mt:add_stack(count)
 	jass.SetItemCharges(self.handle, jass.GetItemCharges(self.handle) + (count or 1))
 end
 
+--是否物品可见的
 function mt:is_visible()
 	return not self.removed and self._in_slot and not self.owner:is_illusion()
 end
 
+--刷新物品
 function mt:fresh()
 	if not self:is_visible() then
 		return
@@ -341,6 +364,8 @@ function mt:set_show_cd(cool, max_cool)
 	end
 end
 
+--获取在单位身上的哪个格子
+--	@格子，-1：不在身上
 function mt:get_slotid(is_force)
 	if self:is_removed() then
 		return nil
@@ -360,10 +385,12 @@ function mt:get_slotid(is_force)
 	return self.slotid
 end
 
+--获取持有者
 function mt:get_owner()
 	return self.owner
 end
 
+--获取物品玩家
 function mt:get_player()
 	if not self.player then
 		self.player = jass.GetItemPlayer(self.handle)
@@ -371,6 +398,7 @@ function mt:get_player()
 	return self.player
 end
 
+--设置物品玩家
 function mt:set_player(dest)
 	local player = dest
 	if dest.type == 'unit' then
@@ -389,15 +417,20 @@ function mt:get_title()
 	return self:get_slk('name')
 end
 
+--设置说明
+--该函数会修改一类物品的说明
 function mt:set_tip(tip, player)
 	japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
 end
 
+--设置标题
+--该函数会修改一类物品的标题
 function mt:set_title(title)
 	japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
 end
 
 --设置物品图标
+--该函数会修改一类物品的图标
 function mt:set_art(art)
 	japi.EXSetItemDataString(base.string2id(self.id), 1, art)
 end
@@ -411,15 +444,17 @@ function mt:set_dropable(drop)
 	jass.SetItemDroppable(self.handle, drop)
 end
 
+--获取可丢弃新
 function mt:get_dropable()
 	return self._is_dropable and true
 end
 
+--单位是否被持有
 function mt:is_owned()
 	return jass.IsItemOwned(self.handle)
 end
 
---物品的通用属性
+--获取物品，增加通用属性
 --生命、魔法、攻击、攻速、防御、移速、三维属性、技能
 function mt:on_add_attribute()
 	local unit = self.owner
@@ -493,6 +528,7 @@ function mt:on_add_attribute()
 
 end
 
+--丢弃物品，增加通用属性
 function mt:on_remove_attribute()
 	local unit = self.owner
 	if self.life then

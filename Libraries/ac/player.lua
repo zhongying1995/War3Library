@@ -122,17 +122,6 @@ function mt:set_alliance_simple(dest, flag)
 	--jass.SetPlayerAlliance(self, dest, 9, flag)	--ALLIANCE_SHARED_VISION_FORCED
 end
 
-function mt:set_alliance_ally( dest, is_ally )
-	if is_ally == nil then
-		is_ally = true
-	end
-	self:set_alliance(dest, 0, is_ally)
-	self:set_alliance(dest, 1, is_ally)
-	self:set_alliance(dest, 2, is_ally)
-	self:set_alliance(dest, 3, is_ally)
-	self:set_alliance(dest, 4, is_ally)
-	self:set_alliance(dest, 5, is_ally)
-end
 
 --队伍
 --设置队伍

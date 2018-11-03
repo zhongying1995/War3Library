@@ -390,35 +390,16 @@ function mt:get_title()
 end
 
 function mt:set_tip(tip, player)
-	if player then
-		if Player.self == player then
-			japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
-		end
-	else
-		japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
-	end
+	japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
 end
 
 function mt:set_title(title)
-	if player then
-		if Player.self == player then
-			japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
-		end
-	else
-		japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
-	end
+	japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
 end
 
 --设置物品图标
 function mt:set_art(art)
-	if player then
-		if Player.self == player then
-			japi.EXSetItemDataString(base.string2id(self.id), 1, art)
-		end
-	else
-		japi.EXSetItemDataString(base.string2id(self.id), 1, art)
-	end
-	self:fresh()
+	japi.EXSetItemDataString(base.string2id(self.id), 1, art)
 end
 
 --设置可丢弃性

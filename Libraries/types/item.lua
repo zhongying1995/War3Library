@@ -116,8 +116,7 @@ end
 
 --格子，1-6
 function Unit.__index:get_slot_item(slotid)
-	local handle = jass.UnitItemInSlot(self.handle, slotid-1)
-	return Item(handle)
+	return self._item_list[slotid]
 end
 
 --为单位创建物品

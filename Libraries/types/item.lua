@@ -148,6 +148,20 @@ function Unit.__index:drop_item(it)
 	it.slotid = -1
 end
 
+--单位拥有物品
+--	物品名称
+--	@该物品，或者无
+function Unit.__index:has_item(name)
+	for i = 1, 6 do
+		local it = self:get_slot_item(i)
+		if it then
+			if it:get_name() == name then
+				return it
+			end
+		end
+	end
+end
+
 --点创建物品
 --	物品名字或id
 function Point.__index:add_item(name)

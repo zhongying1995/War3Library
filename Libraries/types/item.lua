@@ -128,6 +128,27 @@ function Unit.__index:add_item(name, data)
 	return item
 end
 
+--单位捡到物品
+--	物品
+function Unit.__index:pick_item(it)
+	it.owner = self
+	it._in_slot = true
+	local slotid = it:get_slotid(true)
+	self._item_list[slotid] = it
+	it:on_adding()
+end
+
+--单位丢弃物品
+--	物品
+function Unit.__index:drop_item(it)
+	it:on_dropping()
+	it.owner = nil
+	it.last_owner = self
+	it._in_slot = false
+	self._item_list[it.slotid] = it
+	it.slotid = -1
+end
+
 --点创建物品
 --	物品名字或id
 function Point.__index:add_item(name)
@@ -659,11 +680,7 @@ ac.game:event '单位-失去物品' (function(trg, unit, it)
 	if it.removed then
 		return
 	end
-	it:on_dropping()
-	it.owner = nil
-	it.last_owner = unit
-	it._in_slot = false
-	it.slotid = -1
+	unit:drop_item(it)
 end)
 
 
@@ -671,10 +688,7 @@ ac.game:event '单位-获得物品' (function(trg, unit, it)
 	if it.removed then
 		return
 	end
-	it.owner = unit
-	it._in_slot = true
-	it:get_slotid(true)
-	it:on_adding()
+	unit:pick_item(it)
 end)
 
 ac.game:event '单位-使用物品' (function(trg, unit, it)

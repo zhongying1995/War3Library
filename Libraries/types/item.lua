@@ -171,6 +171,18 @@ function Unit.__index:has_item(name)
 	end
 end
 
+--单位移除找到的物品
+--	名字
+--	@移除成功
+function Unit.__index:remove_item( name )
+	local it = self:has_item(name)
+	if not it then
+		return false
+	end
+	jass.RemoveItem(it.handle)
+	return true
+end
+
 --点创建物品
 --	物品名字或id
 function Point.__index:add_item(name)

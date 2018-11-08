@@ -1,1 +1,1 @@
-require 'war3library.libraries.test.command'
+Router.debug_command = require 'war3library.libraries.test.command'

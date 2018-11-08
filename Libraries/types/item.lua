@@ -116,6 +116,9 @@ end
 
 --格子，1-6
 function Unit.__index:get_slot_item(slotid)
+	if not self._item_list then
+		self._item_list = {}
+	end
 	return self._item_list[slotid]
 end
 
@@ -133,6 +136,9 @@ function Unit.__index:pick_item(it)
 	it.owner = self
 	it._in_slot = true
 	local slotid = it:get_slotid(true)
+	if not self._item_list then
+		self._item_list = {}
+	end
 	self._item_list[slotid] = it
 	it:on_adding()
 end
@@ -144,6 +150,9 @@ function Unit.__index:drop_item(it)
 	it.owner = nil
 	it.last_owner = self
 	it._in_slot = false
+	if not self._item_list then
+		self._item_list = {}
+	end
 	self._item_list[it.slotid] = it
 	it.slotid = -1
 end

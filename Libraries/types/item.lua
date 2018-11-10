@@ -482,19 +482,19 @@ end
 
 --设置说明
 --该函数会修改一类物品的说明
-function item.set_class_tip(id, tip)
+function Item.set_class_tip(id, tip)
 	japi.EXSetItemDataString(base.string2id(id), 3, tip)
 end
 
 --设置标题
 --该函数会修改一类物品的标题
-function item.set_class_title(id, title)
+function Item.set_class_title(id, title)
 	japi.EXSetItemDataString(base.string2id(id), 4, tip)
 end
 
 --设置物品图标
 --该函数会修改一类物品的图标
-function item.set_class_art(id, art)
+function Item.set_class_art(id, art)
 	japi.EXSetItemDataString(base.string2id(id), 1, art)
 end
 

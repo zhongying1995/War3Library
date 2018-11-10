@@ -482,20 +482,20 @@ end
 
 --设置说明
 --该函数会修改一类物品的说明
-function mt:set_class_tip(tip, player)
-	japi.EXSetItemDataString(base.string2id(self.id), 3, tip)
+function item.set_class_tip(id, tip)
+	japi.EXSetItemDataString(base.string2id(id), 3, tip)
 end
 
 --设置标题
 --该函数会修改一类物品的标题
-function mt:set_class_title(title)
-	japi.EXSetItemDataString(base.string2id(self.id), 4, tip)
+function item.set_class_title(id, title)
+	japi.EXSetItemDataString(base.string2id(id), 4, tip)
 end
 
 --设置物品图标
 --该函数会修改一类物品的图标
-function mt:set_class_art(art)
-	japi.EXSetItemDataString(base.string2id(self.id), 1, art)
+function item.set_class_art(id, art)
+	japi.EXSetItemDataString(base.string2id(id), 1, art)
 end
 
 --设置可丢弃性

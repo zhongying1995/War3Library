@@ -175,12 +175,18 @@ function Unit.__index:has_item(name)
 end
 
 --单位移除找到的物品
---	名字
+--	具体的某物品或根据名字找到的第一个物品
 --	@移除成功
-function Unit.__index:remove_item( name )
-	local it = self:has_item(name)
+function Unit.__index:remove_item( it )
 	if not it then
 		return false
+	end
+	if type(it) == 'string' then
+		--如果不是物品则是物品的名字
+		it = self:has_item(it)
+		if not it then
+			return false
+		end
 	end
 	jass.RemoveItem(it.handle)
 	return true

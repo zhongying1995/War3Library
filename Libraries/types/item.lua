@@ -60,6 +60,9 @@ _ITEM_PLACEHOLDER_ID = SYS_ITEM_PLACEHOLDER_ID or 'ches'
 --应该被忽略的物品组,该状态时，不应该执行获得、失去、移动物品的逻辑
 local _ignore_flag_items = {}
 
+--由于魔兽的机制，导致出售物品后，会触发多一次的单位丢弃物品事件
+local _ignore_double_trg_flag_items = {}
+
 --用享元模式来控制占位物品的获取
 --占位物品表
 local _placeholder_items = {}
@@ -782,6 +785,11 @@ local function register_jass_triggers()
 		if _ignore_flag_items[j_it] then
 			return
 		end
+		--由于魔兽的机制，多一次触发丢弃事件，故需要排除
+		if _ignore_double_trg_flag_items[j_it] then
+			_ignore_double_trg_flag_items[j_it] = nil
+			return
+		end
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(j_it)
 		unit:event_notify('单位-失去物品', unit, it)
@@ -799,12 +807,11 @@ local function register_jass_triggers()
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(j_it)
 		local shop = Unit(jass.GetBuyingUnit())
-		ac.wait(0, function()
-			unit:event_notify('单位-抵押物品', unit, it, shop)
-			shop:event_notify('单位-收购物品', shop, it, unit)
-			unit:event_notify('单位-失去物品', unit, it)
-			it:remove()
-		end)
+		unit:event_notify('单位-抵押物品', unit, it, shop)
+		shop:event_notify('单位-收购物品', shop, it, unit)
+		unit:event_notify('单位-失去物品', unit, it)
+		it:remove()
+		_ignore_double_trg_flag_items[j_it] = true
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PAWN_ITEM, nil)

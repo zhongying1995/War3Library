@@ -156,7 +156,7 @@ function Unit.__index:drop_item(it)
 	if not self._item_list then
 		self._item_list = {}
 	end
-	self._item_list[it.slotid] = it
+	self._item_list[it.slotid] = nil
 	it.slotid = -1
 end
 
@@ -714,7 +714,7 @@ function mt:on_using()
 end
 
 ac.game:event '单位-失去物品' (function(trg, unit, it)
-	if it.removed then
+	if it:is_removed() then
 		return
 	end
 	unit:drop_item(it)

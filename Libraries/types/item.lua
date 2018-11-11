@@ -192,6 +192,31 @@ function Unit.__index:remove_item( it )
 	return true
 end
 
+--刷新因为物品带来的速度
+--	[不参与计算的物品]
+function Unit.__index:fresh_item_move_speed(ignore_item)
+	if not self._item_move_speed then
+		self._item_move_speed = 0
+	end
+	unit:add_move_speed(-unit._item_move_speed)
+	local max_speed = 0
+	local sum_speed = 0
+	for i = 1, 6 do
+		local it = self:get_slot_item(i)
+		if it and item ~= ignore_item then
+			if it.is_move_speed_overlay then
+				sum_speed = sum_speed + it.move_speed
+			else
+				if max_speed < it.move_speed then
+					max_speed = it.move_speed
+				end
+			end
+		end
+	end
+	unit._item_move_speed = max_speed + sum_speed
+	unit:add_move_speed(unit._item_move_speed)
+end
+
 --点创建物品
 --	物品名字或id
 function Point.__index:add_item(name)
@@ -552,21 +577,7 @@ function mt:on_add_attribute()
 	end
 
 	if self.move_speed then
-		local max_speed = 0
-		local sum_speed = 0
-		for i = 0, 5 do
-			local handle = jass.UnitItemInSlot(unit.handle, i)
-			local it = Item(handle)
-			if it.is_move_speed_overlay then
-				sum_speed = sum_speed + it.move_speed
-			else
-				if max_speed < it.move_speed then
-					max_speed = it.move_speed
-				end
-			end
-		end
-		unit._item_move_speed = max_speed + sum_speed
-		unit:add_move_speed(unit._item_move_speed)
+		unit:fresh_item_move_speed()
 	end
 
 	if unit:is_type_hero() then
@@ -624,22 +635,7 @@ function mt:on_remove_attribute()
 	end
 
 	if self.move_speed then
-		unit:add_move_speed(-unit._item_move_speed)
-		local max_speed = 0
-		local sum_speed = 0
-		for i = 0, 5 do
-			local handle = jass.UnitItemInSlot(unit.handle, i)
-			local it = Item(handle)
-			if it.is_move_speed_overlay then
-				sum_speed = sum_speed + it.move_speed
-			else
-				if max_speed < it.move_speed then
-					max_speed = it.move_speed
-				end
-			end
-		end
-		unit._item_move_speed = max_speed + sum_speed
-		unit:add_move_speed(unit._item_move_speed)
+		unit:fresh_item_move_speed(self)
 	end
 
 	if unit:is_type_hero() then

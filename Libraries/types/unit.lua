@@ -172,6 +172,29 @@ function mt:get_player()
 	return Player(jass.GetOwningPlayer(self.handle))
 end
 
+--获取单位的主属性
+function mt:get_primary()
+	if not self._primary and self:is_type_hero() then
+		self._primary = self:get_slk('primary', false)
+	end
+	return self._primary
+end
+
+--主属性为力量
+function mt:is_str_primary()
+	return self:get_primary() == 'STR'
+end
+
+--主属性为敏捷
+function mt:is_agi_primary()
+	return self:get_primary() == 'AGI'
+end
+
+--主属性为力量
+function mt:is_int_primary()
+	return self:get_primary() == 'INT'
+end
+
 --暂停单位
 --	[暂停/不暂停]
 function mt:pause(pause)

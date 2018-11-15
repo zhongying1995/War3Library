@@ -113,8 +113,6 @@ local function init_unit(handle)
 	--令物体可以飞行
 	u:add_ability(_UNIT_FLYING_ABIL_ID)
 	u:remove_ability(_UNIT_FLYING_ABIL_ID)
-
-	jass.SetUnitCreepGuard(u.handle, true)
 	
 	--设置高度
 	u:set_high(u:get_slk('moveHeight', 0))

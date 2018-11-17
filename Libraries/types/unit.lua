@@ -1345,15 +1345,15 @@ function Unit.create_dummy(player, name, where, face, is_aloc)
 	local id = Registry:name_to_id(name)
 	local handle = jass.CreateUnit(player.handle, base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
-	local u = Unit.new(handle, false)
-	
-	u._is_dummy = true
 	if is_aloc == nil then
 		is_aloc = true
 	end
 	if is_aloc then
 		jass.UnitAddAbility(handle, base.string2id('Aloc'))
 	end
+	local u = Unit.new(handle, false)
+	
+	u._is_dummy = true
 	
 	return u
 end

@@ -236,6 +236,12 @@ function mt:is_type_structure()
 	return jass.IsUnitType(self.handle, jass.UNIT_TYPE_STRUCTURE)
 end
 
+--设置单位的生命周期类型
+function mt:set_time_life( duration, type)
+	local duration = duration or 1
+	jass.UnitApplyTimedLife(self.handle, type, duration)
+end
+
 --注册单位事件
 function mt:event(name)
 	return ac.event_register(self, name)
@@ -1369,7 +1375,7 @@ function Player.__index:create_dummy(name, where, face, is_aloc)
 end
 
 --创建召唤物
-function Player.__index:create_minion( player, name, where, face )
+function Player.__index:create_minion( name, where, face )
 	local u = Unit.create(self, name, where, face)
 	u._is_minion = true
 	return u

@@ -189,6 +189,11 @@ function mt:is_int_primary()
 	return self:get_primary() == 'INT'
 end
 
+--单位是否是召唤物
+function mt:is_minion(  )
+	return self._is_minion
+end
+
 --暂停单位
 --	[暂停/不暂停]
 function mt:pause(pause)
@@ -1363,6 +1368,13 @@ function Player.__index:create_dummy(name, where, face, is_aloc)
 	return Unit.create_dummy(self, name, where, face, is_aloc)
 end
 
+--创建召唤物
+function Player.__index:create_minion( player, name, where, face )
+	local u = Unit.create(self, name, where, face)
+	u._is_minion = true
+	return u
+end
+
 function mt:event(name)
 	return ac.event_register(self, name)
 end
@@ -1465,6 +1477,7 @@ local function register_jass_triggers()
 			return
 		end
 		summoned = Unit(summoned_handle)
+		summoned._is_minion = true
 		local summoning = Unit(jass.GetSummoningUnit())
 		summoned:event_notify( '单位-被召唤', summoned, summoning)
 		summoning:event_notify( '单位-召唤', summoning, summoned)

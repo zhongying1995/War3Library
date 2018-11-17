@@ -3,7 +3,7 @@ local Unit = require 'war3library.libraries.types.unit'
 local Crit = {}
 
 
-local function init()
+function Crit.init()
     Crit.attack_trg = ac.game:event '单位-攻击'(function(trg, atker, atked)
         if atker:get_crit_probability() > 0 then
             local probability = math.max(0, atker:get_crit_probability())
@@ -77,6 +77,6 @@ function Unit.__index:add_crit_rate(rate)
     self:set_crit_rate(self:get_crit_rate() + rate)
 end
 
-init()
+
 
 return Crit

@@ -20,11 +20,7 @@ local function init()
             local rate = math.max(100, atker:get_crit_rate()) / 100
             damage.before_crit_damage = damage.damage
             damage.damage = damage.damage * rate
-            local max_atk = atker:get_max_attack()
-            local min_atk = atker:get_min_attack()
-            --这个显示有问题，如果最大攻击力和最小攻击力相差很大时
-            local atk = math.random(min_atk, max_atk)
-            local show_damage = atk*rate
+            local show_damage = damage.damage
             ac.texttag:new{
                 text = ('%.f !'):format(show_damage),
                 player = atker:get_owner(),

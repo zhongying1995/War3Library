@@ -10,7 +10,7 @@ function Stun.init( )
                 if atker:get_stun_attendant_damage() > 0 then
                     atker:damage{
                         target = damage.target,
-                        damage = atker:get_stun_attendant_damage()
+                        damage = atker:get_stun_attendant_damage(),
                         damage_type = '魔法',
                     }
                 end
@@ -25,7 +25,7 @@ end
 
 
 --单位允许击晕
-function Unit._index:is_enable_stun(  )
+function Unit.__index:is_enable_stun(  )
     return self:get_stun_probability() > 0 and self:get_stun_duration() > 0
 end
 

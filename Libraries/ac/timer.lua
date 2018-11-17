@@ -113,6 +113,9 @@ mt.type = 'timer'
 
 function api:remove()
 	self.removed = true
+	if self.on_remove then
+		self:on_remove()
+	end
 end
 
 function api:get_remaining()

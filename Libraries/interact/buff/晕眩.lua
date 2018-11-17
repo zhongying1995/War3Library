@@ -1,4 +1,4 @@
-local mt = ac.buff['晕眩']
+local mt = ac.buff['晕眩']{}
 
 mt.cover_type = 1
 mt.cover_max = 1

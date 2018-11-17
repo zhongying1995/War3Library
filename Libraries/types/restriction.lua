@@ -1,5 +1,7 @@
 local Unit = require 'war3library.libraries.types.unit'
 local Player = require 'war3library.libraries.ac.player'
+local japi = require 'jass.japi'
+local jass = require 'jass.common'
 
 -- 行为限制
 

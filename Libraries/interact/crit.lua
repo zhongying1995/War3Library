@@ -5,10 +5,12 @@ local Crit = {}
 
 local function init()
     Crit.attack_trg = ac.game:event '单位-攻击'(function(trg, atker, atked)
-        local probability = math.max(0, atker:get_crit_probability())
-        if probability >= math.random(0, 100) or atker:is_crit() then
-            atker:set_animation('attack slam')
-            atker:set_crit(true)
+        if atker:get_crit_probability() > 0 then
+            local probability = math.max(0, atker:get_crit_probability())
+            if probability > math.random(0, 100) or atker:is_crit() then
+                atker:set_animation('attack slam')
+                atker:set_crit(true)
+            end
         end
     end)
     Crit.damage_trg = ac.game:event '单位-即将造成伤害'(function(trg, damage)

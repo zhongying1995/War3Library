@@ -2,7 +2,9 @@
 
 local Crit = require 'war3library.libraries.interact.attack.crit'
 local Cleave = require 'war3library.libraries.interact.attack.cleave'
+local Stun = require 'war3library.libraries.interact.attack.stun'
 
 --初始化
 Crit.init()
 Cleave.init()
+Stun.init()

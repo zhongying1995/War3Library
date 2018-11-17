@@ -169,11 +169,13 @@ function ac.loop(timeout, on_timer)
 end
 
 function ac.timer(timeout, count, on_timer)
+	local count = count or 0
+	count = math.floor(count)
 	if count == 0 then
 		return ac.loop(timeout, on_timer)
 	end
 	local t = ac.loop(timeout, function(t)
-		on_timer(t)
+		on_timer(t, count)
 		count = count - 1
 		if count <= 0 then
 			t:remove()

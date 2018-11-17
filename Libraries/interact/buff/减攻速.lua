@@ -8,7 +8,7 @@ mt.ref = 'origin'
 mt.model = [[Abilities\Spells\Human\slow\slowtarget.mdl]]
 
 function mt:on_add()
-	self.effect = self.target:add_effect(self.ref, self.model)
+	self.effect = self.target:add_effect(self.model, self.ref)
 	self.target:add_attack_speed(-self.attack_speed)
 end
 

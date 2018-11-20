@@ -331,6 +331,11 @@ function Item.get_slk_by_id(id, name, default)
 	return data
 end
 
+--获得物品类型
+function mt:get_item_type(  )
+	return self.item_type
+end
+
 --获取物编数据
 --	项目名
 --	[默认数据]

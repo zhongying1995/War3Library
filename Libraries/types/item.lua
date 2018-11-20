@@ -165,6 +165,7 @@ function Unit.__index:pick_item(it)
 	end
 	self._item_list[slotid] = it
 	it:on_adding()
+	self:event_notify('单位-获得物品', self, it)
 end
 
 --单位丢弃物品
@@ -179,6 +180,7 @@ function Unit.__index:drop_item(it)
 	end
 	self._item_list[it.slotid] = nil
 	it.slotid = -1
+	self:event_notify('单位-失去物品', self, it)
 end
 
 --单位拥有物品
@@ -741,7 +743,7 @@ function mt:on_using()
 	end
 end
 
-ac.game:event '单位-失去物品' (function(trg, unit, it)
+ac.game:event '单位-即将失去物品' (function(trg, unit, it)
 	if it:is_removed() then
 		return
 	end
@@ -749,7 +751,7 @@ ac.game:event '单位-失去物品' (function(trg, unit, it)
 end)
 
 
-ac.game:event '单位-获得物品' (function(trg, unit, it)
+ac.game:event '单位-即将获得物品' (function(trg, unit, it)
 	if it.removed then
 		return
 	end
@@ -801,7 +803,7 @@ local function register_jass_triggers()
 		end
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(j_it)
-		unit:event_notify('单位-获得物品', unit, it)
+		unit:event_notify('单位-即将获得物品', unit, it)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PICKUP_ITEM, nil)
@@ -820,7 +822,7 @@ local function register_jass_triggers()
 		end
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(j_it)
-		unit:event_notify('单位-失去物品', unit, it)
+		unit:event_notify('单位-即将失去物品', unit, it)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
@@ -837,7 +839,7 @@ local function register_jass_triggers()
 		local shop = Unit(jass.GetBuyingUnit())
 		unit:event_notify('单位-抵押物品', unit, it, shop)
 		shop:event_notify('单位-收购物品', shop, it, unit)
-		unit:event_notify('单位-失去物品', unit, it)
+		unit:event_notify('单位-即将失去物品', unit, it)
 		it:remove()
 		_ignore_double_trg_flag_items[j_it] = true
 	end)
@@ -855,7 +857,7 @@ local function register_jass_triggers()
 		local it = Item(j_it)
 		local shop = Unit(jass.GetSellingUnit())
 		it:set_player(unit)
-		unit:event_notify('单位-获得物品', unit, it)
+		unit:event_notify('单位-即将获得物品', unit, it)
 		unit:event_notify('单位-购买物品', unit, it, shop)
 		shop:event_notify('单位-出售物品', shop, it, unit)
 	end)

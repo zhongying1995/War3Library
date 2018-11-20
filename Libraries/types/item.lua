@@ -186,7 +186,7 @@ end
 --单位主动丢弃物品
 --	丢弃的目标物品/或者指定格子的物品
 function Unit.__index:drop_item_down( it )
-	if type(it) == table then
+	if type(it) == 'table' then
 		jass.UnitRemoveItem(self.handle, it.handle)
 	else
 		jass.UnitRemoveItemFromSlot(self.handle, it-1)

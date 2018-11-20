@@ -183,6 +183,16 @@ function Unit.__index:drop_item(it)
 	self:event_notify('单位-失去物品', self, it)
 end
 
+--单位主动丢弃物品
+--	丢弃的目标物品/或者指定格子的物品
+function Unit.__index:drop_item_down( it )
+	if type(it) == table then
+		jass.UnitRemoveItem(self.handle, it.handle)
+	else
+		jass.UnitRemoveItemFromSlot(self.handle, it-1)
+	end
+end
+
 --单位拥有物品
 --	物品名称
 --	@该物品，或者无

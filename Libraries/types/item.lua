@@ -13,6 +13,7 @@ local setmetatable = setmetatable
 local xpcall = xpcall
 local select = select
 local error_handle = runtime.error_handle
+local table_insert = table.insert
 
 local Item = {}
 setmetatable(Item, Item)
@@ -123,6 +124,26 @@ function Unit.__index:get_slot_item(slotid)
 		self._item_list = {}
 	end
 	return self._item_list[slotid]
+end
+
+--遍历单位身上的物品
+function Unit.__index:each_item(  )
+	if not self._item_list then
+		return function ()	end
+	end
+	local result = {}
+	for i = 1, 6 do
+		local it = self:get_slot_item(i)
+		if it then
+			table_insert(result, it)
+		end
+	end
+
+	local n = 0
+	return function ( t, v )
+		n = n + 1
+		return t[n]
+	end, result
 end
 
 --为单位创建物品

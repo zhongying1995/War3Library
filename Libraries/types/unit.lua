@@ -197,7 +197,7 @@ end
 --暂停单位
 --	[暂停/不暂停]
 function mt:pause(pause)
-	if not pause then
+	if pause == nil then
 		pause = true
 	end
 	jass.PauseUnit(self.handle, pause and true)

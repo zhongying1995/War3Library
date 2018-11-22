@@ -316,7 +316,7 @@ end
 
 --获得名字
 function mt:get_name()
-    return self.name or self:get_slk 'Propernames' or self:get_slk 'Name'
+    return self.name
 end
 
 --根据单位id查找slk数据

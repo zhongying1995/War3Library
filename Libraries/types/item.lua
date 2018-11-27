@@ -231,12 +231,12 @@ function Unit.__index:fresh_item_move_speed(ignore_item)
 	if not self._item_move_speed then
 		self._item_move_speed = 0
 	end
-	unit:add_move_speed(-unit._item_move_speed)
+	self:add_move_speed(-self._item_move_speed)
 	local max_speed = 0
 	local sum_speed = 0
 	for i = 1, 6 do
 		local it = self:get_slot_item(i)
-		if it and item ~= ignore_item then
+		if it and item ~= ignore_item and it.move_speed then
 			if it.is_move_speed_overlay then
 				sum_speed = sum_speed + it.move_speed
 			else
@@ -246,8 +246,8 @@ function Unit.__index:fresh_item_move_speed(ignore_item)
 			end
 		end
 	end
-	unit._item_move_speed = max_speed + sum_speed
-	unit:add_move_speed(unit._item_move_speed)
+	self._item_move_speed = max_speed + sum_speed
+	self:add_move_speed(self._item_move_speed)
 end
 
 --点创建物品
@@ -867,7 +867,7 @@ local function register_jass_triggers()
 		local it = Item(j_it)
 		local shop = Unit(jass.GetSellingUnit())
 		it:set_player(unit)
-		unit:event_notify('单位-即将获得物品', unit, it)
+		--unit:event_notify('单位-即将获得物品', unit, it)
 		unit:event_notify('单位-购买物品', unit, it, shop)
 		shop:event_notify('单位-出售物品', shop, it, unit)
 	end)

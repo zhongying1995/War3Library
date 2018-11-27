@@ -236,7 +236,7 @@ function Unit.__index:fresh_item_move_speed(ignore_item)
 	local sum_speed = 0
 	for i = 1, 6 do
 		local it = self:get_slot_item(i)
-		if it and item ~= ignore_item and it.move_speed then
+		if it and it ~= ignore_item and it.move_speed then
 			if it.is_move_speed_overlay then
 				sum_speed = sum_speed + it.move_speed
 			else

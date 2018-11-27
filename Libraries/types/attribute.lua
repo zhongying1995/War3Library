@@ -14,6 +14,9 @@ end
 
 --设置当前生命
 function mt:set_life(life)
+    if self:is_removed() then
+        return
+    end
     jass.SetUnitState(self.handle, jass.UNIT_STATE_LIFE, life)
 end
 
@@ -29,6 +32,9 @@ end
 
 --设置最大生命
 function mt:set_max_life(life)
+    if self:is_removed() then
+        return
+    end
     local current_life = self:get_life()
     local max_life = self:get_max_life()
     japi.SetUnitState(self.handle, jass.UNIT_STATE_MAX_LIFE, life)
@@ -79,6 +85,9 @@ end
 
 --设置当前魔法
 function mt:set_mana(mana)
+    if self:is_removed() then
+        return
+    end
     return jass.SetUnitState(self.handle, jass.UNIT_STATE_MANA, mana)
 end
 
@@ -94,6 +103,9 @@ end
 
 --设置最大魔法
 function mt:set_max_mana(mana)
+    if self:is_removed() then
+        return
+    end
     local current_mana = self:get_mana()
     local max_mana = self:get_max_mana()
     japi.SetUnitState(self.handle, jass.UNIT_STATE_MAX_MANA, mana)
@@ -154,6 +166,9 @@ end
 
 --设置基础攻击
 function mt:set_attack(atk)
+    if self:is_removed() then
+        return
+    end
     return japi.SetUnitState(self.handle, 0x12, atk)
 end
 
@@ -171,6 +186,9 @@ end
 
 --设置额外攻击
 function mt:set_add_attack(atk)
+    if self:is_removed() then
+        return
+    end
     self._extra_attack = atk
     self:remove_ability(_add_attack_ability)
     self:add_ability(_add_attack_ability)
@@ -191,6 +209,9 @@ end
 
 --设置攻击范围
 function mt:set_attack_range(range)
+    if self:is_removed() then
+        return
+    end
     return japi.SetUnitState(self.handle, jass.ConvertUnitState(0x16), range)
 end
 
@@ -206,6 +227,9 @@ end
 
 --设置攻击速度
 function mt:set_attack_speed(spd)
+    if self:is_removed() then
+        return
+    end
     japi.SetUnitState(self.handle, 0x51, spd)
 end
 
@@ -226,6 +250,9 @@ end
 
 --设置攻击间隔
 function mt:set_attack_rate(rate)
+    if self:is_removed() then
+        return
+    end
     return japi.SetUnitState(self.handle, 0x25, rate)
 end
 
@@ -287,6 +314,9 @@ end
 
 --设置额外护甲
 function mt:set_add_defence(def)
+    if self:is_removed() then
+        return
+    end
     self._extra_defence = def
     self:remove_ability(_add_defence_ability)
     self:add_ability(_add_defence_ability)
@@ -334,6 +364,9 @@ function mt:get_base_move_speed()
 end
 
 function mt:set_move_speed(speed)
+    if self:is_removed() then
+        return
+    end
     jass.SetUnitMoveSpeed(self.handle , speed)
 end
 

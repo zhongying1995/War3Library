@@ -277,6 +277,9 @@ function Item.create_item(id, who, data)
 		local handle = jass.CreateItem(j_id, x, y)
 		dbg.handle_ref(handle)
 		local item = Item.new(handle)
+		if not item then
+			return
+		end
 		item:set_player(unit)
 		if data and data.slotid then
 			local j_its = {}

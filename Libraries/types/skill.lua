@@ -389,9 +389,6 @@ function Unit.__index:find_skill(name)
 	if not self._skills then
 		return nil
 	end
-	if not self._skills[name] then
-		return nil
-	end
 	return self._skills[name]
 end
 

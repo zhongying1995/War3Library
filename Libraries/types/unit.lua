@@ -1389,6 +1389,8 @@ mt.wait = ac.uwait
 mt.loop = ac.uloop
 mt.timer = ac.utimer
 
+mt.double_click_pulse = 0.5
+
 local function register_jass_triggers()
 	--单位发布指定目标事件
 	local j_trg = War3.CreateTrigger(function()
@@ -1416,7 +1418,14 @@ local function register_jass_triggers()
 			return
 		end
 		local order = jass.GetIssuedOrderId()
-		u:event_notify('单位-发布指令', u, id2order[order], Point(jass.GetOrderPointX(), jass.GetOrderPointY()), order)
+		if u._last_point_order_id == order then
+			u:event_notify('单位-发布双击指令', u, id2order[order], Point:new(jass.GetOrderPointX(), jass.GetOrderPointY()), order)
+		end
+		u._last_point_order_id = order
+		ac.wait(u.double_click_pulse*1000, function (  )
+			u._last_point_order_id = nil
+		end)
+		u:event_notify('单位-发布指令', u, id2order[order], Point:new(jass.GetOrderPointX(), jass.GetOrderPointY()), order)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, nil)

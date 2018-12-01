@@ -165,9 +165,16 @@ function mt:run( finish_time )
 end
 
 --暂停计时器
-function mt:pause()
+--  暂停/继续
+function mt:pause(pause)
     if self.life_timer then
-        self.life_timer:pause()
+        if pause == nil or pause then
+            self.life_timer:pause()
+            print('暂停计时器')
+        else
+            self.life_timer:resume()
+            print('继续计时器')
+        end
         return true
     end
     return false

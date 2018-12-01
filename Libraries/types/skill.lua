@@ -92,27 +92,31 @@ function mt:get_slk(name, default)
 end
 
 --禁用技能
-mt.disable_count = 0
+mt.disable_count = nil
 
 --禁用技能，不能先于enable运行
 --	一般用于被动技能
 function mt:disable()
-	self:set('enable_count', self.enable_count - 1)
-	if self.enable_count == 0 then
+	if not self.disable_count then
+		self.disable_count = 0
+	end
+	self:set('disable_count', self.disable_count + 1)
+	if self.disable_count == 1 then
 		--print('禁用技能', self.name)
 		self:fresh()
 		self:_call_event('on_disable', true)
 	end
 end
 
-mt.enable_count = 0
 --允许技能
 --	一般用于被动技能
 function mt:enable()
-	self:set('enable_count', self.enable_count + 1)
-	--print(self.disable_count)
-	if self.enable_count == 1 then
-		--print('允许技能', self.name)
+	if not self.disable_count then
+		self.disable_count = 1
+	end
+	self:set('disable_count', self.disable_count - 1)
+	if self.disable_count == 0 then
+		print('允许技能', self.name, self.disable_count, self:get('disable_count'))
 		self:fresh()
 		self:_call_event('on_enable', true)
 	end
@@ -120,7 +124,7 @@ end
 
 --技能是否有效
 function mt:is_enable()
-	return self.passive == nil or (self.passive and self.enable_count > 0)
+	return (not self.disable_count) or self.disable_count <= 0
 end
 
 --允许技能(War3)

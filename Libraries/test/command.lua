@@ -9,13 +9,9 @@ setmetatable(Debug_command, Debug_command)
 local mt = {}
 Debug_command.__index = mt
 
-_IS_NOT_DEBUGING = false
+mt._IS_DEBUGING = false
 
 ac.game:event '玩家-聊天'(function(trg, player, chat)
-
-    if _IS_NOT_DEBUGING then
-        return
-    end
 
     if chat:sub(1, 1) ~= '-' then
         return
@@ -38,44 +34,56 @@ ac.game:event '玩家-聊天'(function(trg, player, chat)
         return
     end
 
-    if not callback.condition or callback.condition(player, table_unpack(strs, 2)) then
-        callback.action(player, table_unpack(strs, 2))
+    if (not callback.debug or Debug_command._IS_DEBUGING) and (not callback.condition or callback:condition(player, table_unpack(strs, 2))) then
+        callback:action(player, table_unpack(strs, 2))
     end
 
 end)
 
-local function player_select_hero(player, i)
+local function player_select_hero(self, player, i)
     local u = player:get_selecting_unit()
     return u and u:is_hero() and type(i) == 'number'
 end
 
+mt['debug'] = {
+    action = function (self, player )
+        local msg = ('玩家%s开启测试指令!'):format(player:tostring())
+        ac.player.self:send_msg(msg, 10)
+        Debug_command._IS_DEBUGING = true
+    end
+}
+
 mt['level'] = {
+    debug = true,
     condition = player_select_hero,
-    action = function(player, lv)
+    action = function(self, player, lv)
         local u = player:get_selecting_unit()
         u:add_level(lv, true)
     end
 }
 
 mt['str'] = {
+    debug = true,
     condition = player_select_hero,
-    action = function(player, str)
+    action = function(self, player, str)
         local u = player:get_selecting_unit()
         u:add_str(str)
     end
 }
 
 mt['agi'] = {
+    debug = true,
     condition = player_select_hero,
-    action = function(player, agi)
+    action = function(self, player, agi)
         local u = player:get_selecting_unit()
         u:add_agi(agi)
     end
 }
 
 mt['int'] = {
+    debug = true,
     condition = player_select_hero,
-    action = function(player, int)
+    action = function(self, player, int)
         local u = player:get_selecting_unit()
         u:add_int(int)
     end
@@ -83,7 +91,8 @@ mt['int'] = {
 
 local is_open_fog = true
 mt['fog'] = {
-    action = function()
+    debug = true,
+    action = function(self)
         is_open_fog = not is_open_fog
         jass.FogEnable(is_open_fog)
         jass.FogMaskEnable(is_open_fog)
@@ -91,19 +100,22 @@ mt['fog'] = {
 }
 
 mt['gold'] = {
-    action = function(player, gold)
+    debug = true,
+    action = function(self, player, gold)
         player:add_gold(gold)
     end
 }
 
 mt['lumber'] = {
-    action = function(player, lumber)
+    debug = true,
+    action = function(self, player, lumber)
         player:add_lumber(lumber)
     end
 }
 
 mt['puppet'] = {
-    action = function(player, x, y)
+    debug = true,
+    action = function(self, player, x, y)
         local x = x or 0
         local y = y or 0
         local u = ac.player[15]:create_unit('hfoo', ac.point(x, y))
@@ -130,8 +142,8 @@ mt['puppet'] = {
 }
 
 local function init()
-    if base.release then
-        _IS_NOT_DEBUGING = true
+    if not base.release then
+        Debug_command._IS_DEBUGING = true
     end
 end
 

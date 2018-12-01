@@ -97,10 +97,12 @@ mt.disable_count = nil
 --禁用技能，不能先于enable运行
 --	一般用于被动技能
 function mt:disable()
+	self.disable_count = self:get('disable_count')
 	if not self.disable_count then
 		self.disable_count = 0
 	end
 	self:set('disable_count', self.disable_count + 1)
+	self.disable_count = self:get('disable_count')
 	if self.disable_count == 1 then
 		--print('禁用技能', self.name)
 		self:fresh()
@@ -111,12 +113,13 @@ end
 --允许技能
 --	一般用于被动技能
 function mt:enable()
+	self.disable_count = self:get('disable_count')
 	if not self.disable_count then
 		self.disable_count = 1
 	end
 	self:set('disable_count', self.disable_count - 1)
+	self.disable_count = self:get('disable_count')
 	if self.disable_count == 0 then
-		print('允许技能', self.name, self.disable_count, self:get('disable_count'))
 		self:fresh()
 		self:_call_event('on_enable', true)
 	end
@@ -124,7 +127,7 @@ end
 
 --技能是否有效
 function mt:is_enable()
-	return (not self.disable_count) or self.disable_count <= 0
+	return (not self.disable_count) or self:get('disable_count') <= 0
 end
 
 --允许技能(War3)

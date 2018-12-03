@@ -194,13 +194,29 @@ function mt:is_minion(  )
 	return self._is_minion
 end
 
+mt.pause_count = 0
 --暂停单位
 --	[暂停/不暂停]
 function mt:pause(pause)
 	if pause == nil then
 		pause = true
 	end
-	jass.PauseUnit(self.handle, pause and true)
+	if pause then
+		self.pause_count = self.pause_count + 1
+		if self.pause_count == 1 then
+			jass.PauseUnit(self.handle, true)
+		end
+	else
+		self.pause_count = self.pause_count - 1
+		if self.pause_count == 0 then
+			jass.PauseUnit(self.handle, false)
+		end
+	end
+end
+
+--单位是否是暂停的
+function mt:is_pause(  )
+	return self.pause_count>0
 end
 
 --显示单位

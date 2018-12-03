@@ -438,6 +438,7 @@ function mt:remove()
 		return
 	end
 	self.removed = true
+	self._is_alive = false
 	
 	self._last_point = Point:new(jass.GetUnitX(self.handle), jass.GetUnitY(self.handle))
 	self:event_notify('单位-移除', self)

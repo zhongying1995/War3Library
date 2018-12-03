@@ -115,14 +115,14 @@ local function restriction_hard(self, flag)
 	end
 end
 
---无敌，物免+魔免
-local function restriction_god(self, flag)
+_RESTRICTION_GOD_ABIL_ID = SYS_RESTRICTION_GOD_ABIL_ID
+--无敌，
+local function restriction_god(unit, flag)
 	if flag then
-		self:add_restriction '物免'
-		self:add_restriction '魔免'
+		unit:add_ability(_RESTRICTION_GOD_ABIL_ID)
+		unit:make_permanent(_RESTRICTION_GOD_ABIL_ID)
 	else
-		self:remove_restriction '物免'
-		self:remove_restriction '魔免'
+		unit:remove_ability(_RESTRICTION_GOD_ABIL_ID)
 	end
 end
 

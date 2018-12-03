@@ -61,6 +61,9 @@ local function indispensable_config()
     --单位行为限制，魔法免疫，Amim
     SYS_RESTRICTION_SPELLED_ABIL_ID = 'AZ04'
 
+    --单位行为限制，无敌的，Az06
+    SYS_RESTRICTION_GOD_ABIL_ID = 'AZ06'
+
 end
 
 --底层需要的一些数据

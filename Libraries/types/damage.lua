@@ -234,8 +234,15 @@ local j_trg = War3.CreateTrigger(function()
 
 	if damage.is_rebounding then
 
-		source:event_notify('单位-即将造成伤害-反弹的', damage)
-		target:event_notify('单位-即将受到伤害-反弹的', damage)
+		local tmp_damage = damage.damage
+		source:event_notify('单位-即将造成伤害效果-反弹的', damage)
+		if damage.damage ~= tmp_damage then
+			damage.damage = tmp_damage
+		end
+		target:event_notify('单位-即将受到伤害效果-反弹的', damage)
+		if damage.damage ~= tmp_damage then
+			damage.damage = tmp_damage
+		end
 	
 		if damage.damage + 0.5 > target:get_life() then
 			source:event_notify('单位-即将造成致命伤害-反弹的', damage)
@@ -243,9 +250,22 @@ local j_trg = War3.CreateTrigger(function()
 		end
 	
 	else
+		
+		source:event_notify('单位-即将造成伤害-加减', damage)
+		source:event_notify('单位-即将受到伤害-加减', damage)
+		source:event_notify('单位-即将造成伤害-乘除', damage)
+		source:event_notify('单位-即将受到伤害-乘除', damage)
 
-		source:event_notify('单位-即将造成伤害', damage)
-		target:event_notify('单位-即将受到伤害', damage)
+		--在伤害效果事件中，不允许改变伤害值
+		local tmp_damage = damage.damage
+		source:event_notify('单位-即将造成伤害效果', damage)
+		if damage.damage ~= tmp_damage then
+			damage.damage = tmp_damage
+		end
+		target:event_notify('单位-即将受到伤害效果', damage)
+		if damage.damage ~= tmp_damage then
+			damage.damage = tmp_damage
+		end
 	
 		if damage.damage + 0.5 > target:get_life() then
 			source:event_notify('单位-即将造成致命伤害', damage)

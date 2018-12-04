@@ -13,7 +13,7 @@ function Crit.init()
             end
         end
     end)
-    Crit.damage_trg = ac.game:event '单位-即将造成伤害'(function(trg, damage)
+    Crit.damage_trg = ac.game:event '单位-即将造成伤害效果'(function(trg, damage)
         local atker = damage.source
         if atker:is_crit() and damage:is_attack() then
             atker:set_crit(false)

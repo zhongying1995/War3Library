@@ -3,7 +3,7 @@ local Unit = require 'war3library.libraries.types.unit'
 local Stun = {}
 
 function Stun.init( )
-    Stun.damage_trg = ac.game:event '单位-即将造成伤害'(function(trg, damage)
+    Stun.damage_trg = ac.game:event '单位-即将造成伤害效果'(function(trg, damage)
         local atker = damage.source
         if atker:is_enable_stun() and damage:is_attack() then
             if atker:get_stun_probability() >= math.random(1, 100) then

@@ -4,7 +4,7 @@ local Cleave = {}
 
 
 function Cleave.init(  )
-    Cleave.damage_trg = ac.game:event '单位-即将造成伤害'(function(trg, damage)
+    Cleave.damage_trg = ac.game:event '单位-即将造成伤害效果'(function(trg, damage)
         local atker = damage.source
         if atker:is_enable_cleave() and damage:is_attack() then
             local range = atker:get_cleave_range()

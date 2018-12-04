@@ -122,7 +122,7 @@ mt['puppet'] = {
         u:add_max_life(1000000)
         u:remove_ability('Amov')
         u:add_size(2)
-        u._puppet_trg = u:event '单位-即将受到伤害'(function(trg, damage)
+        u._puppet_trg = u:event '单位-即将受到伤害效果'(function(trg, damage)
             ac.texttag:new{
                 text = ('%.f'):format(damage.damage),
                 player = damage.source:get_owner(),

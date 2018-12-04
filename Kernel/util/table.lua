@@ -7,3 +7,12 @@ function table.getn(t)
     end
     return len
 end
+
+function table.find( t, val )
+    for k, v in pairs(t) do
+        if v == val then
+            return true, k
+        end
+    end
+    return false
+end

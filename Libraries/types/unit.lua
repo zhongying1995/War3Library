@@ -712,10 +712,16 @@ end
 
 --更新数据
 function mt:update()
-	local life_recover, life_recover_inact = self:get_life_recovery(), self:get_inactive_life_recovery()
+	local life = self:get_life()
+	local life_recover, life_recover_perc = self:get_life_recovery()
+	life_recover = life_recover + life_recover_perc/100 * life
+
+	local life_recover_inact, life_recover_inact_perc = self:get_inactive_life_recovery()
+
 	local mana_recover, mana_recover_inact = self:get_mana_recovery(), self:get_inactive_mana_recovery()
+
 	if not self.active then
-		life_recover = life_recover + life_recover_inact
+		life_recover = life_recover + life_recover_inact + life_recover_inact_perc/100 * life
 		mana_recover = mana_recover + mana_recover_inact
 	end
 	if life_recover ~= 0 then

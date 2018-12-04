@@ -48,34 +48,52 @@ end
 
 --获得生命恢复
 mt._life_recovery = 0
+mt._life_recovery_percent = 0
 function mt:get_life_recovery()
-    return self._life_recovery
+    return self._life_recovery, self._life_recovery_percent
 end
 
 --设置生命恢复
-function mt:set_life_recovery(rec)
+--  生命回复固定值
+--  生命回复百分比
+function mt:set_life_recovery(rec, perc)
     self._life_recovery = rec
+    self._life_recovery_percent = prec
 end
 
 --增加生命回复
-function mt:add_life_recovery(rec)
-    self:set_life_recovery(self:get_life_recovery() + rec)
+--  生命回复固定值
+--  生命回复百分比
+function mt:add_life_recovery(rec, perc)
+    local old_rec, old_perc = self:get_life_recovery()
+    old_rec = rec + old_rec
+    old_perc = perc + old_perc
+    self:set_life_recovery(old_rec, old_perc)
 end
 
 --获得脱战生命恢复
 mt._inactive_life_recovery = 0
+mt._inactive_life_recovery_percent = 0
 function mt:get_inactive_life_recovery()
-    return self._inactive_life_recovery
+    return self._inactive_life_recovery, self._inactive_life_recovery_percent
 end
 
 --设置脱战生命恢复
-function mt:set_inactive_life_recovery(rec)
+--  生命回复固定值
+--  生命回复百分比 
+function mt:set_inactive_life_recovery(rec, perc)
     self._inactive_life_recovery = rec
+    self._inactive_life_recovery_percent = perc
 end
 
 --增加脱战生命恢复
-function mt:add_inactive_life_recovery(rec)
-    self:set_inactive_life_recovery(self:get_inactive_life_recovery() + rec)
+--  生命回复固定值
+--  生命回复百分比
+function mt:add_inactive_life_recovery(rec, perc)
+    local old_rec, old_perc = self:get_inactive_life_recovery()
+    old_rec = rec + old_rec
+    old_perc = perc + old_perc
+    self:set_inactive_life_recovery(old_rec, old_perc)
 end
 
 --获得当前魔法值

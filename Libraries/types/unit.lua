@@ -1421,14 +1421,16 @@ local function register_jass_triggers()
 		if not u then
 			return
 		end
-		local j_target_unit = jass.GetOrderTargetUnit()
-		if not j_target_unit then
+		local j_target = jass.GetOrderTargetUnit()
+		if not j_target or j_target == 0 then
 			return
 		end
-		
+
 		local order = jass.GetIssuedOrderId()
-		local target_unit = Unit(j_target_unit)
-		u:event_notify('单位-发布指令', u, id2order[order], target_unit, order)
+		local target
+		target = Unit(j_target)
+		u:event_notify('单位-发布指令', u, id2order[order], target, order)
+		target:event_notify('单位-被指向', target, id2order[order], u, order)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_ISSUED_TARGET_ORDER, nil)

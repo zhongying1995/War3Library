@@ -780,6 +780,19 @@ function mt:transform(target_id)
 	return self
 end
 
+--变身为马甲
+function mt:transform_dummy(  )
+	self:add_ability('Aloc')
+	self._is_dummy = true
+end
+
+--变身为非马甲
+function mt:transform_non_dummy(  )
+	self:remove_ability('Aloc')
+	self:show(false)
+	self:show(true)
+	self._is_dummy = false
+end
 
 --等级
 mt.level = 1

@@ -394,6 +394,8 @@ function mt:killed(killer)
 
 	self._is_alive = false
 	
+	jass.KillUnit(self.handle)
+
 	if not self:is_dummy() then
 		killer:event_notify('单位-杀死单位', killer, self)
 		self:event_notify('单位-死亡', self, killer)

@@ -771,13 +771,6 @@ ac.game:event '单位-即将获得物品' (function(trg, unit, it)
 	unit:pick_item(it)
 end)
 
-ac.game:event '单位-使用物品' (function(trg, unit, it)
-	if it.removed then
-		return
-	end
-	it.owner = unit
-	it:on_using()
-end)
 
 --监听在物品栏中移动物品
 ac.game:event '单位-发布指令' (function(trg, hero, order, target, order_id)
@@ -882,6 +875,11 @@ local function register_jass_triggers()
 	local j_trg = War3.CreateTrigger(function()
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(jass.GetManipulatedItem())
+		if it.removed then
+			return
+		end
+		it.owner = unit
+		it:on_using()
 		unit:event_notify('单位-使用物品', unit, it)
 	end)
 	for i = 1, 16 do

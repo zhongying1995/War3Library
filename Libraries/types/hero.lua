@@ -267,7 +267,7 @@ local function register_hero(self, name, data)
 		Log.error(('注册%s英雄时，不能没有war3_id'):format(name) )
 		return
 	end
-	Registry:register(name, war3_id)
+	Registry:register('unit', name, war3_id)
 	
 	setmetatable(data, data)
 	data.__index = Hero

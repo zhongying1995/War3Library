@@ -76,7 +76,7 @@ local function register_unit_button(self, name, data)
 		return
     end
     
-    Registry:register(name, data.war3_id)
+    Registry:register('unit', name, data.war3_id)
 
     setmetatable(data, data)
     data.__index = Unit_button

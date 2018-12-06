@@ -1357,7 +1357,7 @@ end
 --	name:可以是lua注册过的单位名字/或者war3的id
 function Unit.create(player, name, where, face)
 	
-	local id = Registry:name_to_id(name)
+	local id = Registry:name_to_id('unit', name)
 	print('unit create:', name, id)
 	local j_id = base.string2id(id)
 	local x, y
@@ -1389,7 +1389,7 @@ function Unit.create_dummy(player, name, where, face, is_aloc)
 	else
 		x, y = where:get_point():get()
 	end
-	local id = Registry:name_to_id(name)
+	local id = Registry:name_to_id('unit', name)
 	local handle = jass.CreateUnit(player.handle, base.string2id(id), x, y, face or 0)
 	dbg.handle_ref(handle)
 	if is_aloc == nil then
@@ -1545,7 +1545,7 @@ local function register_jass_triggers()
 		local shop = Unit(jass.GetTriggerUnit())
 		local unit = Unit(jass.GetBuyingUnit())
 		local id = base.id2string(jass.GetUnitTypeId(handle))
-		local name = Registry:id_to_name(id)
+		local name = Registry:id_to_name('unit', id)
 
 		local button = Unit_button:new(name, unit, shop)
 		if button then
@@ -1612,7 +1612,7 @@ local function register_unit(self, name, data)
 		return
 	end
 	
-	Registry:register(name, war3_id)
+	Registry:register('unit', name, war3_id)
 	
 	setmetatable(data, data)
 	data.__index = Unit

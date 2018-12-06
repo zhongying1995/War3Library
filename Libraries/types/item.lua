@@ -149,7 +149,7 @@ end
 --为单位创建物品
 --	物品名字或id
 function Unit.__index:add_item(name, data)
-	local id = Registry:name_to_id(name)
+	local id = Registry:name_to_id('item', name)
 	local item = Item.create_item(id, self, data)
 	return item
 end
@@ -253,7 +253,7 @@ end
 --点创建物品
 --	物品名字或id
 function Point.__index:add_item(name)
-	local id = Registry:name_to_id(name)
+	local id = Registry:name_to_id('item', name)
 	local item = Item.create_item(id, self)
 	return item
 end
@@ -897,7 +897,7 @@ local function register_item(self, name, data)
 		Log.error(('注册%s物品时，不能没有war3_id'):format(name) )
 		return
 	end
-	Registry:register(name, war3_id)
+	Registry:register('item', name, war3_id)
 
 	setmetatable(data, data)
 	data.__index = Item

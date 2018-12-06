@@ -65,8 +65,8 @@ mt.paused_clock = 0
 --上一次暂停开始的时间
 mt.last_pause_clock = 0
 
-_UNIT_FLYING_ABIL_ID = SYS_UNIT_FLYING_ABIL_ID or 'Arav'
-_UNIT_TRANSFORM_ABIL_ID = SYS_UNIT_TRANSFORM_ABIL_ID or 'AEme'
+_UNIT_FLYING_ABIL_ID = config.SYS_UNIT_FLYING_ABIL_ID or 'Arav'
+_UNIT_TRANSFORM_ABIL_ID = config.SYS_UNIT_TRANSFORM_ABIL_ID or 'AEme'
 
 --初始化单位身上的技能
 local function init_skills(unit)
@@ -421,7 +421,7 @@ function mt:killed(killer)
 		if death_type == 0 or death_type == 1 then
 			time = self:get_slk('death', 5)
 		else
-			time = SYS_BONE_DECAY_TIME or 5
+			time = config.SYS_BONE_DECAY_TIME or 5
 		end
 		ac.wait(time * 1000, function (  )
 			self:remove()
@@ -1226,7 +1226,7 @@ function mt:set_search_range(r)
 end
 
 --视野技能
-local _sight_ability = SYS_SIGHT_ABILITY
+local _sight_ability = config.SYS_SIGHT_ABILITY
 
 --添加单位视野(依然不能超过1800)
 function mt:add_sight(r)
@@ -1256,7 +1256,7 @@ function mt:create_dummy(name, where, face, is_aloc)
 	return u
 end
 
-local _illusion_ability = SYS_ILLUSION_ABILITY
+local _illusion_ability = config.SYS_ILLUSION_ABILITY
 
 --创建镜像
 --	攻击力比
@@ -1599,7 +1599,7 @@ local function register_jass_triggers()
 end
 
 
-local _ac_dummy_id = SYS_AC_UNIT_DUMMY_ID
+local _ac_dummy_id = config.SYS_AC_UNIT_DUMMY_ID
 --创建单位马甲
 function create_ac_dummy()
 	ac.dummy = Unit.create(Player[16], _ac_dummy_id, Point:new(0, 0))

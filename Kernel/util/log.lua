@@ -10,7 +10,7 @@ local function split(str, p)
 	return rt
 end
 
-local map_name = (SYS_MAP_NAME or '未知的地图') .. '日志'
+local map_name = (config.SYS_MAP_NAME or '未知的地图') .. '日志'
 
 log.path = map_name .. '\\' .. split(log.path, '\\')[2]
 

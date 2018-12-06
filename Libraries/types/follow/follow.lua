@@ -181,7 +181,7 @@ end
 
 function Follow.init()
 	--投射物的单位id
-	Follow.UNIT_ID = SYS_NO_MODEL_UNIT_ID
+	Follow.UNIT_ID = config.SYS_NO_MODEL_UNIT_ID
 	
 	--无限循环
 	Follow.follow_group = {}

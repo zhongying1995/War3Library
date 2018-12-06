@@ -33,7 +33,7 @@ mt.socket = nil
 --点(创建在哪个点上)
 mt.point = nil
 
-_EFFECT_DUMMY_UNIT_ID = SYS_EFFECT_DUMMY_UNIT_ID
+_EFFECT_DUMMY_UNIT_ID = config.SYS_EFFECT_DUMMY_UNIT_ID
 
 --内置马甲
 Effect.DUMMY_ID = _EFFECT_DUMMY_UNIT_ID

@@ -55,7 +55,7 @@ mt.owner = nil
 --原始拥有者
 mt.player = nil
 
-_ITEM_PLACEHOLDER_ID = SYS_ITEM_PLACEHOLDER_ID or 'ches'
+_ITEM_PLACEHOLDER_ID = config.SYS_ITEM_PLACEHOLDER_ID or 'ches'
 
 
 --应该被忽略的物品组,该状态时，不应该执行获得、失去、移动物品的逻辑

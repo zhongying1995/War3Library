@@ -195,7 +195,7 @@ function mt:add_attack(atk)
     return self:set_attack(self:get_attack()+atk)
 end
 
-local _add_attack_ability = SYS_UNIT_ATTRIBUTE_ADD_ATTACK_ABILITY_ID
+local _add_attack_ability = config.SYS_UNIT_ATTRIBUTE_ADD_ATTACK_ABILITY_ID
 --获得额外攻击（绿色攻击）
 mt._extra_attack = 0
 function mt:get_add_attack()
@@ -323,7 +323,7 @@ function mt:add_defence(def)
     return self:set_defence(self:get_defence()+def)
 end
 
-local _add_defence_ability = SYS_UNIT_ATTRIBUTE_ADD_DEFENCE_ABILITY_ID
+local _add_defence_ability = config.SYS_UNIT_ATTRIBUTE_ADD_DEFENCE_ABILITY_ID
 --获得额外护甲（绿色护甲）
 mt._extra_defence = 0
 function mt:get_add_defence()
@@ -389,8 +389,8 @@ function mt:set_move_speed(speed)
 end
 
 --极值移动速度
-_MIN_MOVE_SPEED = SYS_UNIT_MIN_MOVE_SPEED or 150
-_MAX_MOVE_SPEED = SYS_UNIT_MAX_MOVE_SPEED or 522
+_MIN_MOVE_SPEED = config.SYS_UNIT_MIN_MOVE_SPEED or 150
+_MAX_MOVE_SPEED = config.SYS_UNIT_MAX_MOVE_SPEED or 522
 
 --溢出的移动速度
 mt._overflow_move_speed = 0

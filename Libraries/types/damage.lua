@@ -44,7 +44,7 @@ mt.is_rebounding = false
 mt.is_missing = false
 
 --马甲伤害类型
-_DAMAGE_DUMMY_UNIT_ID = SYS_DAMAGE_DUMMY_UNIT_ID or 'ndog'
+_DAMAGE_DUMMY_UNIT_ID = config.SYS_DAMAGE_DUMMY_UNIT_ID or 'ndog'
 
 --攻击类型
 local ATTACK_TYPE = {

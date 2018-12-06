@@ -20,7 +20,7 @@ setmetatable(mt, Unit)
 --单位类型
 mt.unit_type = 'hero'
 
-_HERO_ATTRIBUTE_ABIL_ID = SYS_HERO_ATTRIBUTE_ABIL_ID or 'Aamk'
+_HERO_ATTRIBUTE_ABIL_ID = config.SYS_HERO_ATTRIBUTE_ABIL_ID or 'Aamk'
 
 --英雄属性的技能马甲
 local ATTRIBUTE_ABIL_ID = _HERO_ATTRIBUTE_ABIL_ID

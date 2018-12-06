@@ -5,7 +5,7 @@ local jass = require 'jass.common'
 
 -- 行为限制
 
-_RESTRICTION_ATTACK_ABIL_ID = SYS_RESTRICTION_ATTACK_ABIL_ID or 'Abun'
+_RESTRICTION_ATTACK_ABIL_ID = config.SYS_RESTRICTION_ATTACK_ABIL_ID or 'Abun'
 --攻击
 local function restriction_attack(unit, flag)
 	if flag then
@@ -26,7 +26,7 @@ local function restriction_attacked(unit, flag)
 end
 
 --魔法免疫
-_RESTRICTION_SPELLED_ABIL_ID = SYS_RESTRICTION_SPELLED_ABIL_ID
+_RESTRICTION_SPELLED_ABIL_ID = config.SYS_RESTRICTION_SPELLED_ABIL_ID
 local function restriction_spelled(unit, flag)
     if flag then
 		unit:add_ability(_RESTRICTION_SPELLED_ABIL_ID)
@@ -44,7 +44,7 @@ end
 local function restriction_dead(unit, flag)
 end
 
-_RESTRICTION_STEALTH_ABIL_ID = SYS_RESTRICTION_STEALTH_ABIL_ID
+_RESTRICTION_STEALTH_ABIL_ID = config.SYS_RESTRICTION_STEALTH_ABIL_ID
 --隐身
 local function restriction_stealth(unit, flag)
 	if flag then
@@ -115,7 +115,7 @@ local function restriction_hard(self, flag)
 	end
 end
 
-_RESTRICTION_GOD_ABIL_ID = SYS_RESTRICTION_GOD_ABIL_ID
+_RESTRICTION_GOD_ABIL_ID = config.SYS_RESTRICTION_GOD_ABIL_ID
 --无敌，
 local function restriction_god(unit, flag)
 	if flag then

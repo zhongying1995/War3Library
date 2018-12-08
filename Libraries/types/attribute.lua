@@ -66,8 +66,8 @@ end
 --  生命回复百分比
 function mt:add_life_recovery(rec, perc)
     local old_rec, old_perc = self:get_life_recovery()
-    old_rec = rec + old_rec
-    old_perc = perc + old_perc
+    old_rec = (rec or 0) + old_rec
+    old_perc = (perc or 0) + old_perc
     self:set_life_recovery(old_rec, old_perc)
 end
 
@@ -91,8 +91,8 @@ end
 --  生命回复百分比
 function mt:add_inactive_life_recovery(rec, perc)
     local old_rec, old_perc = self:get_inactive_life_recovery()
-    old_rec = rec + old_rec
-    old_perc = perc + old_perc
+    old_rec = (rec or 0) + old_rec
+    old_perc = (perc or 0) + old_perc
     self:set_inactive_life_recovery(old_rec, old_perc)
 end
 

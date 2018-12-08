@@ -9,8 +9,11 @@ setmetatable(Destructable, Destructable)
 local mt = {}
 Destructable.__index = mt
 
+mt.type = 'destructable'
+
+
 --现存的所有可破坏物
-Destructable.all_destrucables = {}
+Destructable.all_destrucables = nil
 
 
 --根据handle创建可破坏物
@@ -88,13 +91,14 @@ function mt:open()
 end
 
 function mt:close()
-    if self:is_alive() then
+    if not self:is_alive() then
         self:restore()
     end
+    self:set_animation('stand')
 end
 
 function mt:killed(  )
-    if self.is_alive() then
+    if self:is_alive() then
         jass.KillDestructable(self.handle)
         self._is_alive = false
     end
@@ -102,6 +106,7 @@ end
 
 --显示复活效果
 function mt:restore( is_show_candy )
+    self._is_alive = true
     jass.DestructableRestoreLife(self.handle, jass.GetDestructableMaxLife(self.handle), is_show_candy == nil or (is_show_candy and true) )
 end
 
@@ -141,5 +146,41 @@ function Point.__index:add_destructable( name, facing, scale, variation )
     local dest = Destructable.create_destructable(id, x, y, facing, scale, variation)
 end
 
+local function register_destructure(self, name, data)
+    local war3_id = data.war3_id
+	if not war3_id or war3_id == '' then
+		Log.error(('注册%s可破坏物时，不能没有war3_id'):format(name) )
+		return
+	end
+	Registry:register('destructable', name, war3_id)
+
+	setmetatable(data, data)
+	data.__index = Destructable
+
+	local dest = {}
+	setmetatable(dest, dest)
+	dest.__index = data
+	dest.__call = function(self, data) 
+		self.data = data
+		return self 
+	end
+	dest.name = name
+	dest.data = data
+	self[name] = dest
+	self[war3_id] = dest
+	return dest
+end
+
+local function init(  )
+    Destructable.all_destrucables = {}
+
+    ac.destructable = setmetatable({}, {__index = function ( self, name )
+        return function ( data )
+            return register_destructure(self, name, data)
+        end
+    end})
+end
+
+init()
 
 return Destructable

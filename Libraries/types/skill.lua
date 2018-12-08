@@ -5,6 +5,7 @@ local Player = require 'war3library.libraries.ac.player'
 local slk = require 'jass.slk'
 local runtime = require 'jass.runtime'
 local Point = require 'war3library.libraries.ac.point'
+local Destructable = require 'war3library.libraries.types.Destructable'
 
 local setmetatable = setmetatable
 local rawset = rawset
@@ -509,7 +510,7 @@ local function init()
 	local j_trg = War3.CreateTrigger(function()
 		local unit = Unit(jass.GetTriggerUnit())
 		local id = base.id2string(jass.GetSpellAbilityId())
-		local target = Unit(jass.GetSpellTargetUnit()) or Point:new(jass.GetSpellTargetX(), jass.GetSpellTargetY())
+		local target = Unit(jass.GetSpellTargetUnit()) or Destructable(jass.GetSpellTargetDestructable()) or Point:new(jass.GetSpellTargetX(), jass.GetSpellTargetY())
 
 		--通过id查找,id作为拦截器
 		local skill = ac.skill[id] 

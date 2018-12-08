@@ -252,9 +252,9 @@ local j_trg = War3.CreateTrigger(function()
 	else
 		
 		source:event_notify('单位-即将造成伤害-加减', damage)
-		source:event_notify('单位-即将受到伤害-加减', damage)
+		target:event_notify('单位-即将受到伤害-加减', damage)
 		source:event_notify('单位-即将造成伤害-乘除', damage)
-		source:event_notify('单位-即将受到伤害-乘除', damage)
+		target:event_notify('单位-即将受到伤害-乘除', damage)
 
 		--在伤害效果事件中，不允许改变伤害值
 		local tmp_damage = damage.damage

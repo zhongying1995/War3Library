@@ -415,7 +415,7 @@ function mt:remove()
 	self._in_slot = false
 	jass.RemoveItem(self.handle)
 	dbg.handle_unref(self.handle)
-	Item[self.handle] = nil
+	Item.all_items[self.handle] = nil
 	self.handle = nil
 end
 

@@ -47,9 +47,27 @@ end
 
 mt['debug'] = {
     action = function (self, player )
+        if Debug_command._IS_DEBUGING then
+            return
+        end
         local msg = ('玩家%s开启测试指令!'):format(player:tostring())
         ac.player.self:send_msg(msg, 10)
         Debug_command._IS_DEBUGING = true
+        local msgs = {}
+        for k, v in pairs(Debug_command.__index) do
+            if v and type(v) == 'table' and v.action then
+                local msg = '-' .. k
+                if v.debug then
+                    msg = '[|cffff0000DEBUG|r:]' .. msg
+                end
+                table.insert(msgs, msg)
+            end
+        end
+        local msg = table.concat( msgs, '\n' )
+        local t = ac.loop(30*1000, function (  )
+            ac.player.self:send_msg(msg, 10)
+        end)
+        t:on_timer()
     end
 }
 

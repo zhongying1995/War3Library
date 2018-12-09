@@ -135,11 +135,11 @@ function mt:run( finish_time )
         if self.on_expire then
             self:on_expire()
         end
-        return
+        return self
     end
-    if self.timer then
+    if self.life_timer then
         self.life_timer:resume()
-        return
+        return self
     end
     
     self.life_timer = ac.loop(self.frame / self.time_rate, function(t)
@@ -154,10 +154,10 @@ function mt:run( finish_time )
         jass.TimerStart(self.timer_handle, self.current_time, false, null)
         jass.PauseTimer(self.timer_handle)
         if self.current_time == self.finish_time then
+            self.life_timer:pause()
             if self.on_expire then
                 self:on_expire()
             end
-            t:pause()
         end
     end)
     self.life_timer:on_timer()
@@ -170,10 +170,8 @@ function mt:pause(pause)
     if self.life_timer then
         if pause == nil or pause then
             self.life_timer:pause()
-            print('暂停计时器')
         else
             self.life_timer:resume()
-            print('继续计时器')
         end
         return true
     end

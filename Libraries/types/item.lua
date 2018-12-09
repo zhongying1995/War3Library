@@ -555,6 +555,12 @@ function mt:get_title()
 	return self:get_slk('name')
 end
 
+--设置物品的位置
+function mt:set_point( point )
+	local x, y = point:get()
+	jass.SetItemPosition(self.handle, x, y)
+end
+
 --设置说明
 --该函数会修改一类物品的说明
 function Item.set_class_tip(id, tip)

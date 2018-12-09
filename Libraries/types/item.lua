@@ -154,33 +154,36 @@ function Unit.__index:add_item(name, data)
 	return item
 end
 
+--这两个不应该是外界的方法啊
 --单位捡到物品
+--	单位
 --	物品
-function Unit.__index:pick_item(it)
-	it.owner = self
+local function unit_pick_item(unit, it)
+	it.owner = unit
 	it._in_slot = true
 	local slotid = it:get_slotid(true)
-	if not self._item_list then
-		self._item_list = {}
+	if not unit._item_list then
+		unit._item_list = {}
 	end
-	self._item_list[slotid] = it
+	unit._item_list[slotid] = it
 	it:on_adding()
-	self:event_notify('单位-获得物品', self, it)
+	unit:event_notify('单位-获得物品', unit, it)
 end
 
 --单位丢弃物品
+--	单位
 --	物品
-function Unit.__index:drop_item(it)
+local function unit_drop_item(unit, it)
 	it:on_dropping()
 	it.owner = nil
-	it.last_owner = self
+	it.last_owner = unit
 	it._in_slot = false
-	if not self._item_list then
-		self._item_list = {}
+	if not unit._item_list then
+		unit._item_list = {}
 	end
-	self._item_list[it.slotid] = nil
+	unit._item_list[it.slotid] = nil
 	it.slotid = -1
-	self:event_notify('单位-失去物品', self, it)
+	unit:event_notify('单位-失去物品', unit, it)
 end
 
 --单位主动丢弃物品
@@ -762,21 +765,6 @@ function mt:on_using()
 	end
 end
 
-ac.game:event '单位-即将失去物品' (function(trg, unit, it)
-	if it:is_removed() then
-		return
-	end
-	unit:drop_item(it)
-end)
-
-
-ac.game:event '单位-即将获得物品' (function(trg, unit, it)
-	if it.removed then
-		return
-	end
-	unit:pick_item(it)
-end)
-
 
 --监听在物品栏中移动物品
 ac.game:event '单位-发布指令' (function(trg, hero, order, target, order_id)
@@ -815,7 +803,7 @@ local function register_jass_triggers()
 		end
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(j_it)
-		unit:event_notify('单位-即将获得物品', unit, it)
+		unit_pick_item(unit, it)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PICKUP_ITEM, nil)
@@ -834,13 +822,13 @@ local function register_jass_triggers()
 		end
 		local unit = Unit(jass.GetTriggerUnit())
 		local it = Item(j_it)
-		unit:event_notify('单位-即将失去物品', unit, it)
+		unit_drop_item(unit, it)
 	end)
 	for i = 1, 16 do
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_DROP_ITEM, nil)
 	end
 
-	--失去物品
+	--单位抵押物品时，魔兽会触发该单位丢弃物品事件
 	local j_trg = War3.CreateTrigger(function()
 		local j_it = jass.GetSoldItem()
 		if _ignore_flag_items[j_it] then
@@ -851,7 +839,7 @@ local function register_jass_triggers()
 		local shop = Unit(jass.GetBuyingUnit())
 		unit:event_notify('单位-抵押物品', unit, it, shop)
 		shop:event_notify('单位-收购物品', shop, it, unit)
-		unit:event_notify('单位-即将失去物品', unit, it)
+		unit_drop_item(unit, it)
 		it:remove()
 		_ignore_double_trg_flag_items[j_it] = true
 	end)
@@ -859,7 +847,7 @@ local function register_jass_triggers()
 		jass.TriggerRegisterPlayerUnitEvent(j_trg, Player[i].handle, jass.EVENT_PLAYER_UNIT_PAWN_ITEM, nil)
 	end
 
-	--获得物品、购买物品
+	--单位购买物品时，魔兽会触发该单位得到物品事件
 	local j_trg = War3.CreateTrigger(function()
 		local j_it = jass.GetSoldItem()
 		if _ignore_flag_items[j_it] then
@@ -869,7 +857,6 @@ local function register_jass_triggers()
 		local it = Item(j_it)
 		local shop = Unit(jass.GetSellingUnit())
 		it:set_player(unit)
-		--unit:event_notify('单位-即将获得物品', unit, it)
 		unit:event_notify('单位-购买物品', unit, it, shop)
 		shop:event_notify('单位-出售物品', shop, it, unit)
 	end)

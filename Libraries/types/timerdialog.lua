@@ -164,6 +164,19 @@ function mt:run( finish_time )
     return self
 end
 
+--快速运行最终帧
+function mt:quick_run_expire(  )
+    if not self.life_timer then
+        return
+    end
+    if self.is_reciprocal then
+        self.current_time = self.finish_time + 1
+    else
+        self.current_time = self.finish_time - 1
+    end
+    self.life_timer:on_timer()
+end
+
 --暂停计时器
 --  暂停/继续
 function mt:pause(pause)

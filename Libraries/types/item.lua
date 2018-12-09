@@ -620,7 +620,7 @@ function mt:on_add_attribute()
 	end
 
 	if self.defence then
-		unit:add_defence(self.defence)
+		unit:add_add_defence(self.defence)
 	end
 
 	if self.move_speed then
@@ -678,7 +678,7 @@ function mt:on_remove_attribute()
 	end
 
 	if self.defence then
-		unit:add_defence(-self.defence)
+		unit:add_add_defence(-self.defence)
 	end
 
 	if self.move_speed then

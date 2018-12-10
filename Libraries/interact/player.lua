@@ -29,13 +29,13 @@ function mt:add_gold_text(gold, where, flag)
 	local z = where:get_point():getZ()
 	local position = Point:new(x - 30, y, z + 30)
 	Texttag:new{
-		string = '+' .. math.floor(gold),
+		text = '+' .. math.floor(gold),
 		size = 12,
-		position = position,
+		point = position,
 		speed = 86,
-		red = 100,
-		green = 100,
-		blue = 20,
+		red = 255,
+		green = 255,
+		blue = 50,
 		player = self,
 		show = Texttag.SHOW_SELF
 	}

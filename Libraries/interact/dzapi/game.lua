@@ -10,7 +10,7 @@ function Game.is_rpg_robby(  )
 end
 
 --获取游戏时间
---(奇怪的api，一直返回0)
+--(要正式上架的地图才能获取，本地测试@0)
 function Game.get_game_stated_time(  )
     return Dzapi.get_game_time()
 end

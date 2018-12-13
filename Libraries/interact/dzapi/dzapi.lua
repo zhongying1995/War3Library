@@ -47,5 +47,53 @@ function Dzapi.is_rpg_robby(  )
     return robby
 end
 
+--获取游戏时间
+function Dzapi.get_game_time(  )
+    execute_func("dz_get_game_time")
+    local time = load_integer(Interactive, 0, 0)
+    return time
+end
+
+--获取玩家地图等级排名
+function Dzapi.get_map_level_rank( player )
+    save_player(Interactive, 0, 1, player.handle)
+    execute_func("dz_get_map_level_rank")
+    local rank = load_integer(Interactive, 0, 0)
+    return rank
+end
+
+--获取玩家地图等级
+function Dzapi.get_map_level( player )
+    save_player(Interactive, 0, 1, player.handle)
+    execute_func("dz_get_map_level")
+    local lv = load_integer(Interactive, 0, 0)
+    return lv
+end
+
+--获取玩家服务器存档
+--  @0：成功， ~0：失败
+function Dzapi.get_server_value_error_code( player )
+    save_player(Interactive, 0, 1, player.handle)
+    execute_func("dz_get_server_value_error_code")
+    local code = load_integer(Interactive, 0, 0)
+    return code
+end
+
+--获得玩家的公会名称
+function Dzapi.get_guild_name(player)
+    save_player(Interactive, 0, 1, player.handle)
+    execute_func("get_guild_name")
+    local name = load_str(Interactive, 0, 0)
+    return name
+end
+
+--获取玩家在公会的地位
+--  @10:成员，20:管理员，30:创建者
+function Dzapi.get_guild_role( player )
+    save_player(Interactive, 0, 1, player.handle)
+    execute_func("get_guild_role")
+    local code = load_integer(Interactive, 0, 0)
+    return code
+end
 
 return Dzapi

@@ -1,6 +1,6 @@
 local Dzapi = require 'war3library.libraries.interact.dzapi.dzapi'
 
-local Player = Router.Player
+local Player = Router.player
 
 local mt = Player.__index
 

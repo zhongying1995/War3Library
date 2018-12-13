@@ -8,17 +8,17 @@ local load_integer = jass.LoadInteger
 local execute_func = jass.ExecuteFunc
 local load_boolean = jass.LoadBoolean
 
-local Player = require 'war3library.libraries.ac.player'
-local mt = Player.__index
+local Dzapi = {}
 
 --设置玩家服务器信息
---  key：建
+--  玩家
+--  key：键
 --  val：值
 --  @是否保持成功
-function mt:dz_set_server_value( key, val )
+function Dzapi.dz_set_server_value( player, key, val )
     local key = tostring(key)
     local val = tostring(val)
-    save_player(Interactive, 0, 1, self.handle)
+    save_player(Interactive, 0, 1, player.handle)
     save_str(Interactive, 0, 2, key)
     save_str(Interactive, 0, 3, val)
     execute_func("dz_set_server_value")
@@ -27,9 +27,11 @@ function mt:dz_set_server_value( key, val )
 end
 
 --获取玩家服务器信息
-function mt:dz_get_server_value( key )
+--  玩家
+--  键
+function Dzapi.dz_get_server_value( player, key )
     local key = tostring(key)
-    save_player(Interactive, 0, 1, self.handle)
+    save_player(Interactive, 0, 1, player.handle)
     save_str(Interactive, 0, 2, key)
     execute_func("dz_get_server_value")
     local s = load_str(Interactive, 0, 0)
@@ -39,7 +41,7 @@ end
 --是否从rpg大厅来的
 --  @本地yd测试时返回 true
 --  @平台自主c房间时返回 false
-function mt:dz_is_rpg_robby(  )
+function Dzapi.dz_is_rpg_robby(  )
     execute_func("dz_is_rpg_robby")
     local robby = load_boolean(Interactive, 0, 0)
     return robby
